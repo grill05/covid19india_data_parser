@@ -13,6 +13,7 @@ state_code_to_name={'pb':'Punjab',
                     'gj':'Gujarat',
                     'dl':'Delhi',
                     'nl':'Nagaland',
+                    'sk':'Sikkim',
                     }
 state_name_to_code={}
 for k in state_code_to_name: state_name_to_code[state_code_to_name[k]]=k
@@ -39,6 +40,40 @@ def get_active_cases(state='Telangana',date='01/09/2020',verbose=False):
 
   if verbose:    print 'Active cases in %s on %s were %d' %(state,date,active)
   return active
+
+# ~ Returns percent of antigen tests as fraction of daily tests in state  
+# ~ {u'Chhattisgarh': 16,
+ # ~ u'Delhi': 68,
+ # ~ u'Karnataka': 43,
+ # ~ u'Kerala': 16,
+ # ~ u'Ladakh': 5,
+ # ~ u'Manipur': 13,
+ # ~ u'Mizoram': 16,
+ # ~ u'Nagaland': 13,
+ # ~ u'Sikkim': 13}
+def get_tests(state='Karnataka',verbose=False):
+  x=json.load(open('state_test_data.json'))
+  x=[i for i in x['states_tested_data'] if i.has_key('antigentests') and i['antigentests'] and i['state']==state]
+
+  antigen_on_day=0;tests_on_day=0;percent_antigen=0
+  all_antigen=[]
+  
+  for idx in range(1,len(x)):
+    i=x[idx]
+    date=i['updatedon']
+    datetime_i=datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')
+    
+    tests_on_day=int(i['totaltested'])-int(x[idx-1]['totaltested'])
+    antigen_on_day=int(i['antigentests'])-int(x[idx-1]['antigentests'])
+    percent_antigen=100*(float(antigen_on_day)/tests_on_day)
+    all_antigen.append((date,tests_on_day,antigen_on_day,percent_antigen))
+  
+  if verbose:
+    print 'For state: %s' %(state)
+    for i in all_antigen:
+      (date,tests_on_day,antigen_on_day,percent_antigen)=i
+      print '%s: %d tests,  %.1f percent (%d tests) were antigen' %(date,tests_on_day,percent_antigen,antigen_on_day)
+  return all_antigen
 
 #finds pecent on icus on all dates for which data is available for that state
 #"state" must be fullname
@@ -72,7 +107,8 @@ def get_people_in_icus(state='Telangana',verbose=False):
       print '%s : %.3f (%d in icu)' %(i[0],i[1],i[2])
   return all_percent_icu
 
-  
+
+
 #finds pecent on ventilators on all dates for which data is available for that state
 #"state" must be fullname
 # as of sep 5, data on ventilators is avialable for (state_name: number_of_days_of_data_available
@@ -105,8 +141,10 @@ def get_people_on_ventilators(state='Telangana',verbose=False):
 
 def make_plots(use_all_states=False):
   
-  states_icu=['Haryana','Karnataka','Delhi','Kerala']
-  states_ventilator=['Delhi','Gujarat','Haryana','Kerala']
+  # ~ states_icu=['Haryana','Karnataka','Delhi','Kerala']
+  # ~ states_ventilator=['Delhi','Gujarat','Haryana','Kerala']
+  states_icu=['Telangana']
+  states_ventilator=['Telangana']
 
   #make ICU plot
   for state in states_icu:
