@@ -15,7 +15,7 @@ state_code_to_name={'pb':'Punjab',            'hr':'Haryana',
                     'dl':'Delhi',             'nl':'Nagaland',
                     'sk':'Sikkim',            'ct': 'Chhattisgarh',
                     'ap':'Andhra Pradesh',    'tn': 'Tamil Nadu',
-                    'bh':'Bihar',             'up': 'Uttar Pradesh',
+                    'br':'Bihar',             'up': 'Uttar Pradesh',
                     'as':'Assam',             'wb': 'West Bengal',
                     'mp':'Madhya Pradesh',    'jh': 'Jharkhand',
                     'rj':'Rajasthan',         'or': 'Odisha',
@@ -23,6 +23,48 @@ state_code_to_name={'pb':'Punjab',            'hr':'Haryana',
 state_name_to_code={}
 for k in state_code_to_name: state_name_to_code[state_code_to_name[k]]=k
 
+#class meant to represent Odisha's fatality data (in a very specific format)
+class fatality():
+  date='';age='';gender='';district='';comorbidity=[];comorb_string=''
+  def __init__(self,fatality_string='',date=''):
+    self.date_string=date
+    self.date=datetime.datetime.strptime(self.date_string,'%Y-%m-%d')
+    ss='.'.join(fatality_string.split('.')[1:]).strip()
+    if ss.endswith('.'):ss=ss[:-1]
+    # bhub. is in khorda district.
+    replacements = {"district ": "",'district.':'','Bhubaneswar':'Khorda','-year':' year'}      
+    for i in replacements: ss=ss.replace(i,replacements[i])
+    ss="".join([replacements.get(c, c) for c in ss])  
+    ss=ss.strip().lower();
+
+    age_gender=ss.split('of')[0].strip()
+    age=age_gender.split(' ')[age_gender.split(' ').index('year')-1]
+    if age.isdigit(): self.age=int(age)
+    else:             print 'for %s, could not parse age: %s from age_gender string: %s' %(fatality_string,age,age_gender)
+    self.gender=age_gender.split(' ')[-1]
+      
+    if 'who' in ss: #has comorbidity
+      district=ss.split('who')[0]
+      if 'of' not in district:
+        print 'for %s, could not distrct: %s from ss: %s' %(fatality_string,district,ss)
+      else:
+        district=district.split('of')[1].strip()
+      self.district=district
+      assert(len(ss.split('who'))==2); #there should be only 1 "who" in statement
+      comorb_string=ss.split('who')[1].strip()
+      replacements = {"was also suffering from ": "",'expired due to ':'','and':',','&':','}
+      for i in replacements: comorb_string=comorb_string.replace(i,replacements[i])
+      self.comorb_string=comorb_string;comorbidity=[]
+      for i in comorb_string.split(','): comorbidity.append(i.strip())
+      self.comorbidity=comorbidity
+    else: #no cormobidity
+      self.district=ss.split('of')[1].strip()
+    self.district=self.district.replace('district','').strip()
+  def info(self):
+    info='Age:\t\t%d\nGender:\t\t%s\nDistrict:\t%s\nDate:\t\t%s' %(self.age,self.gender,self.district,self.date)
+    if self.comorbidity: info+='\nComorbidity:\t%s' %(','.join(self.comorbidity))
+    else: info+='\nComorbidity:\t\tNONE' 
+    print info
 def moving_average(input_array=[],window_size=5,index_to_do_ma=1):
   x=input_array
   if type(input_array[0])==tuple:
@@ -92,6 +134,28 @@ def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full
     if return_full_series:  return deaths_series
     else:                   return deaths
 
+def odisha_parser():
+      
+  b=[i.strip() for i in open('odisha_fatalities_parsed.txt').readlines() if i.strip() and i.strip().split('.')[0].isdigit()]
+  #have data from July-11 to Sep-8
+  d1=datetime.date(2020,7,11);d2=datetime.date(2020,9,8);delta=d2-d1
+  dates=[(d1 + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(delta.days + 1)]
+  dates.reverse();  #raw data starts with last date first
+
+  fatalities=[]
+
+  dates_index=0;  current_index=0; #current_index is index of entry on specific date
+  for i in b:    
+    entry_index=int(i.split('.')[0].strip())
+    ft=''
+    #means different date
+    if entry_index<current_index:    dates_index+=1;
+    try: date=dates[dates_index]
+    except:
+      print dates_index, i
+    fatalities.append(fatality(i,date))
+    current_index=entry_index
+  return fatalities
 # ~ Returns percent of antigen tests as fraction of daily tests in state
 # as of sep 5, data on antigen tests is available for (state_name: number_of_days_of_data_available)
 # ~ {u'Chhattisgarh': 16,
@@ -103,7 +167,7 @@ def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full
  # ~ u'Mizoram': 16,
  # ~ u'Nagaland': 13,
  # ~ u'Sikkim': 13}
-def get_tests(state='Karnataka',verbose=False):
+def get_antigen_tests(state='Karnataka',verbose=False):
   x=json.load(open('state_test_data.json'))
   x=[i for i in x['states_tested_data'] if i.has_key('antigentests') and i['antigentests'] and i['state']==state]
 

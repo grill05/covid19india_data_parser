@@ -1,0 +1,530 @@
+2020-09-08,58,male,khorda,hypertension,hypothyroidism
+2020-09-08,65,male,cuttack,diabetes,hypertension,bronchial asthma,hypothyroidism
+2020-09-08,58,male,ganjam
+2020-09-08,50,male,ganjam,diabetes
+2020-09-08,66,male,kandhamal,diabetes,hypertension,chronic kidney disease (stage-v)
+2020-09-08,24,male,mayurbhanj,lamellar ichthyosis,psoriasis with methotrexate toxicity
+2020-09-08,70,male,mayurbhanj,diabetes
+2020-09-08,60,male,puri
+2020-09-08,45,male,puri
+2020-09-08,60,female,puri,diabetes,hypertension
+2020-09-08,48,male,rayagada,diabetes,hypertension
+2020-09-08,72,male,rayagada,diabetes,hypertension,chronic kidney disease
+2020-09-08,60,male,sonepur
+2020-09-07,56,male,balasore,diabetes
+2020-09-07,53,male,khorda
+2020-09-07,70,female,cuttack,brain tumour
+2020-09-07,38,male,ganjam
+2020-09-07,52,male,ganjam,diabetes
+2020-09-07,59,male,ganjam,diabetes,hypertension
+2020-09-07,55,male,kalahandi,diabetes,hypertension,chronic kidney disease
+2020-09-07,70,male,koraput
+2020-09-07,55,male,nayagarh,diabetes,hypertension
+2020-09-07,60,male,rayagada,diabetes,hypertension
+2020-09-06,48,male,khorda,diabetes,hypertension
+2020-09-06,48,male,ganjam,diabetes
+2020-09-06,45,male,ganjam,diabetes,hypertension
+2020-09-06,78,male,ganjam,hypertension
+2020-09-06,56,male,ganjam,diabetes
+2020-09-06,49,female,koraput,uncontrolled diabetes,hypertension
+2020-09-06,38,male,rayagada
+2020-09-06,80,male,sundergarh
+2020-09-05,70,male,khorda
+2020-09-05,78,male,bolangir,diabetes,hypertension,old cerebro vascular accident
+2020-09-05,61,male,cuttack,diabetes
+2020-09-05,76,male,ganjam,diabetes
+2020-09-05,59,male,khordha,chronic obstructive pulmonary disease
+2020-09-05,13,male,malkangiri,leukemia
+2020-09-05,68,male,sundergarh,diabetes
+2020-09-04,18,male,bolangir,sickle cell disorder
+2020-09-04,75,female,bolangir,diabetes,hypertension
+2020-09-04,90,male,khorda
+2020-09-04,50,male,cuttack,tuberculosis
+2020-09-04,67,female,cuttack,diabetes,hypertension
+2020-09-04,70,male,ganjam
+2020-09-04,50,male,ganjam,diabetes
+2020-09-04,67,male,khordha,diabetes
+2020-09-04,52,female,rayagada,diabetes
+2020-09-03,60,male,balasore,diabetes,hypertension,chronic kidney disease (stage-v),isch
+2020-09-03,72,male,khorda,diabetes,hypertension
+2020-09-03,66,female,cuttack,diabetes
+2020-09-03,67,male,cuttack,diabetes,bronchial asthma
+2020-09-03,78,female,ganjam,diabetes
+2020-09-03,56,male,ganjam,diabetes
+2020-09-03,45,male,ganjam
+2020-09-03,50,female,kandhamal,diabetes
+2020-09-02,57,male,balasore,diabetes,hypertension
+2020-09-02,57,male,bhadrak,diabetes,hypertension
+2020-09-02,62,male,khorda,diabetes,hypertension
+2020-09-02,57,female,khorda,diabetes,hypertension,hypothyroidism
+2020-09-02,63,female,ganjam
+2020-09-02,35,male,ganjam
+2020-09-02,56,male,ganjam,hypertension
+2020-09-02,90,male,jagatsingpur,hypertension
+2020-09-02,52,male,puri,hypertension
+2020-09-02,64,male,rayagada,hypertension,anemia
+2020-09-02,58,female,sambalpur
+2020-09-01,74,female,cuttack,diabetes,hypertension
+2020-09-01,60,male,ganjam,uncontrolled diabetes
+2020-09-01,35,male,jagatsinghpur,chronic kidney disease
+2020-09-01,40,male,kandhamal,compression fracture of d12 vertebra
+2020-09-01,55,female,khordha,diabetes,chronic obstructive pulmonary disease
+2020-09-01,73,male,khordha,diabetes,hypertension
+2020-09-01,80,male,mayurbhanj
+2020-09-01,60,female,mayurbhanj,hypertension,cerebrovascular accident,left hemiplegia
+2020-09-01,40,male,puri,diabetes,hypertension,morbid obesity
+2020-09-01,85,male,puri
+2020-09-01,45,male,rayagada,diabetes,hypertension
+2020-08-31,56,male,khorda,diabetes,hypertension,post angioplasty status
+2020-08-31,48,male,ganjam,diabetes,hypertension
+2020-08-31,43,male,kandhamal,chronic kidney disease,diabetes,hypertension
+2020-08-31,58,male,kandhamal,diabetes,hypertension
+2020-08-31,42,male,kandhamal,hepatitis b,typhoid fever
+2020-08-31,60,female,khordha
+2020-08-31,60,female,khordha,diabetes,hypertension
+2020-08-31,73,male,nayagarh
+2020-08-31,54,male,rayagada,diabetes
+2020-08-31,71,male,sundergarh,diabetes,hypertension
+2020-08-30,53,male,khorda,diabetes,hypertension
+2020-08-30,63,male,cuttack,diabetes,hypertension
+2020-08-30,35,male,ganjam,diabetes
+2020-08-30,30,male,ganjam,diabetes
+2020-08-30,65,female,ganjam,hypertension,hyperthyroidism
+2020-08-30,50,male,ganjam
+2020-08-30,62,female,jajpur,diabetes
+2020-08-30,59,male,malkangiri
+2020-08-30,62,male,nawarangapur,diabetes,bronchial asthma
+2020-08-30,48,male,puri,decompensated chronic liver disease
+2020-08-30,70,male,rayagada
+2020-08-30,59,female,sundergarh,cerebrovascular accident,hypertension
+2020-08-29,50,male,balasore,diabetes
+2020-08-29,48,female,balasore,asthma
+2020-08-29,77,male,bargarh,diabetes
+2020-08-29,45,male,khorda,diabetes,hypertension
+2020-08-29,77,female,khorda,diabetes,hypertension
+2020-08-29,55,male,cuttack,diabetes
+2020-08-29,58,female,cuttack,hypothyroidism
+2020-08-29,30,male,jagatsinghpur,chronic kidney disease
+2020-08-29,56,male,jagatsinghpur,diabetes,hypertension
+2020-08-29,58,male,jajpur,diabetes
+2020-08-29,55,male,malkangiri,diabetes,hypertension,cerebrovascular accident
+2020-08-29,55,male,malkangiri
+2020-08-29,71,male,puri
+2020-08-29,72,male,sundergarh,diabetes,hypertension
+2020-08-28,61,female,bargarh,diabetes
+2020-08-28,62,male,bhadrak,diabetes
+2020-08-28,65,male,khorda,hypertension
+2020-08-28,56,male,khorda,diabetes,hypertension
+2020-08-28,40,male,bolangir,diabetes
+2020-08-28,55,female,ganjam,hypertension
+2020-08-28,45,male,ganjam,diabetes
+2020-08-28,60,male,rayagada
+2020-08-27,62,female,khorda,hypertension,diabetes,coronary artery disease,hypothyroidism,morbid obesity
+2020-08-27,76,female,bargarh,hypertension,diabetes
+2020-08-27,65,male,bargarh,chronic kidney disease
+2020-08-27,60,male,bhadrak
+2020-08-27,75,male,sambalpur,diabetes
+2020-08-27,58,male,sambalpur,hypertension,hyponatremia
+2020-08-27,60,female,sambalpur
+2020-08-26,60,male,khorda
+2020-08-26,43,male,cuttack
+2020-08-26,32,male,cuttack
+2020-08-26,42,male,ganjam,chronic kidney disease,diabetes,obstructive uropathy
+2020-08-26,75,male,ganjam,diabetes
+2020-08-26,60,female,keonjhar,diabetes,hypothyroidism
+2020-08-26,72,male,puri
+2020-08-26,42,male,sambalpur,hypertension,diabetes
+2020-08-26,58,female,sambalpur,rheumatoid arthritis
+2020-08-26,50,male,sambalpur,diabetes
+2020-08-26,60,male,sundergarh
+2020-08-26,60,male,sundergarh,diabetes
+2020-08-26,70,male,sundergarh,hypertension
+2020-08-25,55,male,balasore
+2020-08-25,55,male,khorda,chronic kidney disease
+2020-08-25,70,male,bolangir,diabetes
+2020-08-25,39,male,cuttack,diabetes,hypertension
+2020-08-25,56,male,gajapati
+2020-08-25,73,male,ganjam,diabetes,hypertension
+2020-08-25,68,male,ganjam,diabetes
+2020-08-25,65,male,sundergarh,diabetes,hypertension
+2020-08-25,51,male,sundergarh,hypertension
+2020-08-24,65,male,cuttack,diabetes,hypertension
+2020-08-24,70,male,ganjam,dialated cardiomyopathy,diabetes mellitus
+2020-08-24,68,female,ganjam,diabetes,cirrhosis,morbid obesity
+2020-08-24,60,male,ganjam,diabetes,morbid obesity
+2020-08-24,63,male,ganjam,diabetes
+2020-08-24,60,male,ganjam
+2020-08-24,65,male,nayagarh
+2020-08-24,55,male,rayagada
+2020-08-24,65,male,sundergarh,diabetes
+2020-08-24,67,male,sundergarh,hypertension
+2020-08-23,47,male,bolangir,diabetes
+2020-08-23,87,female,cuttack,chronic obstructive pulmonary disease,hypertension,old cerebro vasular accident
+2020-08-23,75,male,cuttack,diabetes,hypothyroidism,chronic kidney disease,old cerebro vasular accident
+2020-08-23,45,male,gajapati,diabetes
+2020-08-23,60,male,ganjam,diabetes,hypertension,chronic kidney disease
+2020-08-23,61,male,ganjam
+2020-08-23,70,male,ganjam,diabetes,morbid obesity
+2020-08-23,58,male,nayagarh,diabetes
+2020-08-23,56,male,rayagada
+2020-08-23,45,male,rayagada
+2020-08-22,28,male,bolangir,diabetess
+2020-08-22,50,male,cuttack,hypertension
+2020-08-22,70,female,cuttack,hypertension,diabetes,carcinoma gall badder
+2020-08-22,51,female,cuttack,diabetes,hypertension,chronic obstructive pulmonary disease
+2020-08-22,60,male,ganjam,sepsis
+2020-08-22,53,male,malkangiri,diabetes
+2020-08-22,51,male,raygada
+2020-08-22,54,male,sundergarh,diabetes,hypertension
+2020-08-22,60,male,sundergarh,diabetes,dilated cardiomyopathy,right pleural effusion
+2020-08-21,55,male,angul,diabetess
+2020-08-21,70,male,khorda,diabetes,hypertension
+2020-08-21,58,female,khorda
+2020-08-21,42,male,ganjam
+2020-08-21,50,female,ganjam
+2020-08-21,70,male,ganjam,uncontrolled diabetes
+2020-08-21,59,female,ganjam,diabetes,hypertension
+2020-08-21,35,female,koraput
+2020-08-21,61,male,nayagarh
+2020-08-21,76,male,sonepur
+2020-08-20,59,male,khorda,diabetes,hypertension,chronic kidney disease
+2020-08-20,82,male,cuttack
+2020-08-20,58,male,dhenkanal
+2020-08-20,57,female,ganjam,diabetes,hypertension,hypothyroidism
+2020-08-20,48,male,ganjam,diabetes,morbid obesity
+2020-08-20,82,male,ganjam,hypertension
+2020-08-20,62,male,ganjam,diabetes,hypertension
+2020-08-20,76,female,puri,diabetes,hypertension
+2020-08-19,46,male,bargarh,diabetes,hypertension
+2020-08-19,30,female,bhadrak,chronic kidney disease
+2020-08-19,32,male,khorda,diabetes,hypertension
+2020-08-19,80,male,khorda,hypertension
+2020-08-19,73,female,ganjam
+2020-08-19,58,male,ganjam
+2020-08-19,50,male,ganjam
+2020-08-19,42,male,ganjam
+2020-08-19,55,male,sundergarh,coronary artery disease
+2020-08-19,55,female,sundergarh,diabetes,hypertension
+2020-08-18,62,male,balasore,carcinoma prostate with bone metastasis
+2020-08-18,81,female,khorda,diabetes,hypertension
+2020-08-18,68,male,ganjam,coronary artery disease,hypertension,parkinsonism,obstructive sleep apnea
+2020-08-18,68,female,ganjam
+2020-08-18,79,male,ganjam
+2020-08-18,61,male,malkangiri,diabetes,hypertension,bronchial asthma
+2020-08-18,65,male,rayagada
+2020-08-18,68,male,rayagada,hypertension
+2020-08-18,42,male,sambalpur
+2020-08-17,42,male,bargarh,diabetes,hypertension,chronic kidney disease
+2020-08-17,68,male,khorda,diabetes,hypertension
+2020-08-17,65,male,khorda,diabetes
+2020-08-17,60,male,cuttack
+2020-08-17,85,male,ganjam,uncontrolled diabetes,hypertension,coronary artery disease
+2020-08-17,50,female,khordha,diabetes,hypertension
+2020-08-17,70,male,khordha
+2020-08-17,60,female,puri,diabetes,hypertension,old cerebro vascular accident
+2020-08-17,39,male,rayagada
+2020-08-17,52,male,sundergarh,uncontrolled diabetes,hypertension,chronic kidney disease
+2020-08-16,75,male,bhadrak,hypertension,chronic kidney disease
+2020-08-16,32,female,khorda,diabetes,hypertension,chronic obstructive pulmonary disease
+2020-08-16,55,male,khorda
+2020-08-16,62,male,bolangir,diabetes,hypertension
+2020-08-16,60,male,cuttack,diabetes
+2020-08-16,67,male,ganjam,hypertension,diabetes,bronchial asthma
+2020-08-16,55,male,ganjam
+2020-08-16,60,male,jajpur,chronic obstructive pulmonary disease
+2020-08-16,59,male,kandhamal,hypertension,diabetes,nephropathy
+2020-08-16,45,male,sonepur,pulmonary tuberculosis,chronic kidney disease
+2020-08-15,67,female,cuttack,hypertension,chronic kidney disease
+2020-08-15,50,male,cuttack,diabetes,hypertension
+2020-08-15,53,male,ganjam
+2020-08-15,58,male,keonjhar,diabetes
+2020-08-15,75,male,nayagarh
+2020-08-15,65,female,sambalpur,diabetes
+2020-08-15,74,male,sambalpur,diabetes
+2020-08-15,78,male,sambalpur
+2020-08-15,50,female,sambalpur,diabetes
+2020-08-14,44,male,cuttack,hypertension
+2020-08-14,60,male,ganjam,diabetes,hypertension
+2020-08-14,75,male,ganjam,diabetes
+2020-08-14,65,male,ganjam
+2020-08-14,70,male,ganjam
+2020-08-14,52,male,sambalpur
+2020-08-14,32,male,sundergarh
+2020-08-14,50,male,puri,diabetes,hypertension
+2020-08-14,52,male,puri
+2020-08-14,72,male,puri,hypertension
+2020-08-13,23,male,cuttack,diabetes,hypertension,nephropathy
+2020-08-13,72,male,cuttack,diabetes,hypertension
+2020-08-13,73,male,ganjam
+2020-08-13,82,male,ganjam,hypertension,diabetes
+2020-08-13,36,male,ganjam
+2020-08-13,61,male,kandhamal,diabetes,hypertension,coronary artery disease,old cerebro vascular accident
+2020-08-13,58,male,mayurbhanj,chronic kidney disease
+2020-08-13,60,male,mayurbhanj
+2020-08-13,81,male,sundergarh,diabetes
+2020-08-12,44,female,angul,diabetes
+2020-08-12,38,male,balasore
+2020-08-12,48,female,ganjam,diabetes,obesity
+2020-08-12,57,male,ganjam
+2020-08-12,57,male,ganjam,diabetes,hypertension,chronic kidney disease
+2020-08-12,74,female,ganjam
+2020-08-12,58,male,khordha,diabetes
+2020-08-12,65,male,rayagada
+2020-08-12,65,male,rayagada,diabetes,hypertension
+2020-08-11,72,male,ganjam,diabetes,hypertension
+2020-08-11,64,male,ganjam,hypertension
+2020-08-11,52,male,ganjam,diabetes,hypertension
+2020-08-11,80,male,khordha,hypertension,bronchial asthma,benign hyperplasia of prostate,old cerebro vascular accident
+2020-08-11,55,female,khordha,diabetes
+2020-08-11,26,female,khordha,chronic kidney disease,hypertension
+2020-08-11,57,female,sundergarh
+2020-08-11,58,male,balasore,diabetes,hypertension
+2020-08-11,56,male,puri,diabetes,hypertension,chronic kidney disease
+2020-08-11,47,male,rayagada,diabetes
+2020-08-10,30,male,nayagarh,chronic kidney disease
+2020-08-10,34,male,nayagarh
+2020-08-10,78,male,nayagarh
+2020-08-10,84,female,khorda
+2020-08-10,82,male,khordha,diabetes,hypertension
+2020-08-10,69,male,khordha,chronic kidney disease
+2020-08-10,85,male,ganjam
+2020-08-10,65,male,ganjam
+2020-08-10,70,female,ganjam,hypertension
+2020-08-10,50,male,ganjam,end stage chronic kidney disease
+2020-08-10,55,male,ganjam,diabetes
+2020-08-10,50,male,ganjam,chronic kidney disease
+2020-08-10,46,male,rayagada,diabetes,hypertension
+2020-08-10,72,male,sundergarh,diabetes
+2020-08-09,30,male,nayagarh,chronic kidney disease
+2020-08-09,34,male,nayagarh
+2020-08-09,78,male,nayagarh
+2020-08-09,84,female,khorda
+2020-08-09,82,male,khordha,diabetes,hypertension
+2020-08-09,69,male,khordha,chronic kidney disease
+2020-08-09,85,male,ganjam
+2020-08-09,65,male,ganjam
+2020-08-09,70,female,ganjam,hypertension
+2020-08-09,50,male,ganjam,end stage chronic kidney disease
+2020-08-09,55,male,ganjam,diabetes
+2020-08-09,50,male,ganjam,chronic kidney disease
+2020-08-09,46,male,rayagada,diabetes,hypertension
+2020-08-09,72,male,sundergarh,diabetes
+2020-08-08,81,male,balasore,chronic kidney disease
+2020-08-08,52,male,khorda,diabetes,hypertension,old cerebro vascular accident
+2020-08-08,60,male,khordha,hypertension,,morbid obesity
+2020-08-08,47,male,koraput,diabetes
+2020-08-08,65,male,koraput
+2020-08-08,39,male,bargarh
+2020-08-08,60,male,nayagarh
+2020-08-08,65,male,ganjam,diabetes,hypertension
+2020-08-08,40,male,ganjam,diabetes
+2020-08-08,60,female,ganjam
+2020-08-08,66,male,ganjam
+2020-08-08,37,male,ganjam,hypertension
+2020-08-08,50,male,ganjam,diabetes
+2020-08-08,32,patient,puri,cardiomyopathy with severe left ventricular dysfunction,tubercular peritonitis
+2020-08-07,60,male,bargarh,diabetes,hypertension
+2020-08-07,55,female,sundergarh,diabetes,hypertension
+2020-08-07,67,male,khorda,hypertension,parkinsonism,benign prostatic hyperplasia
+2020-08-07,57,male,balasore,diabetes
+2020-08-07,55,male,kandhamal,diabetes
+2020-08-07,60,male,kandhamal,diabetes
+2020-08-07,79,male,keonjhar,hypertension,atrial fibrillation
+2020-08-07,59,male,gajapati,hypertension,ischemic heart disease
+2020-08-07,61,female,ganjam,diabetes,hypertension
+2020-08-07,60,male,keonjhar,diabetes,hypertension,coronary artery disease
+2020-08-07,60,male,khorda,chronic obstructive pulmonary disease
+2020-08-07,48,male,ganjam,diabetes,uti
+2020-08-06,55,male,mayurbhanj,hypertension
+2020-08-06,36,male,kendrapada,chronic kidney disease
+2020-08-06,78,female,sambalpur,chronic obstructive pulmonary disease
+2020-08-06,55,male,bhadrak,diabetes
+2020-08-06,61,male,dhenkanal,diabetes,hypertension
+2020-08-06,77,male,sundergarh
+2020-08-06,77,male,sundergarh,diabetes,hypertension,chronic kidney disease
+2020-08-06,66,male,sundergarh,diabetes,chronic obstructive pulmonary disease
+2020-08-06,52,male,ganjam
+2020-08-06,50,male,ganjam,diabetes
+2020-08-06,62,male,ganjam,hypertension
+2020-08-06,34,male,gajapati,chronic kidney disease
+2020-08-05,52,male,ganjam,diabetes,hypertension
+2020-08-05,40,male,nabarangpur,pulmonary tuberculosis
+2020-08-05,28,female,sundergarh
+2020-08-05,40,male,ganjam
+2020-08-05,39,male,nayagarh
+2020-08-05,54,male,sundergarh,uncontrolled diabetes
+2020-08-05,55,male,ganjam,relapsed tuberculosis
+2020-08-05,53,female,bhadrak,diabetes,hypertension
+2020-08-05,61,male,kandhamal,diabetes,hypertension
+2020-08-05,52,male,keonjhar,diabetes,hypertension,chronic kidney disease
+2020-08-04,42,male,ganjam,diabetes,acute kidney injury
+2020-08-04,55,male,sundergarh,diabetes
+2020-08-04,52,female,ganjam
+2020-08-04,59,male,ganjam
+2020-08-04,27,male,gajapati
+2020-08-04,53,male,ganjam,hypertension
+2020-08-04,21,male,keonjhar,diabetes (type-i)
+2020-08-04,60,female,khordha
+2020-08-04,63,male,ganjam,uncontrolled diabetes,chronic kidney disease
+2020-08-03,40,male,ganjam,diabetes
+2020-08-03,57,male,puri,cerebro vascular accident
+2020-08-03,50,male,ganjam
+2020-08-03,40,male,jajpur
+2020-08-03,46,male,ganjam,diabetes
+2020-08-03,60,male,ganjam,diabetes,hypertension
+2020-08-03,75,female,ganjam,diabetes,hypertension
+2020-08-03,55,male,khordha
+2020-08-03,60,female,ganjam,chronic kidney disease,diabetes,hypertension
+2020-08-03,66,patient,malkangiri,accelerated hypertension,left ventricular failure
+2020-08-02,73,male,sundargarh,diabetes,hypertension,ischemic heart disease,chronic obstructive pulmonary disease
+2020-08-02,58,male,khordha,diabetes,hypertension
+2020-08-02,57,male,ganjam
+2020-08-02,78,female,khorda,hypertension,dilated cardio myopathy
+2020-08-02,80,male,jajpur,diabetes,hypertension
+2020-08-02,94,female,ganjam
+2020-08-02,45,female,ganjam
+2020-08-02,60,female,khordha,hypertension,diabetes,chronic kidney disease
+2020-08-02,57,male,ganjam,hypertension,diabetes
+2020-08-02,62,male,kalahandi,disseminated tuberculosis,drug-induced hepatitis
+2020-08-02,65,patient,gajapati,end stage chronic kidney disease
+2020-08-01,54,male,ganjam,diabetes,hypertension
+2020-08-01,62,male,khorda
+2020-08-01,70,male,khorda,uncontrolled diabetes
+2020-08-01,44,male,ganjam,diabetes
+2020-08-01,56,male,sundargarh,diabetes,hypertension,coronary artery disease
+2020-08-01,63,male,ganjam,hypertension
+2020-08-01,56,female,ganjam,diabetes,hypertension,hypothyroidism
+2020-08-01,70,male,ganjam,hypertension
+2020-08-01,40,male,khordha,uncontrolled diabetes
+2020-08-01,49,male,gajapati,diabetes,hypertension
+2020-08-01,30,male,nayagarh,acute chronic kidney disease,septic shock
+2020-07-31,81,male,ganjam,diabetes
+2020-07-31,79,male,khordha,hypertension,end-stage renal disease with uremic encephalopathy
+2020-07-31,49,male,ganjam
+2020-07-31,82,female,nayagarh,diabetes,hypertension,cerebrovascular accident (stroke)
+2020-07-31,58,female,gajapati
+2020-07-31,52,male,sundargarh,diabetes
+2020-07-31,45,male,ganjam
+2020-07-31,73,male,ganjam,parkinsonism,coronary artery disease,diabetes,hypertension
+2020-07-31,12,female,keonjhar,acute peritonitis
+2020-07-30,67,male,sambalpur,hypertension
+2020-07-30,60,female,khorda,diabetes
+2020-07-30,43,male,ganjam
+2020-07-30,47,male,ganjam
+2020-07-30,65,male,nayagarh,chronic kidney disease with uremic encephalopathy
+2020-07-30,33,male,ganjam
+2020-07-30,65,female,ganjam,diabetes,hypertension,hypothyroidism
+2020-07-30,71,male,sundargarh,diabetes
+2020-07-30,60,male,khorda,diabetes,chronic kidney disease
+2020-07-30,50,male,rayagada,chronic obstructive pulmonary disease
+2020-07-29,46,male,balasore,diabetes,hypertension
+2020-07-29,55,female,puri
+2020-07-29,60,female,ganjam,diabetes,hypertension
+2020-07-29,50,male,phulbani,alcoholic liver disease,jaundice,hepatic encephalopathy
+2020-07-29,62,female,malkangiri,hypertension
+2020-07-29,2,female,bhadrak,congenital heart disease with cardiac failure
+2020-07-28,55,male,ganjam
+2020-07-28,72,male,rayagada,diabetes
+2020-07-28,31,male,rayagada
+2020-07-28,56,male,ganjam
+2020-07-28,45,male,cuttack,bronchial asthma,diabetes
+2020-07-28,39,male,ganjam
+2020-07-28,5,male,khorda,cerebral palsy with seizure disorder
+2020-07-28,16,female,balasore,acute lymphocytic leukemia with immune suppression
+2020-07-27,63,male,sundergarh,diabetes
+2020-07-27,45,male,khorda,diabetes
+2020-07-27,51,female,ganjam
+2020-07-27,58,male,ganjam,diabetes
+2020-07-27,55,male,ganjam
+2020-07-27,66,male,cuttack
+2020-07-27,51,male,malkangiri,hypertension
+2020-07-26,63,male,gajapati,diabetes,hypertension
+2020-07-26,63,male,ganjam
+2020-07-26,55,male,ganjam,diabetes,hypertension
+2020-07-26,60,male,ganjam
+2020-07-26,64,male,ganjam,chronic kidney disease
+2020-07-26,60,male,ganjam
+2020-07-26,35,male,khordha
+2020-07-26,51,female,ganjam
+2020-07-26,69,male,sundargarh,hypertension
+2020-07-26,58,female,khorda,diabetes,hypertension,coronary artery disease,right pneumothorax,obesity
+2020-07-26,23,female,ganjam,eclampsia of pregnancy
+2020-07-25,54,male,sundergarh,diabetes
+2020-07-25,37,male,gajapati,diabetes,hypertension
+2020-07-25,37,male,balasore,spondyloarthropathy with immunosupression
+2020-07-25,30,male,ganjam,diabetes,hypertension
+2020-07-25,60,male,ganjam
+2020-07-25,61,male,jharsuguda
+2020-07-25,60,male,sundergarh
+2020-07-25,60,male,ganjam
+2020-07-25,60,female,balasore,diabetes,obesity
+2020-07-25,47,male,rayagada,chronic obstructive pulmonary disease,obesity
+2020-07-24,44,male,ganjam,diabetes
+2020-07-24,71,male,rayagada,diabetes,hypertension,chronic kidney disease
+2020-07-24,53,male,gajapati
+2020-07-24,59,female,ganjam
+2020-07-24,50,female,ganjam
+2020-07-24,60,male,bhadrak,diabetes,hypertension
+2020-07-23,41,male,ganjam,hypertension
+2020-07-23,86,female,khordha,diabetes,hypertension
+2020-07-23,63,male,ganjam,hypertension
+2020-07-23,51,female,ganjam,diabetes,diabetic ketoacidosis
+2020-07-23,69,male,ganjam
+2020-07-23,57,male,ganjam,diabetes,hypertension
+2020-07-22,72,male,gajapati,diabetes,hypertension,coronary artery disease
+2020-07-22,40,female,ganjam,diabetes,hydronephrosis
+2020-07-22,61,male,ganjam,diabetes
+2020-07-22,60,male,ganjam,diabetes,hypertension
+2020-07-22,86,male,kandhamal,diabetes,chronic obstructive pulmonary disease
+2020-07-21,63,male,kendrapara,diabetes,hypertension,intra-cranial hemorrhage
+2020-07-21,26,female,cuttack,diabetes,hypertension
+2020-07-21,68,male,gajapati,diabetes,hypertension
+2020-07-21,58,male,jagatsinghpur,lung cancer
+2020-07-21,75,male,khordha,chronic bronchiectasis
+2020-07-21,74,male,rayagada,hypertension
+2020-07-20,70,male,ganjam,diabetes
+2020-07-20,40,male,ganjam
+2020-07-20,55,female,gajapati,diabetes
+2020-07-20,42,male,ganjam,diabetes
+2020-07-20,54,male,ganjam
+2020-07-20,52,male,ganjam,hypertension,diabetes
+2020-07-19,70,female,ganjam
+2020-07-19,67,male,jagatsinghpur,diabetes
+2020-07-19,44,male,ganjam
+2020-07-19,65,female,sundargarh,diabetes,bronchitis
+2020-07-19,39,male,ganjam,diabetes
+2020-07-18,63,male,ganjam
+2020-07-18,60,male,ganjam
+2020-07-18,48,female,gajapati,obesity,sleep apnea
+2020-07-17,66,male,angul,neuroendocrine tumor
+2020-07-17,57,male,ganjam,diabetes
+2020-07-17,56,male,gajapati,diabetes,heart disease
+2020-07-17,60,male,ganjam,chronic kidney disease
+2020-07-16,51,male,unknown,morbid obesity
+2020-07-16,34,male,unknown,hypertension
+2020-07-15,65,male,ganjam,diabetes
+2020-07-15,72,male,khorda
+2020-07-15,86,male,ganjam,chronic hypertension
+2020-07-14,71,male,cuttack,oral cancer
+2020-07-14,40,female,khordha
+2020-07-13,71,male,cuttack,oral cancer
+2020-07-13,40,female,khordha
+2020-07-13,71,male,khorda,blood cancer
+2020-07-13,80,male,ganjam,diabetes,heart disease
+2020-07-13,1,male,sundargarh,gm 1 gangliosidosis
+2020-07-12,45,male,ganjam,diabetes,hypertension
+2020-07-12,67,male,khorda,diabetes,hypertension,chronic kidney disease
+2020-07-12,63,male,ganjam
+2020-07-12,40,male,cuttack
+2020-07-12,72,male,ganjam,diabetes,heart disease,chronic kidney disease
+2020-07-12,49,male,ganjam,diabetes
+2020-07-12,17,male,ganjam,passed away from terminal lung cancer
+2020-07-11,56,male,ganjam,diabetes
+2020-07-11,50,male,ganjam
+2020-07-11,65,male,ganjam,diabetes,hypertension
+2020-07-11,70,male,puri,diabetes,hypertension
+2020-07-11,46,male,cuttack,diabetes,hypertension,hypothyroidism
+2020-07-11,56,female,khorda,diabetes
+2020-07-11,55,male,ganjam
+2020-07-11,72,male,ganjam,diabetes
+2020-07-11,62,female,kendrapara,brain tumour,diabetes,hypertension,asthma
