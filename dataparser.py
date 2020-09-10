@@ -129,7 +129,9 @@ class karnataka_fatality():
     if self.date_of_detection:
       dod=self.date_of_detection.strftime('%d/%m/%Y')
     info_str+='Detected: %s Admitted: %s Died: %s\n' %(dod,self.date_of_admission.strftime('%d/%m/%Y'),self.date_of_death.strftime('%d/%m/%Y'))
-    info_str+='detection_admission_interval: %d\nadmission_death_interval: %d\ndetection_death_interval: %d' %(self.detection_admission_interval,self.admission_death_interval,self.detection_death_interval)
+    info_str+='admission_death_interval: %d\n' %(self.admission_death_interval)
+    if self.detection_admission_interval: info_str+='detection_admission_interval: %d\n' %(self.detection_admission_interval)    
+    if self.detection_death_interval: 'detection_death_interval: %d' %(self.detection_death_interval)
     print info_str
     
 class karnataka_icu_usage():
