@@ -33,7 +33,7 @@ def helper_download_karnataka_bulletin(twitter_link):
   bulletin_date=karnataka_parser('tmp.pdf',return_date_only=True)
   print bulletin_date
   bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
-  os.system('mv -v tmp.pdf "'+bulletin_date_string+'.pdf"')
+  os.system('cp -v tmp.pdf "'+bulletin_date_string+'.pdf"')
 
   
 def update_data_files():
