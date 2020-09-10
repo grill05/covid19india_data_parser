@@ -294,6 +294,7 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
 
   patient_numbers=[];ages=[];genders=[];origins=[]
   for i in b:
+    if len(i.split())<4: continue; #need all fields
     patient_number=i.split()[0]
     age=i.split()[1]
     gender=i.split()[2]
