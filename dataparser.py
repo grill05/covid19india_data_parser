@@ -367,13 +367,15 @@ def karnataka_parser(bulletin='',return_date_only=False):
 
   discharges=karnataka_parse_discharges(bulletin_date)
 
+  #get icu info
+  cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['icu'][0])+' -l '+str(annex_range['icu'][1])+' '+bulletin+' tmp.txt';os.system(cmd);
+  icu_usage=karnataka_parse_icu_usage(bulletin_date)
+  
   #get deaths info
   # ~ cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['deaths'][0])+' -l '+str(annex_range['deaths'][1])+' ka.pdf tmp.txt';os.system(cmd);
   deaths=karnataka_parse_deaths(bulletin,bulletin_date,annex_range['deaths'])
 
-  #get icu info
-  cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['icu'][0])+' -l '+str(annex_range['icu'][1])+' '+bulletin+' tmp.txt';os.system(cmd);
-  icu_usage=karnataka_parse_icu_usage(bulletin_date)
+ 
   
   # ~ return bulletin_date,annex_range,discharges
   return (discharges,icu_usage)
