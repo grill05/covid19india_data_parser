@@ -281,7 +281,7 @@ def karnataka_parse_discharges(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)
   
   for j in range(len(district_indices)):
     district_index=district_indices[j]
-    first_line=b0[district_index].strip()
+    first_line=b0[district_index].strip().replace('&',' ')
     district_name=''
     l=first_line.split()[1:]
     discharges=[]
@@ -298,7 +298,7 @@ def karnataka_parse_discharges(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)
     else: next_index=district_indices[j+1]
     l=b0[district_index+1:next_index]
     for i in l:
-      discharges.extend(i.strip().split())
+      discharges.extend(i.strip().replace('&',' ').split())
       
     district_names.append(district_name)
     for patient_number in discharges:
