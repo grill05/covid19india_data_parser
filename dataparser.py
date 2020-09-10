@@ -495,6 +495,7 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False):
 
 def karnataka_parser():
   bulletin_pdfs=[i for i in os.listdir('.') if i.endswith('.pdf')]
+  bulletin_pdfs.sort()
   all_discharges=[];all_icu_usage=[];all_deaths=[]
   for bulletin_pdf in bulletin_pdfs:
     print 'parsing bulletin %s' %(bulletin_pdf)    
