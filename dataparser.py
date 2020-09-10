@@ -8,6 +8,7 @@
 
 import os,sys
 import json,datetime,numpy,requests
+datetime_doa_marker=datetime.datetime(2020, 1, 1, 0, 0)
 
 state_code_to_name={'pb':'Punjab',            'hr':'Haryana',
                     'kl':'Kerala',            'ka':'Karnataka',
@@ -90,6 +91,44 @@ class fatality():
     else: info+='\nComorbidity:\t\tNONE' 
     print info
 
+class karnataka_fatality():
+  district='';patient_number='';age='';gender='';origin='';comorbidities='';
+  date_of_detection='';date_of_admission='';date_of_death='';hospital_type=''
+  detection_admission_interval=''
+  detection_death_interval=''
+  admission_death_interval=''
+  def __init__(self,district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,hospital_type):
+    self.district=district
+    self.patient_number=int(patient_number.replace('n',''))
+    self.age=int(age)
+    self.gender=gender
+    self.origin=origin
+    self.comorbidities=comorbidity.split(',')
+    self.date_of_detection=karnataka_map_patient_no_to_date(self.patient_number,global_karnataka_case_series)
+    
+    self.date_of_admission=date_of_admission
+    self.date_of_death=date_of_death
+    self.hospital_type=hospital_type
+
+    if self.date_of_admission==datetime_doa_marker: #means patient was dead on arrival
+      self.admission_death_interval=-1
+      if self.date_of_detection:
+        self.detection_admission_interval=(self.date_of_death-self.date_of_detection).days    
+    else:
+      self.admission_death_interval=(self.date_of_death-self.date_of_admission).days
+      if self.date_of_detection:
+        self.detection_admission_interval=(self.date_of_admission-self.date_of_detection).days    
+    if self.date_of_detection:
+      # ~ self.detection_admission_interval=(self.date_of_admission-self.date_of_detection).days    
+      self.detection_death_interval=(self.date_of_death-self.date_of_detection).days
+      
+  def info(self):
+    info_str='P.no %d District: %s Age: %d Gender: %s Origin: %s\n' %(self.patient_number,self.district,self.age,self.gender,self.origin)
+    info_str+='Comorbidities: %s\n' %(' '.join(self.comorbidities))
+    info_str+='Detected: %s Admitted: %s Died: %s\n' %(self.date_of_detection.strftime('%d/%m/%Y'),self.date_of_admission.strftime('%d/%m/%Y'),self.date_of_death.strftime('%d/%m/%Y'))
+    info_str+='detection_admission_interval: %d\nadmission_death_interval: %d\ndetection_death_interval: %d' %(self.detection_admission_interval,self.admission_death_interval,self.detection_death_interval)
+    print info_str
+    
 class karnataka_icu_usage():
   date='';district='';icu_usage=''
   def __init__(self,bulletin_date,district_name,icu_usage):
@@ -107,7 +146,7 @@ class karnataka_discharge():
     self.date_of_discharge=bulletin_date
     self.district=district_name
     if ',' in patient_number: patient_number=patient_number.replace(',','').strip()
-    self.patient_number=int(patient_number)
+    self.patient_number=int(patient_number.replace('n',''))
     self.date_of_detection=karnataka_map_patient_no_to_date(self.patient_number,global_karnataka_case_series)
     try:
       self.detection_discharge_interval=(self.date_of_discharge-self.date_of_detection).days
@@ -233,7 +272,7 @@ def karnataka_map_patient_no_to_date(patient_no=1,case_series=[]):
     else:               date_of_case=i[0];break;
   return date_of_case
 
-def karnataka_parse_deaths(bulletin='',bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range=(19,23)):
+def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range=(19,23)):
   start_page=str(page_range[0])
   end_page=str(page_range[1])
 
@@ -250,8 +289,78 @@ def karnataka_parse_deaths(bulletin='',bulletin_date=datetime.datetime(2020, 9, 
       if j<(len(b)-1) and not b[j+1][0].isdigit(): #split name
         d+=b[j+1].strip()
       districts.append(d)
-  
-  return districts  
+  cmd='pdftotextx -marginl 115 -marginr 340 -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and i.strip()[0].isdigit()]
+
+  patient_numbers=[];ages=[];genders=[];origins=[]
+  for i in b:
+    patient_number=i.split()[0]
+    age=i.split()[1]
+    gender=i.split()[2]
+    origin=i.split()[3]
+    if 'under' in origin or 'contact' in origin or 'trac' in origin: origin='CONT'
+    patient_numbers.append(patient_number);ages.append(age);genders.append(gender);origins.append(origin)
+
+
+  cmd='pdftotextx -marginl 340 -marginr 210 -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and (i.strip()=='-' or i.strip()[0].isupper())]
+  comorbidities=[];comorbidity=''
+  for i in b:
+    # ~ print i
+    if i=='-':
+      comorbidities.append('NONE')
+      comorbidity=''
+    elif i.endswith(','):
+      comorbidity+=i
+    else:
+      comorbidity+=i
+      comorbidities.append(comorbidity)
+      comorbidity=''      
+      
+  cmd='pdftotextx -marginl 380 -marginr 110 -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and i.strip()[0].isdigit() and '-' in i]
+
+  dates_of_admission=[];dates_of_death=[]
+  for i in b:
+    l=i.split()
+    if len(l)==1: #brought dead on date
+      date_of_admission=datetime_doa_marker; #use 1 jan as marker
+      ll=l[0]
+      if '-2020' not in ll and '-20' in ll:ll+='20'
+      date_of_death=datetime.datetime.strptime(ll,'%d-%m-%Y')
+    else:
+      date_of_admission=datetime.datetime.strptime(l[0],'%d-%m-%Y')
+      ll=l[1]
+      if '-2020' not in ll and '-20' in ll:ll+='20'
+      date_of_death=datetime.datetime.strptime(ll,'%d-%m-%Y')
+    dates_of_admission.append(date_of_admission)
+    dates_of_death.append(date_of_death)
+
+  cmd='pdftotextx -marginl 500 -marginr 20 -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() if ('private' in i.strip().lower() or 'designated' in i.strip().lower())]
+
+  hospital_types=[]
+  for i in b:    hospital_types.append(i.lower())
+
+  fatalities=[]
+
+  for j in range(len(hospital_types)):
+    district=districts[j]
+
+    patient_number=patient_numbers[j]
+    age=ages[j]
+    gender=genders[j]
+    origin=origins[j]
+    comorbidity=comorbidities[j]
+    
+    date_of_admission=dates_of_admission[j]
+    date_of_death=dates_of_death[j]
+    hospital_type=hospital_types[j]
+
+    fatality=karnataka_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,hospital_type)
+    fatalities.append(fatality)
+      
+  return fatalities
       
   
   
@@ -309,7 +418,8 @@ def karnataka_parse_discharges(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)
         
 
   
-def karnataka_parser(bulletin='',return_date_only=False):
+
+def karnataka_bulletin_parser(bulletin='',return_date_only=False):
   if not os.path.exists(bulletin):
     print '%s does not exist. Please give pdf bulletin file as input' %(bulletin)
     return -1
@@ -373,16 +483,30 @@ def karnataka_parser(bulletin='',return_date_only=False):
   icu_usage=karnataka_parse_icu_usage(bulletin_date)
   
   #get deaths info
-  # ~ cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['deaths'][0])+' -l '+str(annex_range['deaths'][1])+' ka.pdf tmp.txt';os.system(cmd);
+  
   deaths=karnataka_parse_deaths(bulletin,bulletin_date,annex_range['deaths'])
 
  
   
   # ~ return bulletin_date,annex_range,discharges
-  return (discharges,icu_usage)
+  return (discharges,icu_usage,deaths)
 
 
-   
+
+def karnataka_parser():
+  bulletin_pdfs=[i for i in os.listdir('.') if i.endswith('.pdf')]
+  all_discharges=[];all_icu_usage=[];all_deaths=[]
+  for bulletin_pdf in bulletin_pdfs:
+    print 'parsing bulletin %s' %(bulletin_pdf)    
+    try:
+      (discharges,icu_usage,deaths)=karnataka_bulletin_parser(bulletin_pdf)
+      all_discharges.extend(discharges)
+      all_icu_usage.extend(icu_usage)
+      all_deaths.extend(deaths)
+    except:
+      print 'parsing failed for :%s' %(bulletin_pdf)    
+  return (all_discharges,all_icu_usage,all_deaths)
+  
 # ~ Returns percent of antigen tests as fraction of daily tests in state
 # as of sep 5, data on antigen tests is available for (state_name: number_of_days_of_data_available)
 # ~ {u'Chhattisgarh': 16,
