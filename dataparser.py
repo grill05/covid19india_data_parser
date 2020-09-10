@@ -125,7 +125,10 @@ class karnataka_fatality():
   def info(self):
     info_str='P.no %d District: %s Age: %d Gender: %s Origin: %s\n' %(self.patient_number,self.district,self.age,self.gender,self.origin)
     info_str+='Comorbidities: %s\n' %(' '.join(self.comorbidities))
-    info_str+='Detected: %s Admitted: %s Died: %s\n' %(self.date_of_detection.strftime('%d/%m/%Y'),self.date_of_admission.strftime('%d/%m/%Y'),self.date_of_death.strftime('%d/%m/%Y'))
+    dod='N/A'
+    if self.date_of_detection:
+      dod=self.date_of_detection.strftime('%d/%m/%Y')
+    info_str+='Detected: %s Admitted: %s Died: %s\n' %(dod,self.date_of_admission.strftime('%d/%m/%Y'),self.date_of_death.strftime('%d/%m/%Y'))
     info_str+='detection_admission_interval: %d\nadmission_death_interval: %d\ndetection_death_interval: %d' %(self.detection_admission_interval,self.admission_death_interval,self.detection_death_interval)
     print info_str
     
