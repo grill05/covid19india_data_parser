@@ -1,0 +1,530 @@
+1.A 58 year old male of Bhubaneswar who was also suffering from Hypertension & Hypothyroidism.
+2.A 65 year old male of Cuttack district who was also suffering from Diabetes, Hypertension, Bronchial Asthma & Hypothyroidism .
+3. A 58 year old male of Ganjam district.
+4.A 50 year old male of Ganjam district who was also suffering from Diabetes.
+5.A 66 year old male of Kandhamal district who was also suffering from Diabetes, hypertension & Chronic kidney Disease (Stage-V).
+6.A 24 year old male of Mayurbhanj district who was also suffering from Lamellar Ichthyosis , psoriasis with methotrexate toxicity.
+7.A 70 year old male of Mayurbhanj district who was also suffering from Diabetes.
+8.A 60 year old male of Puri district.
+9.A 45 year old male of Puri district.
+10. A 60 year old female of Puri district who was also suffering from Diabetes & Hypertension.
+11.A 48 year old male of Rayagada district who was also suffering from Diabetes & Hypertension.
+12.A 72 year old male of Rayagada district who was also suffering from Diabetes & Hypertension & Chronic Kidney Disease.
+13. A 60 year old male of Sonepur district.
+1.A 56-year old male of Balasore who was also suffering from Diabetes.
+2.A 53-year old male of Bhubaneswar.
+3. A 70-year old female of Cuttack who was also suffering from Brain Tumour.
+4.A 38-year old male of Ganjam district.
+5.A 52-year old male of Ganjam district who was also suffering from Diabetes.
+6.A 59-year old male of Ganjam district who was also suffering from Diabetes & Hypertension.
+7.A 55-year old male of Kalahandi district who was also suffering from Diabetes & Hypertension, Chronic Kidney Disease.
+8.A 70-year old male of Koraput district.
+9.A 55-year old male of Nayagarh district who was also suffering from Diabetes & Hypertension.
+10.A 60-year old male of Rayagada district who was also suffering from Diabetes & Hypertension.
+1.A 48 year old male of Bhubaneswar who was also suffering from Diabetes, Hypertension.
+2.A 48 year old male of Ganjam who was also suffering from Diabetes.
+3. A 45 year old male of Ganjam who was also suffering from Diabetes & Hypertension.
+4.A 78 year old male of Ganjam district who was also suffering from Hypertension.
+5.A 56 year old male of Ganjam district who was also suffering from Diabetes.
+6.A 49 year old female of Koraput district who was also suffering from Uncontrolled Diabetes & Hypertension.
+7.A 38 year old male of Rayagada district.
+8.A 80 year old male of Sundergarh district.
+1.A 70 year old male of Bhubaneswar.
+2.A 78 year old male of Bolangir who was also suffering from Diabetes, Hypertension & Old Cerebro Vascular Accident.
+3. A 61 year old male of Cuttack who was also suffering from Diabetes.
+4.A 76 year old male of Ganjam district who was also suffering from Diabetes.
+5.A 59 year old male of Khordha district who was also suffering from Chronic Obstructive Pulmonary Disease.
+6.A 13 year old male of Malkangiri district who was also suffering from Leukemia.
+7.A 68 year old male of Sundergarh district who was also suffering from Diabetes.
+1. An 18 year old male of Bolangir district who was also suffering from Sickle Cell disorder.
+2. A 75 year old female of Bolangir who was also suffering from Diabetes & Hypertension
+3. A 90 year old male of Bhubaneswar.
+4. A 50 year old male of Cuttack district who was also suffering from Tuberculosis.
+5. A 67 year old female of Cuttack district who was also suffering from Diabetes & Hypertension.
+6. A 70 year old male of Ganjam district.
+7. A 50 year old male of Ganjam district who was also suffering from Diabetes.
+8. A 67 year old male of Khordha district who was also suffering from Diabetes.
+9. A 52 year old female of Rayagada district who was also suffering from Diabetes.
+1. A 60-year old male of Balasore district who was also suffering from Diabetes, Hypertension, Chronic Kidney Disease (stage-V), Isch
+2. A 72-year old male of Bhubaneswar who was also suffering from Diabetes & Hypertension.
+3. A 66-year old female of Cuttack district who was also suffering from Diabetes.
+4. A 67-year old male of Cuttack district who was also suffering from Diabetes, Bronchial Asthma.
+5. A 78-year old female of Ganjam district who was also suffering from Diabetes.
+6. A 56-year old male of Ganjam district who was also suffering from Diabetes.
+7. A 45-year old male of Ganjam district.
+8. A 50-year old female of Kandhamal district who was also suffering from Diabetes.
+1.A 57 year old male of Balasore district who was also suffering from Diabetes & Hypertension.
+2.A 57 year old male of Bhadrak district who was also suffering from Diabetes & Hypertension.
+3. A 62 year old male of Bhubaneswar who was also suffering from Diabetes & Hypertension.
+4.A 57 year old female of Bhubaneswar who was also suffering from Diabetes, Hypertension & Hypothyroidism.
+5.A 63 year old female of Ganjam district.
+6.A 35 year old male of Ganjam district.
+7.A 56 year old male of Ganjam district who was also suffering from Hypertension
+8.A 90 year old male of Jagatsingpur district who was also suffering from Hypertension.
+9.A 52 year old male of Puri district who was also suffering from Hypertension.
+10.A 64 year old male of Rayagada district who was also suffering from Hypertension, Anemia.
+11.A 58 year old female of Sambalpur district.
+1.A 74 year old female of Cuttack district who was also suffering from Diabetes & Hypertension.
+2.A 60 year old male of Ganjam district who was also suffering from uncontrolled diabetes.
+3. A 35 year old male of Jagatsinghpur district who was also suffering from Chronic Kidney Disease.
+4.A 40 year old male of Kandhamal who was also suffering from Compression Fracture of D12 vertebra.
+5.A 55 year old female of Khordha who was also suffering from Diabetes & Chronic Obstructive Pulmonary Disease.
+6. A 73 year old male of Khordha who was also suffering from Diabetes & Hypertension.
+7. An 80 year old male of Mayurbhanj district.
+8. A 60 year old female of Mayurbhanj district who was also suffering from Hypertension, Cerebrovascular Accident, Left hemiplegia.
+9. A 40 year old male of Puri district who was also suffering from Diabetes, Hypertension & morbid obesity.
+10. A 85 year old male of Puri district.
+11. A 45 year old male of Rayagada district who was also suffering from Diabetes, Hypertension.
+1.A 56 year old male of Bhubaneswar who was also suffering from Diabetes & Hypertension, Post Angioplasty Status.
+2. A 48 year old male of Ganjam district who was also suffering from Diabetes & Hypertension.
+3.A 43 year old male of Kandhamal who was also suffering from Chronic kidney Disease, Diabetes & Hypertension.
+4.A 58 year old male of Kandhamal who was also suffering from Diabetes & Hypertension.
+5.A 42 year old male of Kandhamal who was also suffering from Hepatitis B & Typhoid fever.
+6.A 60 year old female of Khordha district.
+7.A 60 year old female of Khordha district who was also suffering from Diabetes & Hypertension.
+8.A 73 year old male of Nayagarh district.
+9.A 54 year old male of Rayagada district who was also suffering from Diabetes.
+10.A 71 year old male of Sundergarh district who was also suffering from Diabetes & Hypertension.
+1.A 53 year old male of Bhubaneswar who was also suffering from Diabetes & Hypertension.
+2. A 63 year old male of Cuttack district who was also suffering from Diabetes & Hypertension.
+3.A 35 year old male of Ganjam who was also suffering from Diabetes.
+4.A 30 year old male of Ganjam who was also suffering from Diabetes.
+5.A 65 year old female of Ganjam who was also suffering from hypertension & Hyperthyroidism.
+6.A 50 year old male of Ganjam district.
+7.A 62 year old female of Jajpur district who was also suffering from Diabetes.
+8.A 59 year old male of Malkangiri district.
+9.A 62 year old male of Nawarangapur district who was also suffering from Diabetes & Bronchial Asthma.
+10.A 48 year old male of Puri district who was also suffering from Decompensated Chronic Liver Disease .
+11.A 70 year old male of Rayagada district.
+12.A 59 year old female of Sundergarh district who was also suffering from Cerebrovascular Accident & hypertension.
+1.A 50-year old male of Balasore district who was also suffering from Diabetes.
+2. A 48-year old female of Balasore district who was also suffering from Asthma.
+3.A 77-year old male of Bargarh who was also suffering from Diabetes.
+4.A 45-year old male of Bhubaneswar who was also suffering from Diabetes & hypertension.
+5.A 77-year old female of Bhubaneswar who was also suffering from Diabetes & hypertension.
+6.A 55-year old male of Cuttack district who was also suffering from Diabetes.
+7.A 58-year old female of Cuttack district who was also suffering from Hypothyroidism.
+8.A 30-year old male of Jagatsinghpur district who was also suffering from Chronic Kidney Disease.
+9.A 56-year old male of Jagatsinghpur district who was also suffering from Diabetes & hypertension.
+10.A 58-year old male of Jajpur district who was also suffering from Diabetes.
+11.A 55-year old male of Malkangiri district who was also suffering from Diabetes, hypertension & Cerebrovascular Accident.
+12.A 55-year old male of Malkangiri district.
+13.A 71-year old male of Puri district.
+14.A 72-year old male of Sundergarh who was also suffering from Diabetes & hypertension.
+1. A 61-year old female of Bargarh district who was also suffering from Diabetes.
+2. A 62-year old male of Bhadrak district who was also suffering from Diabetes.
+3. A 65-year old male of Bhubaneswar who was also suffering from Hypertension.
+4. A 56-year old male of Bhubaneswar who was also suffering from Diabetes & hypertension.
+5. A 40-year old male of Bolangir district who was also suffering from Diabetes.
+6. A 55-year old female of Ganjam district who was also suffering from Hypertension.
+7. A 45-year old male of Ganjam district who was also suffering from Diabetes.
+8. A 60-year old male of Rayagada district.
+1. A 62-year old female of Bhubaneswar who was also suffering from Hypertension, Diabetes, Coronary Artery Disease, Hypothyroidism, morbid obesity.
+2. A 76-year old female of Bargarh district who was also suffering from Hypertension, Diabetes.
+3. A 65-year old male of Bargarh district who was also suffering from Chronic Kidney Disease.
+4. A 60-year old male of Bhadrak district.
+5. A 75-year old male of Sambalpur district who was also suffering from Diabetes.
+6. A 58-year old male of Sambalpur district who was also suffering from Hypertension, Hyponatremia.
+7. A 60-year old female of Sambalpur district.
+1.A 60-year old male of Bhubaneswar.
+2.A 43-year old male of Cuttack district.
+3.A 32-year old male of Cuttack district.
+4.A 42-year old male of Ganjam district who was also suffering from Chronic Kidney Disease, Diabetes, Obstructive Uropathy.
+5.A 75-year old male of Ganjam district who was also suffering from Diabetes.
+6. A 60-year old female of Keonjhar district who was also suffering from Diabetes & Hypothyroidism.
+7.A 72-year old male of Puri district.
+8. A 42-year old male of Sambalpur district who was also suffering from Hypertension & Diabetes.
+9.A 58-year old female of Sambalpur district who was also suffering from Rheumatoid arthritis.
+10.A 50-year old male of Sambalpur district who was also suffering from Diabetes.
+11.A 60-year old male of Sundergarh district.
+12.A 60-year old male of Sundergarh district who was also suffering from Diabetes.
+13.A 70-year old male of Sundergarh district who was also suffering from Hypertension.
+1. A 55-year old male of Balasore district.
+2.A 55-year old male of Bhubaneswar who was also suffering from Chronic Kidney Disease.
+3. A 70-year old male of Bolangir district who was also suffering from Diabetes.
+4.A 39-year old male of Cuttack district who was also suffering from Diabetes & Hypertension.
+5.A 56-year old male of Gajapati district.
+6.A 73-year old male of Ganjam district who was also suffering from Diabetes & Hypertension.
+7.A 68-year old male of Ganjam district who was also suffering from Diabetes.
+8.A 65-year old male of Sundergarh district who was also suffering from Diabetes & Hypertension.
+9. A 51-year old male of Sundergarh district who was also suffering from Hypertension.
+1. A 65-year old male of Cuttack district who was also suffering from Diabetes & Hypertension.
+2.A 70-year old male of Ganjam district who was also suffering from Dialated Cardiomyopathy, Diabetes mellitus.
+3. A 68-year old female of Ganjam district who was also suffering from Diabetes, Cirrhosis & Morbid obesity.
+4.A 60-year old male of Ganjam district who was also suffering from Diabetes & Morbid obesity.
+5.A 63-year old male of Ganjam district who was also suffering from Diabetes.
+6.A 60-year old male of Ganjam district.
+7.A 65-year old male of Nayagarh district.
+8.A 55-year old male of Rayagada district.
+9.A 65-year old male of Sundergarh district who was also suffering from Diabetes.
+10. A 67-year old male of Sundergarh district who was also suffering from Hypertension.
+1.A 47 year old male of Bolangir district who was also suffering from Diabetes.
+2. A 87 year old female of Cuttack district who was also suffering from Chronic Obstructive Pulmonary Disease, Hypertension, Old Cerebro Vasular Accident.
+3.A 75 year old male of Cuttack district who was also suffering from Diabetes, Hypothyroidism, Chronic Kidney Disease & Old Cerebro Vasular Accident.
+4.A 45 year old male of Gajapati district who was also suffering from Diabetes.
+5.A 60 year old male of Ganjam district who was also suffering from Diabetes, Hypertension, Chronic Kidney Disease .
+6.A 61 year old male of Ganjam district.
+7.A 70 year old male of Ganjam district who was also suffering from Diabetes, morbid obesity.
+8.A 58 year old male of Nayagarh district who was also suffering from Diabetes.
+9. A 56 year old male of Rayagada district.
+10. A 45 year old male of Rayagada district.
+1.A 28 year old male of Bolangir district who was also suffering from Diabetess.
+2. A 50 year old male of Cuttack district who was also suffering from Hypertension.
+3.A 70 year old female of Cuttack district who was also suffering from Hypertension, Diabetes, Carcinoma Gall Badder.
+4.A 51 year old female of Cuttack district who was also suffering from Diabetes,Hypertension & Chronic Obstructive Pulmonary Disease.
+5.A 60 year old male of Ganjam district who was also suffering from Sepsis .
+6.A 53 year old male of Malkangiri district who was also suffering from Diabetes.
+7.A 51 year old male of Raygada district.
+8. A 54 year old male of Sundergarh district who was also suffering from Diabetes & Hypertension.
+9.A 60 year old male of Sundergarh district who was also suffering from Diabetes, Dilated Cardiomyopathy & Right pleural effusion.
+1. A 55-year old male of Angul district who was also suffering from Diabetess.
+2. A 70-year old male of Bhubaneswar who was also suffering from Diabetes, Hypertension.
+3. A 58-year old female of Bhubaneswar.
+4. A 42-year old male of Ganjam district.
+5. A 50-year old female of Ganjam district.
+6. A 70-year old male of Ganjam district who was also suffering from uncontrolled Diabetes.
+7.  A 59-year old female of Ganjam district who was also suffering from Diabetes & Hypertension.
+8.  A 35-year old female of Koraput district.
+9.  A 61-year old male of Nayagarh district.
+10. A 76-year old male of Sonepur district.
+1. A 59-year old male of Bhubaneswar who was also suffering from Diabetes, Hypertension & Chronic Kidney Disease.
+2. An 82-year old male of Cuttack district.
+3. A 58-year old male of Dhenkanal district.
+4. A 57-year old female of Ganjam district who was also suffering from Diabetes, Hypertension & hypothyroidism.
+5. A 48-year old male of Ganjam district who was also suffering from Diabetes & morbid obesity.
+6. An 82-year old male of Ganjam district who was also suffering from Hypertension.
+7. A 62-year old male of Ganjam district who was also suffering from Diabetes, Hypertension.
+8. A 76-year old female of Puri district who was also suffering from Diabetes, Hypertension.
+1. A 46-year old male of Bargarh district who was also suffering from Diabetes, Hypertension.
+2. A 30-year old female of Bhadrak district who was also suffering from Chronic Kidney Disease.
+3. A 32-year old male of Bhubaneswar who was also suffering from Diabetes, Hypertension.
+4. An 80-year old male of Bhubaneswar who was also suffering from Hypertension.
+5. A 73-year old female of Ganjam district .
+6. A 58-year old male of Ganjam district.
+7. A 50-year old male of Ganjam district.
+8. A 42-year old male of Ganjam district.
+9. A 55-year old male of Sundergarh district who was also suffering from Coronary Artery Disease.
+10. A 55-year old female of Sundergarh district who was also suffering from Diabetes, Hypertension.
+1. A 62-year old male of Balasore district who was also suffering from Carcinoma Prostate with bone metastasis.
+2. An 81-year old female of Bhubaneswar who was also suffering from Diabetes, Hypertension.
+3. A 68-year old male of Ganjam who was also suffering from Coronary Artery Disease, Hypertension, Parkinsonism, Obstructive Sleep Apnea.
+4. A 68-year old female of Ganjam district.
+5. A 79-year old male of Ganjam district.
+6. A 61-year old male of Malkangiri district who was also suffering from Diabetes & hypertension & Bronchial Asthma.
+7. A 65-year old male of Rayagada district.
+8. A 68-year old male of Rayagada district who was also suffering from hypertension.
+9. A 42-year old male of Sambalpur district.
+1. A 42-year old male of Bargarh district who was also suffering from Diabetes, Hypertension & Chronic Kidney Disease.
+2. A 68-year old male of Bhubaneswar who was also suffering from Diabetes, Hypertension.
+3.A 65-year old male of Bhubaneswar who was also suffering from Diabetes.
+4.A 60-year old male of Cuttack district.
+5. A 85-year old male of Ganjam district who was also suffering from Uncontrolled Diabetes, Hypertension, Coronary Artery Disease.
+6. A 50-year old female of Khordha district who was also suffering from Diabetes & hypertension.
+7.A 70-year old male of Khordha district.
+8. A 60-year old female of Puri district who was also suffering from Diabetes & hypertension & old Cerebro Vascular Accident.
+9.A 39-year old male of Rayagada district.
+10.A 52-year old male of Sundergarh district who was also suffering from Uncontrolled Diabetes, hypertension & Chronic Kidney Disease.
+1. A 75-year old male of Bhadrak district who was also suffering from Hypertension & Chronic Kidney Disease.
+2. A 32-year old female of Bhubaneswar who was also suffering from Diabetes, Hypertension & Chronic Obstructive Pulmonary Disease.
+3. A 55-year old male of Bhubaneswar .
+4. A 62-year old male of Bolangir district who was also suffering from Diabetes & hypertension.
+5.A 60-year old male of Cuttack district who was also suffering from Diabetes.
+6. A 67-year old male of Ganjam district who was also suffering from Hypertension, Diabetes & bronchial Asthma.
+7.A 55-year old male of Ganjam district.
+8.A 60-year old male of Jajpur district who was also suffering from Chronic Obstructive Pulmonary Disease.
+9.A 59-year old male of Kandhamal district who was also suffering from Hypertension, Diabetes & nephropathy.
+10.A 45-year old male of Sonepur district who was also suffering from Pulmonary Tuberculosis, Chronic Kidney Disease.
+1.A 67 year old female of Cuttack district who was also suffering from Hypertension & Chronic Kidney Disease.
+2.  A 50 year old male of Cuttack district who was also suffering from Diabetes & Hypertension.
+3.A 53 year old male of Ganjam district .
+4.A 58 year old male of Keonjhar district who was also suffering from Diabetes.
+5.A 75 year old male of Nayagarh district.
+6.A 65 year old female of Sambalpur district who was also suffering from Diabetes.
+7.A 74 year old male of Sambalpur district who was also suffering from Diabetes.
+8.A 78 year old male of Sambalpur district
+9.A 50 year old female of Sambalpur district who was also suffering from Diabetes.
+1. A 44 year old male of Cuttack who was also suffering from Hypertension.
+2. A 60 year old male of Ganjam district who was also suffering from Diabetes & Hypertension.
+3. A 75 year old male of Ganjam district who was also suffering from Diabetes.
+4. A 65 year old male of Ganjam district.
+5. A 70 year old male of Ganjam district.
+6. A 52 year old male of Sambalpur district.
+7. A 32 year old male of Sundergarh district.
+8. A 50 year old male of Puri district who was also suffering from Diabetes & Hypertension.
+9.  A 52 year old male of Puri district .
+10. A 72 year old male of Puri district who was also suffering from Hypertension.
+1. A 23-year old male of Cuttack who was also suffering from diabetes, Hypertension & nephropathy.
+2. A 72-year old male of Cuttack district who was also suffering from Diabetes & Hypertension.
+3. A 73-year old male of Ganjam.
+4. An 82-year old male of Ganjam district who was also suffering from Hypertension & Diabetes.
+5. A 36-year old male of Ganjam district.
+6. A 61-year old male of Kandhamal district who was also suffering from Diabetes, Hypertension, Coronary Artery Disease, Old Cerebro Vascular Accident.
+7. A 58-year old male of Mayurbhanj district who was also suffering from Chronic Kidney Disease.
+8. A 60-year old male of Mayurbhanj district.
+9. An 81-year old male of Sundergarh district who was also suffering from Diabetes.
+1. A 44-year old female of Angul district who was also suffering from diabetes .
+2. A 38-year old male of Balasore district.
+3. A 48-year old female of Ganjam district who was also suffering from Diabetes & Obesity.
+4. A 57-year old male of Ganjam.
+5. A 57-year old male of Ganjam district who was also suffering from Diabetes, Hypertension & Chronic Kidney Disease.
+6. A 74-year old female of Ganjam district.
+7. A 58-year old male of Khordha district who was also suffering from Diabetes.
+8. A 65-year old male of Rayagada district.
+9. A 65-year old male of Rayagada district who was also suffering from Diabetes, Hypertension.
+1. A 72-year old Male of Ganjam district who was also suffering from Diabetes & Hypertension.
+2. A 64-year old male of Ganjam district who was also suffering from Hypertension.
+3. A 52-year old male of Ganjam district who was also suffering from Diabetes & Hypertension.
+4. An 80-year old male of Khordha who was also suffering from Hypertension, Bronchial asthma, Benign Hyperplasia of Prostate, Old Cerebro Vascular Accident.
+5. A 55-year old female of Khordha district who was also suffering from Diabetes.
+6. A 26-year old female of Khordha district who was also suffering from Chronic Kidney Disease & Hypertension.
+7. A 57-year old female of Sundergarh.
+8. A 58-year old male of Balasore who was also suffering from Diabetes & Hypertension .
+9. A 56-year old male of Puri district who was also suffering from Diabetes, Hypertension & Chronic Kidney Disease.
+10. A 47-year old male of Rayagada district who was also suffering from Diabetes.
+1. A 30-year old Male of Nayagarh district who was also suffering from Chronic Kidney Disease.
+2. A 34-year old male of Nayagarh district.
+3. A 78-year old male of Nayagarh district.
+4. An 84-year old female of Bhubaneswar.
+5. An 82-year old male of Khordha district who was also suffering from Diabetes & hypertension.
+6. A 69-year old male of Khordha district who was also suffering from Chronic Kidney Disease
+7. An 85-year old male of Ganjam district.
+8. A 65-year old male of Ganjam district.
+9. A 70-year old female of Ganjam district who was also suffering from hypertension.
+10. A 50-year old male of Ganjam district who was also suffering from end stage Chronic Kidney Disease.
+11. A 55-year old male of Ganjam district who was also suffering from Diabetes.
+12. A 50-year old male of Ganjam district who was also suffering from Chronic Kidney Disease.
+13. A 46-year old male of Rayagada district who was also suffering from Diabetes & hypertension.
+14. A 72-year old male of Sundergarh district who was also suffering from Diabetes.
+1. A 30-year old Male of Nayagarh district who was also suffering from Chronic Kidney Disease.
+2. A 34-year old male of Nayagarh district.
+3. A 78-year old male of Nayagarh district.
+4. An 84-year old female of Bhubaneswar.
+5. An 82-year old male of Khordha district who was also suffering from Diabetes & hypertension.
+6. A 69-year old male of Khordha district who was also suffering from Chronic Kidney Disease
+7. An 85-year old male of Ganjam district.
+8. A 65-year old male of Ganjam district.
+9. A 70-year old female of Ganjam district who was also suffering from hypertension.
+10. A 50-year old male of Ganjam district who was also suffering from end stage Chronic Kidney Disease.
+11. A 55-year old male of Ganjam district who was also suffering from Diabetes.
+12. A 50-year old male of Ganjam district who was also suffering from Chronic Kidney Disease.
+13. A 46-year old male of Rayagada district who was also suffering from Diabetes & hypertension.
+14. A 72-year old male of Sundergarh district who was also suffering from Diabetes.
+1. A 81 year old Male of Balasore district who was also suffering from Chronic Kidney Disease.
+2. A 52 year old male of Bhubaneswar who was also suffering from Diabetes & Hypertension, Old Cerebro Vascular Accident.
+3. A 60 year old male of Khordha district who was also suffering from Hypertension, & morbid obesity.
+4. A 47 year old male of Koraput district who was also suffering from Diabetes.
+5. A 65 year old male of Koraput district.
+6. A 39 year old male of Bargarh district.
+7. A 60 year old male of Nayagarh district.
+8. A 65 year old male of Ganjam district who was also suffering from Diabetes & hypertension.
+9. A 40 year old male of Ganjam district who was also suffering from Diabetes.
+10. A 60 year old female of Ganjam district.
+11. A 66 year old male of Ganjam district.
+12. A 37 year old male of Ganjam district who was also suffering from Hypertension.
+13. A 50 year old male of Ganjam district who was also suffering from Diabetes.
+14. a 32 year old male Covid positive patient of Puri district who expired due to Cardiomyopathy with severe Left Ventricular dysfunction, Tubercular Peritonitis.
+1.  A 60 year old Male of Bargarh district who was also suffering from Diabetes & Hypertension.
+2. A 55 year old female of Sundergarh district who was also suffering from Diabetes & Hypertension.
+3. A 67 year old male of Bhubaneswar who was also suffering from Hypertension, Parkinsonism, Benign Prostatic Hyperplasia.
+4. A 57 year old male of Balasore district who was also suffering from Diabetes.
+5. A 55 year old male of Kandhamal district who was also suffering from Diabetes.
+6. A 60 year old male of Kandhamal district who was also suffering from Diabetes.
+7. A 79 year old male of Keonjhar district who was also suffering from hypertension & atrial fibrillation.
+8. A 59 year old male of Gajapati district who was also suffering from Hypertension & Ischemic Heart Disease.
+9. A 61 year old female of Ganjam district who was also suffering from Diabetes & Hypertension.
+10. A 60 year old male of Keonjhar district who was also suffering from Diabetes, Hypertension & Coronary Artery Disease.
+11. A 60 year old male of Bhubaneswar who was also suffering from Chronic Obstructive Pulmonary Disease.
+12. A 48 year old male of Ganjam district who was also suffering from Diabetes & UTI.
+1. A 55-year old Male of Mayurbhanj district who was also suffering from Hypertension.
+2. A 36-year old male of Kendrapada district who was also suffering from Chronic Kidney Disease.
+3. A 78-year old female of Sambalpur district who was also suffering from Chronic Obstructive Pulmonary Disease.
+4. A 55-year old male of Bhadrak district who was also suffering from Diabetes.
+5. A 61-year old male of Dhenkanal district who was also suffering from Diabetes & hypertension.
+6. A 77-year old male of Sundergarh district.
+7. A 77-year old male of Sundergarh district who was also suffering from Diabetes, hypertension & Chronic Kidney Disease.
+8. A 66-year old male of Sundergarh district who was also suffering from Diabetes & Chronic Obstructive Pulmonary Disease.
+9. A 52-year old male of Ganjam district.
+10. A 50-year old male of Ganjam district who was also suffering from Diabetes.
+11. A 62-year old male of Ganjam district who was also suffering from Hypertension.
+12. A 34-year old male of Gajapati district who was also suffering from Chronic Kidney Disease.
+1.  A 52 year old Male of Ganjam district who was also suffering from Diabetes & Hypertension.
+2. A 40 year old male of Nabarangpur district who was also suffering from Pulmonary Tuberculosis.
+3. A 28 year old female of Sundergarh district.
+4. A 40 year old male of Ganjam district.
+5. A 39 year old male of Nayagarh district.
+6. A 54 year old male of Sundergarh district who was also suffering from Uncontrolled Diabetes.
+7. A 55 year old male of Ganjam district who was also suffering from Relapsed Tuberculosis.
+8. A 53 year old female of Bhadrak district who was also suffering from Diabetes & Hypertension.
+9. A 61 year old male of Kandhamal district who was also suffering from Diabetes & Hypertension.
+10. A 52 year old male of Keonjhar district who was also suffering from Diabetes & Hypertension & Chronic Kidney Disease.
+1.  A 42 year old Male of Ganjam district who was also suffering from Diabetes & Acute Kidney Injury.
+2. A 55 year old male of Sundergarh district who was also suffering from Diabetes.
+3. A 52 year old female of Ganjam district.
+4. A 59 year old male of Ganjam district.
+5. A 27 year old male of Gajapati district.
+6. A 53 year old male of Ganjam district who was also suffering from Hypertension.
+7. A 21 year old male of Keonjhar district who was also suffering from Diabetes (Type-I).
+8. A 60 year old female of Khordha district.
+9. A 63 year old male of Ganjam district who was also suffering from Uncontrolled Diabetes and Chronic Kidney Disease.
+1.  A 40 year old male of Ganjam district who was also suffering from Diabetes.
+2. A 57 year old male of Puri district who was also suffering from Cerebro Vascular Accident.
+3. A 50 year old male of Ganjam district.
+4. A 40 year old male of Jajpur district.
+5. A 46 year old male of Ganjam district who was also suffering from Diabetes.
+6. A 60 year old male of Ganjam district who was also suffering from Diabetes & Hypertension.
+7. A 75 year old female of Ganjam district who was also suffering from Diabetes & Hypertension.
+8. A 55 year old male of Khordha district.
+9. A 60 year old female of Ganjam district who was also suffering from Chronic Kidney Disease, Diabetes & Hypertension.
+10. a 66 year old male Covid positive patient of Malkangiri district who expired due to Accelerated Hypertension & Left Ventricular Failure.
+1. A 73-year old male of Sundargarh district who was also suffering from Diabetes, Hypertension, Ischemic Heart Disease & Chronic Obstructive Pulmonary Disease.
+2. A 58-year old male of Khordha district who was also suffering from Diabetes & Hypertension.
+3. A 57-year old male of Ganjam district.
+4. A 78-year old female of Bhubaneswar who was also suffering from Hypertension & Dilated Cardio Myopathy.
+5. An 80-year old male of Jajpur district who was also suffering from Diabetes and Hypertension.
+6. A 94-year old female of Ganjam district.
+7. A 45-year old female of Ganjam district.
+8. A 60-year old female of Khordha district who was also suffering from Hypertension, Diabetes & Chronic Kidney Disease.
+9. A 57-year old male of Ganjam district who was also suffering from Hypertension and Diabetes.
+10. A 62-year old male of Kalahandi district who was also suffering from disseminated Tuberculosis and drug-induced Hepatitis.
+11.a 65-year old male Covid positive patient of Gajapati district who expired due to end stage Chronic Kidney Disease.
+1. A 54-year old male of Ganjam district who was also suffering from Diabetes & Hypertension.
+2. A 62-year old male of Bhubaneswar.
+3. A 70-year old male of Bhubaneswar who was also suffering from uncontrolled Diabetes .
+4. A 44-year old male of Ganjam district who was also suffering from Diabetes.
+5. A 56-year old male of Sundargarh district who was also suffering from Diabetes, Hypertension & Coronary Artery Disease.
+6. A 63-year old male of Ganjam district who was also suffering from Hypertension.
+7. A 56-year old female of Ganjam district who was also suffering from Diabetes, Hypertension & Hypothyroidism.
+8. A 70-year old male of Ganjam district who was also suffering from Hypertension.
+9. A 40-year old male of Khordha district who was also suffering from uncontrolled Diabetes.
+10. A 49-year old male of Gajapati district who was also suffering from Diabetes & Hypertension.
+11. a 30-year old Covid positive male of Nayagarh district who expired due to Acute Chronic Kidney Disease & Septic Shock.
+1. An 81-year old male of Ganjam district who was also suffering from Diabetes.
+2. A 79-year old male of Khordha district who was also suffering from Hypertension and end-stage renal disease with Uremic Encephalopathy.
+3. A 49-year old male of Ganjam district.
+4. An 82-year old female of Nayagarh district who was also suffering from Diabetes, Hypertension and Cerebrovascular Accident (Stroke).
+5. A 58-year old female of Gajapati district.
+6. A 52-year old male of Sundargarh district who was also suffering from Diabetes.
+7. A 45-year old male of Ganjam district.
+8. A 73-year old male of Ganjam district who was also suffering from Parkinsonism, Coronary Artery Disease, Diabetes & Hypertension.
+9. a 12-year old female of Keonjhar district who expired due to Acute Peritonitis.
+1. A 67-year old male of Sambalpur district who was also suffering from Hypertension.
+2. A 60-year old female of Bhubaneswar who was also suffering from Diabetes.
+3. A 43-year old male of Ganjam district.
+4. A 47-year old male of Ganjam district.
+5. A 65-year old male of Nayagarh district who was also suffering from Chronic Kidney Disease with Uremic Encephalopathy.
+6. A 33-year old male of Ganjam district.
+7. A 65-year old female of Ganjam district who was also suffering from Diabetes, Hypertension and Hypothyroidism.
+8. A 71-year old male of Sundargarh district who was also suffering from Diabetes.
+9. A 60-year old male of Bhubaneswar who was also suffering from Diabetes and Chronic Kidney Disease.
+10. A 50 year old male of Rayagada district who was also suffering from Chronic Obstructive Pulmonary Disease.
+1. A 46-year old male of Balasore district who was also suffering from Diabetes and Hypertension.
+2. A 55-year old female of Puri district.
+3. A 60-year old female of Ganjam district who was also suffering from Diabetes and Hypertension.
+4. A 50-year old male of Phulbani district who was also suffering from Alcoholic Liver disease, Jaundice and Hepatic encephalopathy.
+5. A 62-year old female of Malkangiri district who was also suffering from Hypertension.
+6. a 2-year old female of Bhadrak district who expired due to Congenital Heart Disease with Cardiac failure.
+1. A 55-year old male of Ganjam district.
+2. A 72-year old male of Rayagada district who was also suffering from Diabetes.
+3. A 31-year old male of Rayagada district.
+4. A 56-year old male of Ganjam district .
+5. A 45-year old male of Cuttack district who was also suffering from Bronchial asthma and Diabetes.
+6. A 39-year old male of Ganjam district.
+7. A 5-year old male of Bhubaneswar who was also suffering from Cerebral Palsy with seizure disorder.
+8. a 16-year old Covid female of Balasore district who expired due to Acute Lymphocytic Leukemia with immune suppression.
+1. A 63-year old male of Sundergarh district who was also suffering from Diabetes.
+2. A 45-year old male of Bhubaneswar who was also suffering from Diabetes.
+3. A 51-year old female of Ganjam district.
+4. A 58-year old male of Ganjam district who was also suffering from Diabetes.
+5. A 55-year old male of Ganjam district.
+6. A 66-year old male of Cuttack district
+7. A 51-year old male of Malkangiri district who was also suffering from Hypertension.
+1. A 63-year old male of Gajapati district who was also suffering from Diabetes and Hypertension.
+2. A 63-year old male of Ganjam district.
+3. A 55-year old male of Ganjam district who was also suffering from Diabetes and Hypertension.
+4. A 60-year old male of Ganjam district.
+5. A 64-year old male of Ganjam district who was also suffering from Chronic Kidney Disease.
+6. A 60-year old male of Ganjam district.
+7. A 35-year old male of Khordha district.
+8. A 51-year old female of Ganjam district .
+9. A 69-year old male of Sundargarh district who was also suffering from Hypertension.
+10. A 58-year old female of Bhubaneswar who was also suffering from Diabetes, Hypertension, Coronary Artery Disease, Right Pneumothorax and Obesity.
+11. a 23-year old Covid positive female of Ganjam district who expired due to Eclampsia of Pregnancy
+1. A 54-year old male of Sundergarh district who was also suffering from Diabetes.
+2. A 37-year old male of Gajapati district who was also suffering from Diabetes and Hypertension.
+3. A 37-year old male of Balasore district who was also suffering from Spondyloarthropathy with immunosupression.
+4. A 30-year old male of Ganjam district who was also suffering from Diabetes and Hypertension.
+5. A 60-year old male of Ganjam district.
+6. A 61-year old male of Jharsuguda district.
+7. A 60-year old male of Sundergarh district.
+8. A 60-year old male of Ganjam district.
+9. A 60-year old female of Balasore district who was also suffering from Diabetes and Obesity.
+10. A 47-year old male of Rayagada district who was also suffering from Chronic Obstructive Pulmonary Disease and Obesity.
+1. A 44-year old male of Ganjam district who was also suffering from Diabetes.
+2. A 71-year old male of Rayagada district who was also suffering from Diabetes, Hypertension and Chronic Kidney Disease.
+3. A 53-year old male of Gajapati district.
+4. A 59-year old female of Ganjam district.
+5. A 50-year old female of Ganjam district.
+6. A 60-year old male of Bhadrak district who was also suffering from Diabetes and Hypertension.
+1. A 41-year old male of Ganjam district who was also suffering from Hypertension
+2. An 86-year old female of Khordha district who was also suffering from Diabetes and Hypertension.
+3. A 63-year old male of Ganjam district who was also suffering from Hypertension.
+4. A 51-year old female of Ganjam district who was also suffering from Diabetes and Diabetic Ketoacidosis.
+5.  A 69-year old male of Ganjam district.
+6. A 57-year old Male of Ganjam district who was also suffering from Diabetes and Hypertension.
+1. A 72 year old Male of Gajapati district who was also suffering from Diabetes, Hypertension and Coronary Artery Disease
+2. A 40 year old Female of Ganjam district who was also suffering from Diabetes and Hydronephrosis.
+3. A 61 year old Male of Ganjam district who was also suffering from Diabetes .
+4. A 60 year old Male of Ganjam district who was also suffering from Diabetes and Hypertension.
+5. A 86 year old Male of Kandhamal district who was also suffering from Diabetes and Chronic Obstructive Pulmonary Disease.
+1. A 63-year old Male of Kendrapara district who was also suffering from Diabetes, Hypertension and Intra-cranial hemorrhage.
+2. A 26-year old female of Cuttack district who was also suffering from Diabetes and Hypertension.
+3. A 68-year old Male of Gajapati district who was also suffering from Diabetes and Hypertension.
+4. A 58-year old Male of Jagatsinghpur district who was also suffering from Lung Cancer.
+5. A 75-year old Male of Khordha district who was also suffering from Chronic Bronchiectasis.
+6. A 74-year old Male of Rayagada district who was also suffering from Hypertension.
+1. A 70-year old Male of Ganjam district who was also suffering from Diabetes.
+2. A 40-year old Male of Ganjam district.
+3. A 55-year old female of Gajapati district who was also suffering from Diabetes.
+4. A 42-year old Male of Ganjam district who was also suffering from Diabetes.
+5. A 54-year old Male of Ganjam district.
+6. A 52-year old Male of Ganjam district who was also suffering from Hypertension and Diabetes.
+1. A 70-year old female of Ganjam district.
+2. A 67-year old Male of Jagatsinghpur district who was also suffering from Diabetes.
+3. A 44-year old Male of Ganjam district.
+4. A 65-year old female of Sundargarh district who was also suffering from Diabetes and Bronchitis.
+5. A 39-year old Male of Ganjam district who was also suffering from Diabetes.
+1. A 63-year old Male of Ganjam district.
+2. A 60-year old Male of Ganjam district.
+3. A 48-year old female of Gajapati district who was also suffering from obesity and sleep apnea.
+1. A 66-year old Male of Angul district who was also suffering from Neuroendocrine Tumor.
+2. A 57-year old Male of Ganjam district who was also suffering from Diabetes.
+3. A 56-year old Male of Gajapati district who was also suffering from Diabetes and heart disease.
+4. A 60-year old Male of Ganjam district who was also suffering from Chronic Kidney Disease.
+1. A 51-year old Male of Unknown district who was also suffering from morbid obesity.
+2. A 34-year old Male of Unknown district who was also suffering from Hypertension.
+1. A 65-year old Male of Ganjam district who was also suffering from Diabetes.
+2. A 72-year old Male of Bhubaneswar.
+3. An 86-year old Male of Ganjam district who was also suffering from chronic Hypertension.
+1. A 71-year old Male of Cuttack district who was also suffering from Oral Cancer.
+2. A 40-year old Female of Khordha district.
+1. A 71-year old Male of Cuttack district who was also suffering from Oral Cancer.
+2. A 40-year old Female of Khordha district.
+3. A 71-year old Male of Bhubaneswar who was also suffering from Blood Cancer.
+4. An 80-year old Male of Ganjam district who was also suffering from Diabetes and heart disease.
+5. A 1-year old male of Sundargarh district who was also suffering from GM 1 Gangliosidosis.
+1. A 45-year old Male of Ganjam district who was also suffering from Diabetes and Hypertension.
+2. A 67-year old Male of Bhubaneswar who was also suffering from Diabetes, Hypertension and Chronic Kidney Disease.
+3. A 63-year old Male of Ganjam district.
+4. A 40-year old Male of Cuttack district.
+5. A 72-year old Male of Ganjam district who was also suffering from Diabetes, Heart disease and Chronic Kidney Disease.
+6. A 49-year old Male of Ganjam district who was also suffering from Diabetes.
+7. A 17-year old Male of Ganjam district who passed away from terminal Lung Cancer.
+1. A 56-year old Male of Ganjam district who was also suffering from Diabetes.
+2. A 50-year old Male of Ganjam district.
+3. A 65-year old Male of Ganjam district who was also suffering from Diabetes and Hypertension.
+1. A 70-year old Male of Puri district who was also suffering from Diabetes and Hypertension.
+2. A 46-year old Male of Cuttack district who was also suffering from Diabetes, Hypertension and Hypothyroidism.
+3. A 56-year old female of Bhubaneswar who was also suffering from Diabetes.
+4. A 55-year old Male of Ganjam district.
+5. A 72-year old Male of Ganjam district who was also suffering from Diabetes.
+6. A 62-year old female of Kendrapara district who was also suffering from brain tumour, Diabetes, Hypertension and Asthma.
