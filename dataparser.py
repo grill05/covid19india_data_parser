@@ -231,7 +231,7 @@ def karnataka_map_patient_no_to_date(patient_no=1,case_series=[]):
     else:               date_of_case=i[0];break;
   return date_of_case
 
-def karnataka_parse_deaths(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range=(19,23)):
+def karnataka_parse_deaths(bulletin='',bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range=(19,23)):
   start_page=str(page_range[0])
   end_page=str(page_range[1])
 
@@ -368,7 +368,7 @@ def karnataka_parser(bulletin='',return_date_only=False):
 
   #get deaths info
   # ~ cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['deaths'][0])+' -l '+str(annex_range['deaths'][1])+' ka.pdf tmp.txt';os.system(cmd);
-  deaths=karnataka_parse_deaths(bulletin_date,annex_range['deaths'])
+  deaths=karnataka_parse_deaths(bulletin,bulletin_date,annex_range['deaths'])
 
   #get icu info
   cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['icu'][0])+' -l '+str(annex_range['icu'][1])+' '+bulletin+' tmp.txt';os.system(cmd);
