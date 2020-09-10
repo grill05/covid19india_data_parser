@@ -411,6 +411,7 @@ def karnataka_parse_discharges(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)
       
     district_names.append(district_name)
     for patient_number in discharges:
+      if not patient_number.replace('n','').replace(',','').isdigit(): continue #p.no must be digit
       dd=karnataka_discharge(district_name,patient_number,bulletin_date)
       if dd.district!='ERROR':      all_dischages_objects.append(dd)
 
