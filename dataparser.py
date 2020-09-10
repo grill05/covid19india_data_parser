@@ -6,7 +6,7 @@
 # ~ for moving average with window 'N'
 # ~ np.convolve(x, np.ones((N,))/N, mode='valid')
 
-
+import os,sys
 import json,datetime,numpy,pylab
 
 state_code_to_name={'pb':'Punjab',            'hr':'Haryana',
@@ -23,6 +23,17 @@ state_code_to_name={'pb':'Punjab',            'hr':'Haryana',
 state_name_to_code={}
 for k in state_code_to_name: state_name_to_code[state_code_to_name[k]]=k
 
+#cache this to avoid repeated file reads
+global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+
+def update_data_files():
+  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/data.json','https://api.covid19india.org/state_test_data.json']
+  for i in urls:
+    filename=os.path.split(i)[1]
+    if os.path.exists(filename):
+      os.remove(filename)
+      cmd='wget -q "'+i+'" -O "'+filename+'"';os.system(cmd);
+      
 #class meant to represent Odisha's fatality data (in a very specific format)
 class fatality():
   date='';age='';gender='';district='';comorbidity=[];comorb_string=''
@@ -65,6 +76,45 @@ class fatality():
     if self.comorbidity: info+='\nComorbidity:\t%s' %(','.join(self.comorbidity))
     else: info+='\nComorbidity:\t\tNONE' 
     print info
+
+class karnataka_icu_usage():
+  date='';district='';icu_usage=''
+  def __init__(self,bulletin_date,district_name,icu_usage):
+    self.date=bulletin_date
+    self.district=district_name
+    self.icu_usage=icu_usage
+  def info(self):
+    info_str='In district: %s on %s, icu_usage: %d' %(self.district,self.date.strftime('%d-%m-%Y'),self.icu_usage)
+    print info_str
+#class meant to represent a discharges patient in Karnataka
+class karnataka_discharge():
+  patient_number='';date_of_detection='';date_of_discharge='';
+  district='';detection_discharge_interval=0
+  def __init__(self,district_name,patient_number,bulletin_date):    
+    self.date_of_discharge=bulletin_date
+    self.district=district_name
+    self.patient_number=int(patient_number)
+    self.date_of_detection=karnataka_map_patient_no_to_date(self.patient_number,global_karnataka_case_series)
+    try:
+      self.detection_discharge_interval=(self.date_of_discharge-self.date_of_detection).days
+    except:
+      # ~ print 'error in calculating detection-discharge interval between '+str(self.date_of_discharge)+' and '+str(self.date_of_detection)
+      # ~ self.info()
+      self.district='ERROR'
+  def info(self):
+    info_str='P.no: %d of district: %s\nDetected: %s\tDischarges: %s\nDetection-Discharge Interval: %d' %(self.patient_number,self.district,self.date_of_detection,self.date_of_discharge,self.detection_discharge_interval)
+    print info_str
+
+
+def list_value_frequency(l=[]): #make frequency distribution of list't values
+  values=list(set(l));values.sort()
+  d={};freq=[]
+  for i in l:
+    if i in d: d[i]+=1
+    else: d[i]=1
+  freq.extend([100*(d[i]/float(len(l))) for i in values])
+  return (values,freq)
+  
 def moving_average(input_array=[],window_size=5,index_to_do_ma=1):
   x=input_array
   if type(input_array[0])==tuple:
@@ -156,6 +206,167 @@ def odisha_parser():
     fatalities.append(fatality(i,date))
     current_index=entry_index
   return fatalities
+
+def karnataka_map_patient_no_to_date(patient_no=1,case_series=[]):
+  date_of_case=''
+
+  #need this for function that calculates which date a P. no. falls on
+  if not case_series:
+    case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+    
+  for i in case_series:
+    if patient_no>i[1]: continue
+    else:               date_of_case=i[0];break;
+  return date_of_case
+
+def karnataka_parse_deaths(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range=(19,23)):
+  start_page=str(page_range[0])
+  end_page=str(page_range[1])
+
+  #get districts name
+  districts=[]
+  cmd='pdftotextx -marginl 10 -marginr 500   -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' ka.pdf tmp.txt';os.system(cmd);
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+
+  d=''
+  for j in range(len(b)):
+    i=b[j]
+    if i[0].isdigit():      
+      d=''.join(i.split()[1:]).strip()
+      if j<(len(b)-1) and not b[j+1][0].isdigit(): #split name
+        d+=b[j+1].strip()
+      districts.append(d)
+  
+  return districts  
+      
+  
+  
+def karnataka_parse_icu_usage(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)):
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and i.strip()[0].isdigit()]
+  all_icu_obj=[]
+  for i in b:
+    district_name=''.join(i.split()[1:-1])
+    icu_usage=i.split()[-1]
+    assert(icu_usage.isdigit())
+    icu_usage=int(icu_usage)
+    icu_obj=karnataka_icu_usage(bulletin_date,district_name,icu_usage)
+    all_icu_obj.append(icu_obj)
+  return all_icu_obj
+
+  
+def karnataka_parse_discharges(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)):
+  skip_start_terms=('Total','*','Date')
+  b=[i for i in open('tmp.txt').readlines() if i.strip() and not i.strip().startswith(skip_start_terms)]
+
+  district_indices=[b.index(i) for i in b if i[0].isdigit()]
+  b0=b[:]
+  b=b[district_indices[0]:]; #remove header
+
+  district_names=[];
+  all_dischages_objects=[]
+  
+  for j in range(len(district_indices)):
+    district_index=district_indices[j]
+    first_line=b0[district_index].strip()
+    district_name=''
+    l=first_line.split()[1:]
+    discharges=[]
+    #parse first line
+    for i in l:
+      # ~ print i
+      if i.isdigit():
+        discharges=l[l.index(i)+1:]
+        break
+      else:
+        district_name+=i
+    #parse rest of discharges lines for district
+    if j==(len(district_indices)-1): next_index=len(district_indices)-1
+    else: next_index=district_indices[j+1]
+    l=b0[district_index+1:next_index]
+    for i in l:
+      discharges.extend(i.strip().split())
+      
+    district_names.append(district_name)
+    for patient_number in discharges:
+      dd=karnataka_discharge(district_name,patient_number,bulletin_date)
+      if dd.district!='ERROR':      all_dischages_objects.append(dd)
+
+  return all_dischages_objects
+        
+
+  
+def karnataka_parser(bulletin='',return_date_only=False):
+  if not os.path.exists(bulletin):
+    print '%s does not exist. Please give pdf bulletin file as input' %(bulletin)
+    return -1
+  cmd='pdftotextx -nopgbrk -layout -table "'+bulletin+'" tmp.txt';os.system(cmd);
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+
+  #find date of bulletin
+  date_string='';bulletin_date=''
+  for i in b:
+    i=i.lower()
+    if i.startswith('date:'):
+      date_string=i.split(':')[1].strip()
+      bulletin_date=datetime.datetime.strptime(date_string,'%d-%m-%Y')
+      break
+  if return_date_only:    return (bulletin_date,date_string)
+
+  #find pages for Annexure 1(discharges),2(deaths),3(icu_usage)
+  annexures=[i for i in b if 'nnexure' in i]
+  annexures_indices=[b.index(i) for i in annexures]
+
+  discharge_annex_range=[];deaths_annex_range=[];icu_annex_range=[];
+  annex_range=[];lastpage=0
+  
+  for annexure_index in annexures_indices:
+    pagenum=0
+    
+    page_string=b[annexure_index-1].lower()
+    if 'page' in page_string:
+      pagenum=page_string.split('page')[1].strip().split('of')[0].strip()
+      lastpage=page_string.split('page')[1].strip().split('of')[1].strip()
+      assert(pagenum.isdigit());assert(lastpage.isdigit())
+      pagenum=int(pagenum)+1
+      lastpage=int(lastpage)
+    else:
+      print '"page n/n" info not found for %s with page_string: %s' %(b[annexure_index],page_string)
+    info_string=b[annexure_index+1].lower()
+    if 'discharges' in info_string:
+      annex_range.append(('discharges',pagenum))
+    elif 'deaths' in info_string:
+      annex_range.append(('deaths',pagenum))
+    elif 'icu' in info_string:
+      annex_range.append(('icu',pagenum))
+
+  #convert to dict
+  dc={}
+  for i in range(len(annex_range)):
+    if i<(len(annex_range)-1):
+      dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i+1][1]-1)
+    else:
+      dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i][1])
+  annex_range=dc
+
+  #get discharges info
+
+  cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['discharges'][0])+' -l '+str(annex_range['discharges'][1])+' ka.pdf tmp.txt';os.system(cmd);
+
+  discharges=karnataka_parse_discharges(bulletin_date)
+
+  #get deaths info
+  # ~ cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['deaths'][0])+' -l '+str(annex_range['deaths'][1])+' ka.pdf tmp.txt';os.system(cmd);
+  deaths=karnataka_parse_deaths(bulletin_date,annex_range['deaths'])
+
+  #get icu info
+  cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['icu'][0])+' -l '+str(annex_range['icu'][1])+' ka.pdf tmp.txt';os.system(cmd);
+  icu_usage=karnataka_parse_icu_usage(bulletin_date)
+  
+  # ~ return bulletin_date,annex_range,discharges
+  return (discharges,icu_usage)
+
+
+   
 # ~ Returns percent of antigen tests as fraction of daily tests in state
 # as of sep 5, data on antigen tests is available for (state_name: number_of_days_of_data_available)
 # ~ {u'Chhattisgarh': 16,
