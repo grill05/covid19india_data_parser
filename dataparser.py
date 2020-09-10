@@ -318,11 +318,13 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
       comorbidities.append(comorbidity)
       comorbidity=''      
       
-  cmd='pdftotextx -marginl 380 -marginr 110 -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
-  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and i.strip()[0].isdigit() and '-' in i]
+  cmd='pdftotextx -marginl 385 -marginr 110 -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and (i.strip()[0].isdigit() and '-' in i) ]
 
   dates_of_admission=[];dates_of_death=[]
   for i in b:
+
+      
     l=i.split()
     if len(l)==1: #brought dead on date
       date_of_admission=datetime_doa_marker; #use 1 jan as marker
