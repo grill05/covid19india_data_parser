@@ -7,7 +7,7 @@
 # ~ np.convolve(x, np.ones((N,))/N, mode='valid')
 
 import os,sys
-import json,datetime,numpy,pylab,requests
+import json,datetime,numpy,requests
 
 state_code_to_name={'pb':'Punjab',            'hr':'Haryana',
                     'kl':'Kerala',            'ka':'Karnataka',
@@ -483,7 +483,7 @@ def get_people_on_ventilators(state='Telangana',verbose=False):
   return all_percent_ventilator
 
 def make_plots(use_all_states=False,use_solid_lines=False):
-  
+  import pylab
   states_icu=['Punjab','Haryana','Kerala','Telangana','Karnataka']
   states_ventilator=['Punjab','Haryana','Kerala','Telangana','Gujarat']
   # ~ states_icu=['Telangana']
