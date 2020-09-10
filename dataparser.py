@@ -40,7 +40,9 @@ def update_data_files():
     filename=os.path.split(i)[1]
     if os.path.exists(filename):
       os.remove(filename)
-      cmd='wget -q "'+i+'" -O "'+filename+'"';os.system(cmd);
+    cmd='wget -q "'+i+'" -O "'+filename+'"';
+    print cmd
+    os.system(cmd);
       
 #class meant to represent Odisha's fatality data (in a very specific format)
 class fatality():
