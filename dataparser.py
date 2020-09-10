@@ -106,6 +106,7 @@ class karnataka_discharge():
   def __init__(self,district_name,patient_number,bulletin_date):    
     self.date_of_discharge=bulletin_date
     self.district=district_name
+    if ',' in patient_number: patient_number=patient_number.replace(',','').strip()
     self.patient_number=int(patient_number)
     self.date_of_detection=karnataka_map_patient_no_to_date(self.patient_number,global_karnataka_case_series)
     try:
