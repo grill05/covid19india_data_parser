@@ -23,15 +23,16 @@ state_code_to_name={'pb':'Punjab',            'hr':'Haryana',
 state_name_to_code={}
 for k in state_code_to_name: state_name_to_code[state_code_to_name[k]]=k
 global_karnataka_case_series=''
-def helper_download_karnataka_bulletin(twitter_link):
+def helper_download_karnataka_bulletin(twitter_link,debug=False):
   x=requests.get(twitter_link)
   url=x.url
   file_id=url.split('/d/')[1].split('/')[0]
   google_drive_url='https://docs.google.com/uc?export=download&id='+file_id
   download_cmd='wget -q --no-check-certificate "'+google_drive_url+'" -O tmp.pdf'
+  if debug: print download_cmd
   os.system(download_cmd)
   bulletin_date=karnataka_parser('tmp.pdf',return_date_only=True)
-  print bulletin_date
+  if debug: print 'bulletin_date: '+str(bulletin_date)
   bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
   os.system('cp -v tmp.pdf "'+bulletin_date_string+'.pdf"')
 
