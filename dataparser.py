@@ -362,6 +362,7 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
       date_of_death=dates_of_death[j]
       hospital_type=hospital_types[j]
     except IndexError: #some index was incomplete
+      print '---'
       print 'districts',len(districts)
       print 'patient_numbers',len(patient_numbers)
       print 'ages',len(ages)
