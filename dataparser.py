@@ -7,7 +7,7 @@
 # ~ np.convolve(x, np.ones((N,))/N, mode='valid')
 
 import os,sys
-import json,datetime,numpy,pylab
+import json,datetime,numpy,pylab,requests
 
 state_code_to_name={'pb':'Punjab',            'hr':'Haryana',
                     'kl':'Kerala',            'ka':'Karnataka',
@@ -26,6 +26,18 @@ for k in state_code_to_name: state_name_to_code[state_code_to_name[k]]=k
 #cache this to avoid repeated file reads
 global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
 
+
+def helper_download_karnataka_bulletin(twitter_link):
+  x=requests.get(twitter_link)
+  url=x.url
+  file_id=url.split('/d/')[1].split('/')[0]
+  google_drive_url='https://docs.google.com/uc?export=download&id='+file_id
+  download_cmd='wget -q --no-check-certificate "'+google_drive_url+'" -O tmp.pdf'
+  bulletin_date=karnataka_parser('tmp.pdf',return_date_only=True)
+  bulletin_date_string=datetime.datetime.strptime(bulletin_date,'%m_%d_%Y')
+  os.system('mv tmp.pdf "'+bulletin_date_string+'.pdf"')
+
+  
 def update_data_files():
   urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/data.json','https://api.covid19india.org/state_test_data.json']
   for i in urls:
@@ -310,7 +322,7 @@ def karnataka_parser(bulletin='',return_date_only=False):
       date_string=i.split(':')[1].strip()
       bulletin_date=datetime.datetime.strptime(date_string,'%d-%m-%Y')
       break
-  if return_date_only:    return (bulletin_date,date_string)
+  if return_date_only:    return bulletin_date
 
   #find pages for Annexure 1(discharges),2(deaths),3(icu_usage)
   annexures=[i for i in b if 'nnexure' in i]
