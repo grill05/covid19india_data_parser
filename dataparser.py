@@ -30,6 +30,7 @@ def helper_download_karnataka_bulletin(twitter_link):
   google_drive_url='https://docs.google.com/uc?export=download&id='+file_id
   download_cmd='wget -q --no-check-certificate "'+google_drive_url+'" -O tmp.pdf'
   bulletin_date=karnataka_parser('tmp.pdf',return_date_only=True)
+  print bulletin_date
   bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
   os.system('mv tmp.pdf "'+bulletin_date_string+'.pdf"')
 
