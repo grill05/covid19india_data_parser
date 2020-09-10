@@ -22,7 +22,7 @@ state_code_to_name={'pb':'Punjab',            'hr':'Haryana',
                     }
 state_name_to_code={}
 for k in state_code_to_name: state_name_to_code[state_code_to_name[k]]=k
-
+global_karnataka_case_series=''
 def helper_download_karnataka_bulletin(twitter_link):
   x=requests.get(twitter_link)
   url=x.url
@@ -519,7 +519,8 @@ def make_plots(use_all_states=False,use_solid_lines=False):
   figure = pylab.gcf();figure.set_size_inches(8, 6);pylab.savefig('Ventilator_usage.png', dpi = 100);
 
 #cache this to avoid repeated file reads
-global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+if os.path.exists('states_daily.json'):
+  global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
 
     
 if __name__=='__main__':
