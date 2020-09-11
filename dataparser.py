@@ -591,9 +591,9 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False):
     i=i.lower()
     if i.startswith(('date:','dated:')):
       date_string=i.split(':')[1].strip().replace('202020','2020')
-      if '-' in date_string
+      if '-' in date_string:
         bulletin_date=datetime.datetime.strptime(date_string,'%d-%m-%Y')
-      elif '/' in date_string
+      elif '/' in date_string:
         bulletin_date=datetime.datetime.strptime(date_string,'%d/%m/%Y')
       break
   # ~ if return_date_only:    return bulletin_date
