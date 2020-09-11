@@ -32,7 +32,7 @@ def helper_download_karnataka_bulletin(twitter_link,debug=False):
   download_cmd='wget -q --no-check-certificate "'+google_drive_url+'" -O tmp.pdf'
   if debug: print download_cmd
   os.system(download_cmd)
-  bulletin_date=karnataka_parser('tmp.pdf',return_date_only=True)
+  (bulletin_date,annex_range)=karnataka_bulletin_parser('tmp.pdf',return_date_only=True)
   if debug: print 'bulletin_date: '+str(bulletin_date)
   bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
   os.system('cp -v tmp.pdf "'+bulletin_date_string+'.pdf"')
@@ -94,10 +94,12 @@ class fatality():
 class karnataka_fatality():
   district='';patient_number='';age='';gender='';origin='';comorbidities='';
   date_of_detection='';date_of_admission='';date_of_death='';hospital_type=''
+  date_of_reporting=''
   detection_admission_interval=''
   detection_death_interval=''
   admission_death_interval=''
-  def __init__(self,district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,hospital_type):
+  death_reporting_interval=''
+  def __init__(self,district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,hospital_type,bulletin_date):
     self.district=district
     self.patient_number=int(patient_number.replace('n',''))
     self.age=int(age)
@@ -108,6 +110,9 @@ class karnataka_fatality():
     
     self.date_of_admission=date_of_admission
     self.date_of_death=date_of_death
+    self.date_of_reporting=bulletin_date
+    # ~ print self.date_of_reporting
+    
     self.hospital_type=hospital_type
 
     if self.date_of_admission==datetime_doa_marker: #means patient was dead on arrival
@@ -119,8 +124,8 @@ class karnataka_fatality():
       if self.date_of_detection:
         self.detection_admission_interval=(self.date_of_admission-self.date_of_detection).days    
     if self.date_of_detection:
-      # ~ self.detection_admission_interval=(self.date_of_admission-self.date_of_detection).days    
       self.detection_death_interval=(self.date_of_death-self.date_of_detection).days
+    self.death_reporting_interval=(self.date_of_reporting-self.date_of_death).days
       
   def info(self):
     info_str='P.no %d District: %s Age: %d Gender: %s Origin: %s\n' %(self.patient_number,self.district,self.age,self.gender,self.origin)
@@ -131,8 +136,9 @@ class karnataka_fatality():
     info_str+='Detected: %s Admitted: %s Died: %s\n' %(dod,self.date_of_admission.strftime('%d/%m/%Y'),self.date_of_death.strftime('%d/%m/%Y'))
     info_str+='admission_death_interval: %d\n' %(self.admission_death_interval)
     if self.detection_admission_interval: info_str+='detection_admission_interval: %d\n' %(self.detection_admission_interval)    
-    if self.detection_death_interval: 'detection_death_interval: %d' %(self.detection_death_interval)
-    print info_str
+    if self.detection_death_interval: info_str+='detection_death_interval: %d\n' %(self.detection_death_interval)
+    info_str+='death_reporting_interval: %d' %(self.death_reporting_interval)
+    print info_str.strip()
     
 class karnataka_icu_usage():
   date='';district='';icu_usage=''
@@ -277,13 +283,129 @@ def karnataka_map_patient_no_to_date(patient_no=1,case_series=[]):
     else:               date_of_case=i[0];break;
   return date_of_case
 
+def karnataka_bulletin_get_margins(bulletin='09_09_2020.pdf',page_range=(19,23)):
+  cmd='pdftotext -x 0 -y 0 -W 1000 -H 200 -bbox-layout -nopgbrk -layout -f '+str(page_range[0])+' -l '+str(page_range[])+' "'+bulletin+'" tmp.txt';os.system(cmd)
+  from bs4 import BeautifulSoup
+  soup=BeautifulSoup(open('tmp.txt').read(),'lxml')
+  d_idx=[i for i in range(len(soup('block'))) if soup('block')[i]('word')[0].text.strip().lower()=='district']  
+  if not d_idx:
+    print 'could not find "block" for District in '+bulletin+' with range '+str(page_range)
+    return
+  d=soup('block')[d_idx[0]]
+  
+  #find x,y of block
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+  ymin=float(d.get('ymin'));  ymax=float(d.get('ymax'))
+
+  #get all blocks between y=0 and y=2*ymax
+  hblocks=[i for i in soup('block') if float(i.get('ymin'))>0 and float(i.get('ymax'))<(2*ymax)]
+
+  #s.no
+  sno=[i for i in hblocks if i.text.strip().startswith('Sl.')]
+  if not so:
+    print 'could not find block for serial number'
+    return
+  sno=sno[0];d=sno
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+  #district
+  district=[i for i in hblocks if i.text.strip().startswith('District')]
+  if not district:
+    print 'could not find block for district'
+    return
+  district=district[0];d=district
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+  #State P No
+  spno=[i for i in hblocks if i.text.strip().startswith('State')]
+  if not spno:
+    print 'could not find block for State P. no'
+    return
+  spno=spno[0];d=spno
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+  #age
+  age=[i for i in hblocks if i.text.strip().startswith('Age')]
+  if not age:
+    print 'could not find block for Age'
+    return
+  age=age[0];d=age
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+  #sex
+  sex=[i for i in hblocks if i.text.strip().startswith('Sex')]
+  if not sex:
+    print 'could not find block for sex'
+    return
+  sex=sex[0];d=sex
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+  #desc
+  desc=[i for i in hblocks if i.text.strip().startswith('Desc')]
+  if not desc:
+    print 'could not find block for description'
+    return
+  desc=desc[0];d=desc
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+  #symp
+  symp=[i for i in hblocks if i.text.strip().startswith('Sympt')]
+  if not symp:
+    print 'could not find block for symptoms'
+    return
+  symp=symp[0];d=symp
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+  #comorb
+  comorb=[i for i in hblocks if i.text.strip().startswith('Co')]
+  if not comorb:
+    print 'could not find block for comorb'
+    return
+  comorb=comorb[0];d=comorb
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+  #doa
+  doa=[i for i in hblocks if i.text.strip().startswith('DOA')]
+  if not doa:
+    print 'could not find block for DOA'
+    return
+  doa=doa[0];d=doa
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+  #dod
+  dod=[i for i in hblocks if i.text.strip().startswith('DOD')]
+  if not dod:
+    print 'could not find block for DOD'
+    return
+  dod=dod[0];d=dod
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+  #place
+  place=[i for i in hblocks if i.text.strip().startswith('Place')]
+  if not place:
+    print 'could not find block for place of deaths'
+    return
+  place=place[0];d=place
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+
+
+  
 def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range=(19,23)):
   start_page=str(page_range[0])
   end_page=str(page_range[1])
 
+  format_type='new'
+
+  #first find format (end with DOD or place also)
+  cmd='pdftotextx  -margint 10 -marginb 700 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() if 'DOD' in i]
+  b=b[0]
+  if b.endswith('DOD'): format_type='old'
+
   #get districts name
   districts=[]
-  cmd='pdftotextx -marginl 10 -marginr 500   -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  left=10;right=500; #for new
+  cmd='pdftotextx -marginl '+str(left)+' -marginr  '+str(right)+'  -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
   b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
 
   d=''
@@ -294,7 +416,11 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
       if j<(len(b)-1) and not b[j+1][0].isdigit(): #split name
         d+=b[j+1].strip()
       districts.append(d)
-  cmd='pdftotextx -marginl 115 -marginr 340 -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+
+  #p.no,gender,age,origin
+  left=115;right=340
+  if format_type=='old': right=320
+  cmd='pdftotextx -marginl '+str(left)+' -marginr  '+str(right)+'  -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
   b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and i.strip()[0].isdigit()]
 
   patient_numbers=[];ages=[];genders=[];origins=[]
@@ -308,7 +434,10 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
     patient_numbers.append(patient_number);ages.append(age);genders.append(gender);origins.append(origin)
 
 
-  cmd='pdftotextx -marginl 340 -marginr 210 -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  #comorbidities
+  left=340;right=210
+  if format_type=='old': left=370;right=170
+  cmd='pdftotextx -marginl '+str(left)+' -marginr  '+str(right)+'  -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
   b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and (i.strip()=='-' or i.strip()[0].isupper())]
   comorbidities=[];comorbidity=''
   for i in b:
@@ -322,8 +451,10 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
       comorbidity+=i
       comorbidities.append(comorbidity)
       comorbidity=''      
-      
-  cmd='pdftotextx -marginl 385 -marginr 110 -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+
+  #DOA,DOD
+  left=385;right=110
+  cmd='pdftotextx -marginl '+str(left)+' -marginr  '+str(right)+'  -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
   b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and (i.strip()[0].isdigit() and '-' in i) ]
 
   dates_of_admission=[];dates_of_death=[]
@@ -352,7 +483,7 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
 
   fatalities=[]
 
-  for j in range(len(hospital_types)):
+  for j in range(len(districts)):
 
     try:
       district=districts[j]
@@ -365,7 +496,8 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
       
       date_of_admission=dates_of_admission[j]
       date_of_death=dates_of_death[j]
-      hospital_type=hospital_types[j]
+      # ~ hospital_type=hospital_types[j]
+      hospital_type=''
     except IndexError: #some index was incomplete
       print '---'
       print 'districts',len(districts)
@@ -376,10 +508,10 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
       print 'comorbidities',len(comorbidities)
       print 'dates_of_admission',len(dates_of_admission)
       print 'dates_of_death',len(dates_of_death)
-      print 'hospital_types',len(hospital_types)
+      # ~ print 'hospital_types',len(hospital_types)
       continue
 
-    fatality=karnataka_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,hospital_type)
+    fatality=karnataka_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,hospital_type,bulletin_date)
     fatalities.append(fatality)
       
   return fatalities
@@ -440,7 +572,7 @@ def karnataka_parse_discharges(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)
   return all_dischages_objects
         
 
-  
+
 
 def karnataka_bulletin_parser(bulletin='',return_date_only=False):
   if not os.path.exists(bulletin):
@@ -457,7 +589,7 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False):
       date_string=i.split(':')[1].strip().replace('202020','2020')
       bulletin_date=datetime.datetime.strptime(date_string,'%d-%m-%Y')
       break
-  if return_date_only:    return bulletin_date
+  # ~ if return_date_only:    return bulletin_date
 
   #find pages for Annexure 1(discharges),2(deaths),3(icu_usage)
   annexures=[i for i in b if 'nnexure' in i]
@@ -495,6 +627,7 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False):
       dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i][1])
   annex_range=dc
 
+  if return_date_only:    return (bulletin_date,annex_range)
   #get discharges info
 
   cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['discharges'][0])+' -l '+str(annex_range['discharges'][1])+' '+bulletin+' tmp.txt';os.system(cmd);
