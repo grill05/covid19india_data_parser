@@ -589,7 +589,7 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False):
   date_string='';bulletin_date=''
   for i in b:
     i=i.lower()
-    if i.startswith('date:'):
+    if i.startswith(('date:','dated:')):
       date_string=i.split(':')[1].strip().replace('202020','2020')
       bulletin_date=datetime.datetime.strptime(date_string,'%d-%m-%Y')
       break
