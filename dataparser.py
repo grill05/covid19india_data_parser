@@ -284,7 +284,7 @@ def karnataka_map_patient_no_to_date(patient_no=1,case_series=[]):
   return date_of_case
 
 def karnataka_bulletin_get_margins(bulletin='09_09_2020.pdf',page_range=(19,23)):
-  cmd='pdftotext -x 0 -y 0 -W 1000 -H 200 -bbox-layout -nopgbrk -layout -f '+str(page_range[0])+' -l '+str(page_range[])+' "'+bulletin+'" tmp.txt';os.system(cmd)
+  cmd='pdftotext -x 0 -y 0 -W 1000 -H 200 -bbox-layout -nopgbrk -layout -f '+str(page_range[0])+' -l '+str(page_range[1])+' "'+bulletin+'" tmp.txt';os.system(cmd)
   from bs4 import BeautifulSoup
   soup=BeautifulSoup(open('tmp.txt').read(),'lxml')
   d_idx=[i for i in range(len(soup('block'))) if soup('block')[i]('word')[0].text.strip().lower()=='district']  
