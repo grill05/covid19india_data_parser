@@ -34,7 +34,11 @@ def helper_download_karnataka_bulletin(twitter_link,debug=False):
   os.system(download_cmd)
   (bulletin_date,annex_range)=karnataka_bulletin_parser('tmp.pdf',return_date_only=True)
   if debug: print 'bulletin_date: '+str(bulletin_date)
-  bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
+  if not bulletin_date:
+    print 'could not find date for bulletin. Using tmp format'
+    bulletin_date_string=datetime.datetime.now().strftime('%H-%s')
+  else:    
+    bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
   os.system('cp -v tmp.pdf "'+bulletin_date_string+'.pdf"')
 
   
