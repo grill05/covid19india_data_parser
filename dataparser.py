@@ -327,9 +327,10 @@ def tamil_nadu_bulletin_parser(bulletin='',return_page_range=True):
   cmd='pdftotext  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
   b=[i for i in open('tmp.txt').readlines() if i]
   idx=0;page_count=1;page_range=[];got_start=False
+  
   for i in b:
     if '\x0c' in i: page_count+=1    
-    if 'COVID-19 Positive Deaths'.lower() in i.lower() and 'total' in i.lower() and not got_start:
+    if 'Death in'.lower() in i.lower() and not got_start:
       page_range.append(page_count)
       got_start=True
     if 'Passengers entered Tamil Nadu'.lower() in i.lower():
