@@ -160,7 +160,10 @@ class karnataka_fatality():
     if self.detection_death_interval: info_str+='detection_death_interval: %d\n' %(self.detection_death_interval)
     info_str+='death_reporting_interval: %d' %(self.death_reporting_interval)
     print info_str.strip()
-    
+  def csv_row(self):
+    row_objects=[self.patient_number,self.district,self.age,self.gender,self.origin,self.date_of_detection,self.date_of_admission,self.date_of_death,self.date_of_reporting]
+    row_objects.extend(self.comorbidities)
+    return row_objects
 class karnataka_icu_usage():
   date='';district='';icu_usage=''
   def __init__(self,bulletin_date,district_name,icu_usage):
@@ -889,9 +892,8 @@ def karnataka_parse_icu_usage(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0))
 
   
 def karnataka_parse_discharges(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range=(),debug=False):
+  bulletin=bulletin_date.strftime('%m_%d_%Y')+'.pdf'
   if debug and not page_range:
-    bulletin=bulletin_date.strftime('%m_%d_%Y')+'.pdf'
-    print bulletin
     (bulletin_date,annex_range)=karnataka_bulletin_parser(bulletin,return_date_only=True)
     page_range=annex_range['discharges']
     
