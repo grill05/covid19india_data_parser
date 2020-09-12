@@ -161,8 +161,16 @@ class karnataka_fatality():
     info_str+='death_reporting_interval: %d' %(self.death_reporting_interval)
     print info_str.strip()
   def csv_row(self):
-    row_objects=[self.patient_number,self.district,self.age,self.gender,self.origin,self.date_of_detection,self.date_of_admission,self.date_of_death,self.date_of_reporting]
-    row_objects.extend(self.comorbidities)
+    doa=self.date_of_admission
+    dode=self.date_of_detection    
+    dod=self.date_of_death
+    dor=self.date_of_reporting
+    if dode: dode=dode.date()
+    if doa: doa=doa.date()
+    if dod: dod=dod.date()
+    if dor: dor=dor.date()
+    row_objects=[self.patient_number,self.district,self.age,self.gender,self.origin,dode,doa,dod,dor]
+    if self.comorbidities: row_objects.extend(self.comorbidities)
     return row_objects
 class karnataka_icu_usage():
   date='';district='';icu_usage=''
@@ -540,7 +548,11 @@ def helper_map_district_start_char_to_fullname(startchars=''):
   for k in karnataka_districts_map:
     if startchars.lower().startswith(k):
       return karnataka_districts_map[k]
-
+def helper_plot_linear_fit(x,y):
+  coef=numpy.ployfit(x,y,1)
+  poly1d_fn=numpy.poly1d(coef)
+  pylab.plot(x,y, 'yo', x, poly1d_fn(x), '--k',label='Best linear fit')
+  
 def helper_get_mean_timeseries(recoveries):
   d1=datetime.date(2020,7,14);d2=datetime.date(2020,9,10);delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
