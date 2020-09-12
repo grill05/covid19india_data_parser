@@ -323,6 +323,20 @@ def karnataka_map_patient_no_to_date(patient_no=1,case_series=[]):
     else:               date_of_case=i[0];break;
   return date_of_case
 
+def tamil_nadu_bulletin_parser(bulletin='',return_page_range=True):
+  cmd='pdftotext  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
+  b=[i for i in open('tmp.txt').readlines() if i]
+  idx=0;page_count=1;page_range=[];got_start=False
+  for i in b:
+    if '\x0c' in i: page_count+=1    
+    if 'COVID-19 Positive Deaths'.lower() in i.lower() and 'total' in i.lower() and not got_start:
+      page_range.append(page_count)
+      got_start=True
+    if 'Passengers entered Tamil Nadu'.lower() in i.lower():
+      page_range.append(page_count-1)
+    idx+=1
+  if return_page_range: return page_range
+  
 def karnataka_bulletin_get_margins(bulletin='09_09_2020.pdf',page_range=(19,23),debug_clip='',debug=False):
   cmd='pdftotext -x 0 -y 0 -W 1000 -H 2000 -bbox-layout -nopgbrk -layout -f '+str(page_range[0])+' -l '+str(page_range[1])+' "'+bulletin+'" tmp.txt';os.system(cmd)
   from bs4 import BeautifulSoup
