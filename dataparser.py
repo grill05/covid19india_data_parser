@@ -202,7 +202,7 @@ class karnataka_discharge():
     print info_str
 
 
-def helper_list_value_occurences(l=[],normed=False): #make frequency distribution of list't values
+def helper_list_value_occurences(l=[],normed=False,sort=False): #make frequency distribution of list't values
   values=list(set(l));values.sort()
   d={};freq=[]
   for i in l:
@@ -212,7 +212,12 @@ def helper_list_value_occurences(l=[],normed=False): #make frequency distributio
     freq.extend([100*(d[i]/float(len(l))) for i in values])
   else:
     freq.extend([d[i] for i in values])
-  return (values,freq)
+  # ~ return (values,freq)
+  
+  # ~ z=zip(freq,values)
+  z=zip(values,freq)
+  if sort: z.sort()
+  return z
   
 def moving_average(input_array=[],window_size=5,index_to_do_ma=1):
   x=input_array
@@ -548,10 +553,31 @@ def helper_map_district_start_char_to_fullname(startchars=''):
   for k in karnataka_districts_map:
     if startchars.lower().startswith(k):
       return karnataka_districts_map[k]
-def helper_plot_linear_fit(x,y):
-  coef=numpy.ployfit(x,y,1)
+
+def helper_plot_linear_fit(x,y,label='',color=''):
+  import pylab
+  xr=numpy.arange(len(x))
+  # ~ coef=numpy.polyfit(xr,y,1)
+  coef=numpy.polyfit(x,y,1)
   poly1d_fn=numpy.poly1d(coef)
-  pylab.plot(x,y, 'yo', x, poly1d_fn(x), '--k',label='Best linear fit')
+  # ~ pylab.plot(x,y, 'yo', x, poly1d_fn(x), '--k',label='Best linear fit')
+  # ~ pylab.plot_date(x,poly1d_fn(xr), 'g',label='Best linear fit')
+  if not color:    color='g'
+  if not label:    label='Best linear fit'
+  
+  pylab.plot_date(x,poly1d_fn(x),color,label=label)
+
+def helper_plot_exponential_fit(x,y,label='',color=''):
+  import pylab  
+  coef=numpy.polyfit(x,numpy.log(y),1)
+  poly1d_fn=numpy.poly1d(coef)
+  # ~ pylab.plot(x,y, 'yo', x, poly1d_fn(x), '--k',label='Best linear fit')
+  # ~ pylab.plot_date(x,poly1d_fn(xr), 'g',label='Best linear fit')
+  if not color:    color='r'
+  if not label:    label='Best Exponential fit'
+  
+  pylab.plot(x,numpy.exp(poly1d_fn(x)),color,label=label)
+  
   
 def helper_get_mean_timeseries(recoveries):
   d1=datetime.date(2020,7,14);d2=datetime.date(2020,9,10);delta=d2-d1
@@ -574,7 +600,8 @@ def helper_get_mean_timeseries(recoveries):
     mean_values.append((dd,numpy.mean(r),m1,m2))
     # ~ mean_values.append((dd,numpy.median(r),numpy.median(r1),numpy.median(r2)))
   return mean_values
-def helper_get_mean_deaths(deaths):
+
+def helper_get_mean_deaths(deaths,filter_type=''):
   d1=datetime.date(2020,7,14);d2=datetime.date(2020,9,10);delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   datetimes=[datetime.datetime.combine(i,datetime.time(0, 0)) for i in datetimes]
@@ -582,19 +609,34 @@ def helper_get_mean_deaths(deaths):
   # ~ dates=[(d1 + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(delta.days + 1)]
   mean_values=[]
   for dd in datetimes:
-    d=[i.age for i in deaths if i.date_of_death==dd]
-    d1=[i.age for i in deaths if i.date_of_death==dd and i.district=='bengaluru']
-    d2=[i.age for i in deaths if i.date_of_death==dd and i.district!='bengaluru']
-    
-    if not d:
-      print 'no deaths info for '+str(dd)
-      continue
+    d=[i for i in deaths if i.date_of_death==dd]
+    d1=[i for i in deaths if i.date_of_death==dd and i.district=='bengaluru']
+    d2=[i for i in deaths if i.date_of_death==dd and i.district!='bengaluru']
+
     m1=0;m2=0
-    if d1: m1=numpy.mean(d1)
-    if d2: m2=numpy.mean(d2)
-    # ~ mean_values.append((dd,numpy.mean(r),numpy.mean(r1),numpy.mean(r2)))
-    mean_values.append((dd,numpy.mean(d),m1,m2))
-    # ~ mean_values.append((dd,numpy.median(r),numpy.median(r1),numpy.median(r2)))
+    
+    if filter_type=='gender': #find fraction of males in daily deaths on date
+      d=float(len([i for i in d if i.gender=='M']))/len(d)
+      d1=float(len([i for i in d1 if i.gender=='M']))/len(d1)
+      d2=float(len([i for i in d2 if i.gender=='M']))/len(d2)
+    if filter_type=='origin': #find fraction of SARI/ILI in daily deaths on date
+      d=float(len([i for i in d if i.origin in ['SARI','ILI']]))/len(d)
+      d1=float(len([i for i in d1 if i.origin in ['SARI','ILI']]))/len(d1)
+      d2=float(len([i for i in d2 if i.origin in ['SARI','ILI']]))/len(d2)
+    else: #find all ages on date
+      d=[i.age for i in d]
+      d1=[i.age for i in d1]
+      d2=[i.age for i in d2]
+
+    if filter_type in ['gender','origin']: #find percent of males in daily deaths over time
+      mean_values.append((dd,d,d1,d2))
+    else:
+      if not d:
+        print 'no deaths info for '+str(dd)
+        continue
+      if d1: m1=numpy.mean(d1)
+      if d2: m2=numpy.mean(d2)
+      mean_values.append((dd,numpy.mean(d),m1,m2))
   return mean_values
   
 def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range='',stop_debug=''):
