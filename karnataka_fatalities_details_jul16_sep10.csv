@@ -1,5 +1,4 @@
 State P no,District,Age,Sex,Origin,Date of Detection,Date of Admission,Date of Death, Date of Reporting,Comorbidities
-
 13499,ballari,45,F,SARI,2020-06-29,2020-06-28,2020-07-14,2020-07-14,NONE
 23758,bengaluru,59,M,SARI,2020-07-06,2020-07-04,2020-07-05,2020-07-14,DM,HTN
 23917,bengaluru,47,M,SARI,2020-07-06,2020-01-01,2020-07-04,2020-07-14,NONE
