@@ -111,7 +111,7 @@ class fatality():
     else: info+='\nComorbidity:\t\tNONE' 
     print info
 
-class karnataka_fatality():
+class generic_fatality():
   district='';patient_number='';age='';gender='';origin='';comorbidities='';
   date_of_detection='';date_of_admission='';date_of_death='';
   date_of_reporting=''
@@ -119,15 +119,19 @@ class karnataka_fatality():
   detection_death_interval=''
   admission_death_interval=''
   death_reporting_interval=''
-  def __init__(self,district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date):
+  def __init__(self,district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date,state='Karnataka'):
     self.district=district
     self.patient_number=int(patient_number.replace('n',''))
     age=age.lower().replace('yrs','').replace('y','');#workaround for typos in bulletin
     self.age=int(age)
     self.gender=gender
     self.origin=origin
-    self.comorbidities=comorbidity.split(',')
-    self.date_of_detection=karnataka_map_patient_no_to_date(self.patient_number,global_karnataka_case_series)
+    if state=='Karnataka':
+      self.comorbidities=comorbidity.split(',')
+    else:
+      self.comorbidities=comorbidity.split(' /')
+    if state=='Karnataka':
+      self.date_of_detection=karnataka_map_patient_no_to_date(self.patient_number,global_karnataka_case_series)
     
     self.date_of_admission=date_of_admission
     self.date_of_death=date_of_death
@@ -323,11 +327,18 @@ def karnataka_map_patient_no_to_date(patient_no=1,case_series=[]):
     else:               date_of_case=i[0];break;
   return date_of_case
 
-def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin=True):
+def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin=False,dump_clippings=False):
   cmd='pdftotext  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
   b=[i for i in open('tmp.txt').readlines() if i]
   idx=0;page_count=1;page_range=[];got_start=False
-  
+  bulletin_date=''
+  bd=[i for i in b if 'media bulletin' in i.lower()]
+  bulletin_date_string='';bulletin_date=''
+  if bd:
+    bulletin_date=bd[0].split('lletin')[1].strip().replace('-','.').replace('/','.')
+    bulletin_date_string=bulletin_date
+    bulletin_date=datetime.datetime.strptime(bulletin_date,'%d.%m.%Y')
+    
   for i in b:
     if '\x0c' in i: page_count+=1    
     if 'Death in'.lower() in i.lower() and not got_start:
@@ -344,7 +355,193 @@ def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin
     cmd='pdfunite tmp-*pdf joined.pdf';os.system(cmd)
     cmd='mv -fv joined.pdf "'+bulletin+'"';os.system(cmd)
 
-  cmd='pdftotext -nopgbrk  -layout "'+bulletin+' tmp.txt';os.system(cmd)
+  cmd='pdftotext -nopgbrk  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
+
+  #find clipping of death info
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+  idx=0;indices=[];b_idx=0
+  for i in b:    
+    if 'Death Case No' in i:
+      idx+=1;indices.append(b_idx)    
+    b_idx+=1
+  #last elem, assume 10 more lines
+  if indices:
+    indices.append(indices[-1]+10)
+  else:
+    print 'ERROR! Could not find clip indices in: '+bulletin
+
+  deaths=[]
+
+  if dump_clippings:
+    a=open('parsed_clippings.txt','a')
+    a.write('##BULLETIN_DATE '+bulletin_date_string+'\n')
+    for j in range(len(indices)-1):
+      clip=b[indices[j]:indices[j+1]]
+      for cl in clip: a.write(cl+'\n')
+    a.close()
+    # ~ print 'dumped clippings'
+    return
+    
+def tamil_nadu_parse_clippings():
+  b=[i.strip() for i in open('parsed_clippings.txt').readlines() if i.strip()]
+  idx=0;indices=[];b_idx=0;bulletin_date_string=''
+  
+  for i in b:    
+    if 'Death Case No' in i:
+      if '##BULLETIN_DATE' in b[b_idx-1]:
+        bulletin_date_string=b[b_idx-1].split('##BULLETIN_DATE')[1].strip()
+        # ~ print 'found date: '+bulletin_date_string+' at b_idx '+str(b_idx)
+    
+      idx+=1;indices.append((b_idx,bulletin_date_string))      
+    b_idx+=1
+  #last elem, assume 10 more lines
+  if indices:
+    indices.append((indices[-1][0]+10,indices[-1][1]))
+  else:
+    print 'ERROR! Could not find clip indices in: '+bulletin
+
+  deaths=[]
+
+  bulletin_date_string=''
+  for j in range(len(indices)-1):
+    bulletin_date_string=indices[j][1]
+    bulletin_date=datetime.datetime.strptime(bulletin_date_string,'%d.%m.%Y')
+
+    start=indices[j][0];end=indices[j+1][0]
+    
+    clip=b[start:end]
+    death_case_no=clip[0].strip().split('Death Case No')[1].replace(':','').strip().replace('.','')
+    cons=' '.join(clip[1:])
+
+    
+    try:
+      age=cons.split()[1]
+    except:
+      print 'error splirtting cons: '+cons+' '+str(indices[j])
+    if age.lower()=='years': age=cons.split()[0].replace('A','')
+
+    if not age.isdigit():
+      if age[0].isdigit(): #starts right but has alpha
+        # ~ print 'incorrect age at index: '+str(j)+' with cons: '+cons
+        # ~ return
+        x0=age[0]
+        for j in range(1,len(age)):
+          if age[j].isdigit(): x0+=age[j]
+        age=x0
+      else:
+        if 'year' in cons and 'years' not in cons:
+          print 'incorrect age at index: '+str(j)+' with cons: '+cons
+          return
+        age=cons.lower().split('year')[0].split()[-1]
+        if not age.isdigit():
+          print age
+          print 'could find find age for '+cons
+          return
+    # ~ death_case_no=int(death_case_no);age=int(age)
+    gender=''
+    if 'old' in cons:
+      try:
+        gender=cons.split('old')[1].split()[0].strip()
+      except:
+        print 'error splitingg gender, cons: '+cons
+        return
+        
+    else:
+      if 'years' in cons.lower():
+        gender=cons.lower().split('years')[1].split()[0].strip()
+      elif 'year' in cons.lower():
+        gender=cons.lower().split('year')[1].split()[0].strip()
+      else:
+        print 'no "old" or "years" for gender in  cons: '+cons
+        return
+    gender=gender.replace(',','')
+    
+    
+    if 'female' in gender.lower(): gender='F'
+    elif 'male' in gender.lower(): gender='M'
+    
+    district=''
+    try:
+      district=cons.lower().split('from')[1].split()[0].strip().lower().replace(',','')
+    except:
+      print '\nerror in getting district for cons: '+cons
+      return
+      
+    
+    cons=cons.replace('admiitted on','admitted on'); #fix typo
+    doa_eq_dod=False
+    date_of_admission=''
+    if 'admitted' in cons:
+      if 'admitted with' in cons and 'admitted on' not in cons:
+        try:
+          date_of_admission=cons.split('admitted')[1].split(' on ')[1].strip().split()[0].strip()
+        except:
+          print 'error getting doa with cons: '+cons
+          return
+      elif 'admitted on' not in cons:
+        date_of_admission=cons.split('admitted')[1].split()[0].strip()
+        if date_of_admission.strip()=='in': date_of_admission=''
+    if 'admitted on' in cons:
+      date_of_admission=cons.split('admitted on')[1].split()[0].strip()
+    elif 'brought dead' in cons.lower(): doa_eq_dod=True
+    else:
+      if not date_of_admission:
+        # ~ print '\nerror in doa, cions: '+cons
+        pass
+
+    date_of_death=''
+    if 'died on' in cons.lower():
+      date_of_death=cons.lower().split('died on')[1].split()[0].strip()
+    elif 'died' in cons.lower():
+      date_of_death=cons.lower().split('died')[1].split()[1].strip()
+    elif 'dead on' in cons.lower():
+      date_of_death=cons.lower().split('dead on ')[1].strip().split()[0].strip()
+      # ~ print date_of_death;print cons
+    else:
+      print 'error finding dod from cons: '+cons
+    if doa_eq_dod: date_of_admission=date_of_death
+    date_of_death=date_of_death.replace('/','.')
+    # ~ cause_of_death=cons.split('due to')[1].strip().split('.')[0]
+
+    date_of_admission=date_of_admission.replace('-','.').replace('2020in','2020').replace(',','')
+    #fix typos
+    if date_of_admission.endswith('.20'): date_of_admission+='20'
+    elif date_of_admission.endswith('.200'): date_of_admission=date_of_admission[:-1]+'20'
+    
+    date_of_death=date_of_death.replace('-','.').replace('2020in','2020').replace(',','')
+    if date_of_death.endswith('.20'): date_of_death+='20'
+    try:
+      date_of_admission=date_of_admission.replace('/','.').replace('-','.')
+      if date_of_admission: doa=datetime.datetime.strptime(date_of_admission,'%d.%m.%Y')
+    except:
+      print 'error creating datetimes with doa: '+date_of_admission+' with date_of_death: '+date_of_death+'\ncons: '+cons
+      return
+    try:
+      date_of_death=date_of_death.replace('/','.').replace('-','.')
+      dod=datetime.datetime.strptime(date_of_death,'%d.%m.%Y')
+    except:
+      print 'error getting dod with date_of_death: '+date_of_death+'\ncons: '+cons
+
+    
+    comorbidities=''
+    if ', with ' in cons: comorbidities=cons.split(', with')[1].split('admitted')[0].strip()
+    cons2=cons.replace('with complaints of ',' complaints of')
+    if ' with ' in cons2: comorbidities=cons2.split(' with')[1].split('admitted')[0].strip()
+    
+    info='%s : %s yrs: Sex: %s, District: %s\nDOA: %s, DOD: %s' %(death_case_no,age,gender,district,date_of_admission,date_of_death)
+    if comorbidities:info+='\nComorbidiies: %s' %(comorbidities)
+    # ~ a.write(info+'\n\n')
+
+    # ~ comorbidities=[i.strip() for i in comorbidities.split('/')]
+    
+    f=generic_fatality(district,death_case_no,age,gender,'',comorbidities,doa,dod,bulletin_date,state='Tamil Nadu')
+    deaths.append(f)
+  # ~ a.close()
+    
+  
+  print len(indices)-1,' death cases found'
+  return deaths
+  
 def karnataka_bulletin_get_margins(bulletin='09_09_2020.pdf',page_range=(19,23),debug_clip='',debug=False):
   cmd='pdftotext -x 0 -y 0 -W 1000 -H 2000 -bbox-layout -nopgbrk -layout -f '+str(page_range[0])+' -l '+str(page_range[1])+' "'+bulletin+'" tmp.txt';os.system(cmd)
   from bs4 import BeautifulSoup
@@ -623,34 +820,57 @@ def helper_get_mean_timeseries(recoveries):
     # ~ mean_values.append((dd,numpy.median(r),numpy.median(r1),numpy.median(r2)))
   return mean_values
 
-def helper_get_mean_deaths(deaths,filter_type=''):
-  d1=datetime.date(2020,7,14);d2=datetime.date(2020,9,10);delta=d2-d1
+def helper_get_mean_deaths(deaths,filter_type='',moving_average=True,state='Tamil Nadu'):
+  # ~ d1=datetime.date(2020,7,14);d2=datetime.date(2020,9,10);delta=d2-d1
+  d1=datetime.date(2020,6,1);d2=datetime.date(2020,9,11);delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   datetimes=[datetime.datetime.combine(i,datetime.time(0, 0)) for i in datetimes]
   # ~ return datetimes
   # ~ dates=[(d1 + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(delta.days + 1)]
-  mean_values=[]
+  mean_values=[];capital='bengaluru'
+  ma_size=3
+  ma_delta=datetime.timedelta(days=ma_size)
+  if state=='Tamil Nadu':capital='chennai'
   for dd in datetimes:
-    d=[i for i in deaths if i.date_of_death==dd]
-    d1=[i for i in deaths if i.date_of_death==dd and i.district=='bengaluru']
-    d2=[i for i in deaths if i.date_of_death==dd and i.district!='bengaluru']
-
+    d='';d1='';d2=''
+    if moving_average:
+      d=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta)]
+      d1=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta) and i.district==capital]
+      d2=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta) and i.district!=capital]
+  
+    else:
+      d=[i for i in deaths if i.date_of_death==dd]
+      d1=[i for i in deaths if i.date_of_death==dd and i.district==capital]
+      d2=[i for i in deaths if i.date_of_death==dd and i.district!=capital]
+  
     m1=0;m2=0
     
     if filter_type=='gender': #find fraction of males in daily deaths on date
-      d=float(len([i for i in d if i.gender=='M']))/len(d)
-      d1=float(len([i for i in d1 if i.gender=='M']))/len(d1)
-      d2=float(len([i for i in d2 if i.gender=='M']))/len(d2)
-    if filter_type=='origin': #find fraction of SARI/ILI in daily deaths on date
-      d=float(len([i for i in d if i.origin in ['SARI','ILI']]))/len(d)
-      d1=float(len([i for i in d1 if i.origin in ['SARI','ILI']]))/len(d1)
-      d2=float(len([i for i in d2 if i.origin in ['SARI','ILI']]))/len(d2)
+      d=100*float(len([i for i in d if i.gender=='M']))/len(d)
+      d1=100*float(len([i for i in d1 if i.gender=='M']))/len(d1)
+      d2=100*float(len([i for i in d2 if i.gender=='M']))/len(d2)
+    elif filter_type=='origin': #find fraction of SARI/ILI in daily deaths on date
+      d=100*float(len([i for i in d if i.origin in ['SARI','ILI']]))/len(d)
+      d1=100*float(len([i for i in d1 if i.origin in ['SARI','ILI']]))/len(d1)
+      d2=100*float(len([i for i in d2 if i.origin in ['SARI','ILI']]))/len(d2)
+    elif filter_type=='comorb': #find fraction of SARI/ILI in daily deaths on date
+      d=100*float(len([i for i in d if i.comorbidities!=['']]))/len(d)
+      d1=100*float(len([i for i in d1 if i.comorbidities!=['']]))/len(d1)
+      d2=100*float(len([i for i in d2 if i.comorbidities!=['']]))/len(d2)
+    elif filter_type=='admission_death': #find fraction of SARI/ILI in daily deaths on date
+      d=[i.admission_death_interval for i in d if i.admission_death_interval>=0]
+      d1=[i.admission_death_interval for i in d1 if i.admission_death_interval>=0]
+      d2=[i.admission_death_interval for i in d2 if i.admission_death_interval>=0]
+    elif filter_type=='death_reporting': #find fraction of SARI/ILI in daily deaths on date
+      d=[i.death_reporting_interval for i in d]
+      d1=[i.death_reporting_interval for i in d1 if i.admission_death_interval>=0]
+      d2=[i.death_reporting_interval for i in d2 if i.admission_death_interval>=0]
     else: #find all ages on date
       d=[i.age for i in d]
       d1=[i.age for i in d1]
       d2=[i.age for i in d2]
 
-    if filter_type in ['gender','origin']: #find percent of males in daily deaths over time
+    if filter_type in ['gender','origin','comorb']: #find percent of males in daily deaths over time
       mean_values.append((dd,d,d1,d2))
     else:
       if not d:
@@ -947,7 +1167,7 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
       # ~ print 'hospital_types',len(hospital_types)
       continue
 
-    fatality=karnataka_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date)
+    fatality=generic_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date)
     fatalities.append(fatality)
       
   return fatalities
