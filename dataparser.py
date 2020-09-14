@@ -67,7 +67,13 @@ def update_data_files():
     cmd='wget -q "'+i+'" -O "'+filename+'"';
     print cmd
     os.system(cmd);
-      
+
+class kerala_community_tr():
+  date='';percent_unknown=''
+  def __init__(self,date,percent_unknown):
+    self.percent_unknown=percent_unknown
+    self.date=date
+    
 #class meant to represent Odisha's fatality data (in a very specific format)
 class fatality():
   date='';age='';gender='';district='';comorbidity=[];comorb_string=''
@@ -111,6 +117,8 @@ class fatality():
     else: info+='\nComorbidity:\t\tNONE' 
     print info
 
+
+  
 class generic_fatality():
   district='';patient_number='';age='';gender='';origin='';comorbidities='';
   date_of_detection='';date_of_admission='';date_of_death='';
@@ -121,7 +129,8 @@ class generic_fatality():
   death_reporting_interval=''
   def __init__(self,district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date,state='Karnataka'):
     self.district=district
-    self.patient_number=int(patient_number.replace('n',''))
+    if patient_number:
+      self.patient_number=int(patient_number.replace('n',''))
     age=age.lower().replace('yrs','').replace('y','');#workaround for typos in bulletin
     self.age=int(age)
     self.gender=gender
@@ -145,24 +154,35 @@ class generic_fatality():
       if self.date_of_detection:
         self.detection_admission_interval=(self.date_of_death-self.date_of_detection).days    
     else:
-      self.admission_death_interval=(self.date_of_death-self.date_of_admission).days
-      if self.date_of_detection:
-        self.detection_admission_interval=(self.date_of_admission-self.date_of_detection).days    
+      if self.date_of_admission:
+        self.admission_death_interval=(self.date_of_death-self.date_of_admission).days
+        if self.date_of_detection:
+          self.detection_admission_interval=(self.date_of_admission-self.date_of_detection).days    
     if self.date_of_detection:
       self.detection_death_interval=(self.date_of_death-self.date_of_detection).days
-    self.death_reporting_interval=(self.date_of_reporting-self.date_of_death).days
+    if self.date_of_reporting:
+      try:
+        self.death_reporting_interval=(self.date_of_reporting-self.date_of_death).days
+      except:
+        print 'error calculating death_reporting_interval with dor: '+str(self.date_of_reporting)+' and dod '+str(self.date_of_death)
       
   def info(self):
-    info_str='P.no %d District: %s Age: %d Gender: %s Origin: %s\n' %(self.patient_number,self.district,self.age,self.gender,self.origin)
+    info_str=''
+    if self.patient_number: info_str+='P.no %d ' %(self.patient_number)
+    info_str+='District: %s Age: %d Gender: %s Origin: %s\n' %(self.district,self.age,self.gender,self.origin)
     info_str+='Comorbidities: %s\n' %(' '.join(self.comorbidities))
     dod='N/A'
     if self.date_of_detection:
       dod=self.date_of_detection.strftime('%d/%m/%Y')
-    info_str+='Detected: %s Admitted: %s Died: %s\n' %(dod,self.date_of_admission.strftime('%d/%m/%Y'),self.date_of_death.strftime('%d/%m/%Y'))
-    info_str+='admission_death_interval: %d\n' %(self.admission_death_interval)
+    doa='';dor='';
+    if self.date_of_admission: doa=self.date_of_admission.strftime('%d/%m/%Y')
+    if self.date_of_reporting: dor=self.date_of_reporting.strftime('%d/%m/%Y')
+    
+    info_str+='Detected: %s Admitted: %s Died: %s Reported: %s\n' %(dod,doa,self.date_of_death.strftime('%d/%m/%Y'),dor)
+    if self.admission_death_interval: info_str+='admission_death_interval: %d\n' %(self.admission_death_interval)
     if self.detection_admission_interval: info_str+='detection_admission_interval: %d\n' %(self.detection_admission_interval)    
     if self.detection_death_interval: info_str+='detection_death_interval: %d\n' %(self.detection_death_interval)
-    info_str+='death_reporting_interval: %d' %(self.death_reporting_interval)
+    if self.death_reporting_interval: info_str+='death_reporting_interval: %d' %(self.death_reporting_interval)
     print info_str.strip()
   def csv_row(self):
     doa=self.date_of_admission
@@ -176,14 +196,18 @@ class generic_fatality():
     row_objects=[self.patient_number,self.district,self.age,self.gender,self.origin,dode,doa,dod,dor]
     if self.comorbidities: row_objects.extend(self.comorbidities)
     return row_objects
-class karnataka_icu_usage():
-  date='';district='';icu_usage=''
-  def __init__(self,bulletin_date,district_name,icu_usage):
+class generic_icu_usage():
+  date='';district='';icu='';ventilator='';state=''
+  def __init__(self,bulletin_date,district_name,icu_usage,ventilator_usage='',state='Kerala'):
     self.date=bulletin_date
     self.district=district_name
-    self.icu_usage=icu_usage
+    self.icu=icu_usage
+    if ventilator_usage: self.ventilator=ventilator_usage
+    self.state=state
+    
   def info(self):
-    info_str='In district: %s on %s, icu_usage: %d' %(self.district,self.date.strftime('%d-%m-%Y'),self.icu_usage)
+    info_str='In %s,  district: %s on %s, icu_usage: %d' %(self.state,self.district,self.date.strftime('%d-%m-%Y'),self.icu)
+    if self.ventilator: info_str+=' ventilator: '+str(self.ventilator)
     print info_str
 #class meant to represent a discharges patient in Karnataka
 class karnataka_discharge():
@@ -820,23 +844,33 @@ def helper_get_mean_timeseries(recoveries):
     # ~ mean_values.append((dd,numpy.median(r),numpy.median(r1),numpy.median(r2)))
   return mean_values
 
-def helper_get_mean_deaths(deaths,filter_type='',moving_average=True,state='Tamil Nadu'):
-  # ~ d1=datetime.date(2020,7,14);d2=datetime.date(2020,9,10);delta=d2-d1
+
+def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=True,ma_size=3,state='Tamil Nadu'):
   d1=datetime.date(2020,6,1);d2=datetime.date(2020,9,11);delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   datetimes=[datetime.datetime.combine(i,datetime.time(0, 0)) for i in datetimes]
-  # ~ return datetimes
-  # ~ dates=[(d1 + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(delta.days + 1)]
+
   mean_values=[];capital='bengaluru'
-  ma_size=3
+  
   ma_delta=datetime.timedelta(days=ma_size)
   if state=='Tamil Nadu':capital='chennai'
+  elif state=='Kerala':capital='Thiruvananthapuram'
+
   for dd in datetimes:
     d='';d1='';d2=''
     if moving_average:
-      d=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta)]
-      d1=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta) and i.district==capital]
-      d2=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta) and i.district!=capital]
+      if not date_type or date_type=='death': #default behavious
+        d=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta)]
+        d1=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta) and i.district==capital]
+        d2=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta) and i.district!=capital]
+      elif date_type=='reporting':
+        d=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=(dd+ma_delta) and i.date_of_reporting>=(dd-ma_delta)]
+        d1=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=(dd+ma_delta) and i.date_of_reporting>=(dd-ma_delta) and i.district==capital]
+        d2=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=(dd+ma_delta) and i.date_of_reporting>=(dd-ma_delta) and i.district!=capital]
+      elif date_type=='admission':
+        d=[i for i in deaths if i.date_of_admission<=(dd+ma_delta) and i.date_of_admission>=(dd-ma_delta)]
+        d1=[i for i in deaths if i.date_of_admission<=(dd+ma_delta) and i.date_of_admission>=(dd-ma_delta) and i.district==capital]
+        d2=[i for i in deaths if i.date_of_admission<=(dd+ma_delta) and i.date_of_admission>=(dd-ma_delta) and i.district!=capital]
   
     else:
       d=[i for i in deaths if i.date_of_death==dd]
@@ -846,9 +880,12 @@ def helper_get_mean_deaths(deaths,filter_type='',moving_average=True,state='Tami
     m1=0;m2=0
     
     if filter_type=='gender': #find fraction of males in daily deaths on date
-      d=100*float(len([i for i in d if i.gender=='M']))/len(d)
-      d1=100*float(len([i for i in d1 if i.gender=='M']))/len(d1)
-      d2=100*float(len([i for i in d2 if i.gender=='M']))/len(d2)
+      if d: d=100*float(len([i for i in d if i.gender=='M']))/len(d)
+      else: d=0
+      if d1: d1=100*float(len([i for i in d1 if i.gender=='M']))/len(d1)
+      else: d1=0
+      if d2: d2=100*float(len([i for i in d2 if i.gender=='M']))/len(d2)
+      else: d2=0
     elif filter_type=='origin': #find fraction of SARI/ILI in daily deaths on date
       d=100*float(len([i for i in d if i.origin in ['SARI','ILI']]))/len(d)
       d1=100*float(len([i for i in d1 if i.origin in ['SARI','ILI']]))/len(d1)
@@ -862,24 +899,134 @@ def helper_get_mean_deaths(deaths,filter_type='',moving_average=True,state='Tami
       d1=[i.admission_death_interval for i in d1 if i.admission_death_interval>=0]
       d2=[i.admission_death_interval for i in d2 if i.admission_death_interval>=0]
     elif filter_type=='death_reporting': #find fraction of SARI/ILI in daily deaths on date
-      d=[i.death_reporting_interval for i in d]
-      d1=[i.death_reporting_interval for i in d1 if i.admission_death_interval>=0]
-      d2=[i.death_reporting_interval for i in d2 if i.admission_death_interval>=0]
+      d=[i.death_reporting_interval for i in d if i.death_reporting_interval]
+      d1=[i.death_reporting_interval for i in d1 if i.death_reporting_interval and i.death_reporting_interval>=0]
+      d2=[i.death_reporting_interval for i in d2 if i.death_reporting_interval and i.death_reporting_interval>=0]
+    elif filter_type=='raw_number': #find fraction of SARI/ILI in daily deaths on date
+      if moving_average:
+        d=float(len(d))/(2*ma_size+1)
+        d1=float(len(d1))/(2*ma_size+1)
+        d2=float(len(d2))/(2*ma_size+1)
+      else:
+        d=float(len(d))
+        d1=float(len(d1))
+        d2=float(len(d2))
     else: #find all ages on date
       d=[i.age for i in d]
       d1=[i.age for i in d1]
       d2=[i.age for i in d2]
 
-    if filter_type in ['gender','origin','comorb']: #find percent of males in daily deaths over time
+    if filter_type in ['gender','origin','comorb','raw_number']: #find percent of males in daily deaths over time
       mean_values.append((dd,d,d1,d2))
     else:
       if not d:
-        print 'no deaths info for '+str(dd)
+        # ~ print 'no deaths info for '+str(dd)
         continue
+      m=0;m1=0;m2=0
       if d1: m1=numpy.mean(d1)
       if d2: m2=numpy.mean(d2)
-      mean_values.append((dd,numpy.mean(d),m1,m2))
+      if d: m=numpy.mean(d)
+      mean_values.append((dd,m,m1,m2))
   return mean_values
+
+def kerala_parse_deaths(bulletin='',format_type='new'):  
+  b=[i.strip() for i in open('olddeaths.txt').readlines() if i.strip()][3:]
+  patient_numbers=[i.strip().split()[0] for i in b if i.strip()[0].isdigit()]
+  districts=[i.split()[1] for i in b if i.strip()[0].isdigit()]
+  ages=[i.split()[2] for i in b if i.strip()[0].isdigit()]
+  dods=[i.replace('Comorbidity present','').replace('-','').replace('Import','').replace('import','').replace('Contact','').replace('Nil','').strip().split()[-1] for i in b if i.strip()[0].isdigit()]
+  dods=[i[:2]+'-'+i[2:4]+'-'+i[4:6]+'20' for i in dods]
+
+  fatalities=[];critical=[];comm=[]
+  
+  for j in range(len(ages)):
+    dod0=datetime.datetime.strptime(dods[j],'%d-%m-%Y')
+    f=generic_fatality(districts[j],patient_numbers[j],ages[j],'','','','',dod0,'',state='Kerala')
+    fatalities.append(f)
+
+  if format_type=='old':    return fatalities
+
+  pdfs=[i for i in os.listdir('.') if i.endswith('.pdf')];pdfs.sort()
+
+  for pdf in pdfs:
+    print 'parsing '+pdf
+    cmd='pdftotext -nopgbrk -layout "'+pdf+'" tmp.txt';os.system(cmd)
+  
+    b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()][3:]
+    bulletin_date=[i for i in b if i.startswith('Date:')]
+    if not bulletin_date:
+      print 'could not find date from bulletin: '+bulletin+' !!'
+      return
+    bulletin_date=bulletin_date[0].split(':')[1].strip()
+    bulletin_date=datetime.datetime.strptime(bulletin_date.replace('.','/').replace('-','/'),'%d/%m/%Y')
+  
+    indices=[];idx=0
+    for i in b:
+      if i.startswith(('Table 6','Table 7','Table 8','Table 9')): indices.append(idx)
+      idx+=1
+  
+    contact_cases=b[indices[0]:indices[1]]
+    death_details=b[indices[1]:indices[2]]
+    icu=b[indices[2]:indices[3]]
+  
+    #cases of community transmission
+    percent_unknown_origin=0;tot='';unk=''
+    tot=[i for i in contact_cases if 'Total cases' in i]
+    if tot: tot=tot[0].strip().split()[-1]
+    if tot.isdigit(): tot=float(tot)
+  
+    unk=[i for i in contact_cases if 'no history of' in i]
+    if unk: unk=unk[0].strip().split()[-1]
+    if unk.isdigit(): unk=float(unk)
+  
+    if tot and unk:
+      percent_unknown_origin=100*(unk/tot)
+    else:
+      print 'could not find Total cases and iunk in bulletin: '+bulletin
+      return
+
+    comm.append(kerala_community_tr(bulletin_date,percent_unknown_origin))
+
+    #death details
+    entries=[i for i in death_details if i.strip()[0].isdigit()]
+    for entry in entries:
+      if len(entry.split())==1: continue #empty row
+      try:
+        district=entry.split()[1].strip()
+      except:
+        print 'error getting district with enrty: '+entry
+        return
+  
+      age=entry.split()[2].strip()
+      if 'month' in entry.split()[3].lower(): age='1'
+  
+      gender=entry.split()[-3].strip()
+      if gender.lower()=='female': gender='F'
+      else: gender='M'
+  
+      dod=entry.split()[-2].strip().replace('.','/').replace('-','/')
+      if dod.count('/')==2:
+        if dod.endswith('/20'):dod+='20'
+        dod=datetime.datetime.strptime(dod,'%d/%m/%Y')
+  
+      origin=entry.split()[-1].strip()
+      if origin.lower()=='contact': origin='CONT'
+      # ~ district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date,state='Karnataka'
+      f=generic_fatality(district,'',age,gender,origin,'','',dod,bulletin_date,state='Kerala')
+      fatalities.append(f)
+  
+    #get icu use
+    icu_patients=[i for i in icu if 'in ICU' in i]
+    if icu_patients: icu_patients=int(icu_patients[0].strip().split()[-1])
+  
+    ventilator_patients=[i for i in icu if 'on Ventilator' in i]
+    if ventilator_patients: ventilator_patients=int(ventilator_patients[0].strip().split()[-1])
+  
+    critical_obj=generic_icu_usage(bulletin_date,'',icu_patients,ventilator_patients)
+    critical.append(critical_obj)
+  
+  return comm,fatalities,critical
+  
   
 def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range='',stop_debug=''):
   if stop_debug and (not page_range): #means coming from debug
@@ -1182,7 +1329,7 @@ def karnataka_parse_icu_usage(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0))
     icu_usage=i.split()[-1]
     assert(icu_usage.isdigit())
     icu_usage=int(icu_usage)
-    icu_obj=karnataka_icu_usage(bulletin_date,district_name,icu_usage)
+    icu_obj=generic_icu_usage(bulletin_date,district_name,icu_usage,state='Karnataka')
     all_icu_obj.append(icu_obj)
   return all_icu_obj
 
