@@ -33,9 +33,70 @@ karnataka_districts_map={'bagal':'bagalkote','balla':'ballari','chikkam':'chikka
   'raman':'ramanagara','shiva':'shivamogga','tuma':'tumakuru','udup':'udupi','uttar':'uttarakannada',
   'vija':'vijayapura','yadag':'yadagiri'};
 
-global_karnataka_case_series=''
+##date must be given as 01/09/2020 for September 1,2020
+##State must be fullname (see dict above)
+def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full_series=False,verbose=False):
+  x=json.load(open('states_daily.json'))['states_daily']
+
+  target_datetime=datetime.datetime.strptime(date,'%d/%m/%Y')
+  state_code=state_name_to_code[state]
+
+  #get all confirmed cases till date
+  confirmed=0;recovered=0;deaths=0;active=0;
+
+  if return_full_series:
+    confirmed_series={};recovered_series={};deaths_series={};active_series={};
+    target_datetime=datetime.datetime.strptime(x[-1]['date'].replace('-20','-2020'),'%d-%b-%Y');#choose last date available
+    
+  for i in x:
+    datetime_i=datetime.datetime.strptime(i['date'].replace('-20','-2020'),'%d-%b-%Y')
+    if datetime_i<=target_datetime:
+      if   i['status']=='Deceased':  deaths+=int(i[state_code])
+      elif i['status']=='Recovered': recovered+=int(i[state_code])
+      elif i['status']=='Confirmed': confirmed+=int(i[state_code])
+      active=confirmed-deaths-recovered
+
+      if return_full_series:
+        confirmed_series[datetime_i]=confirmed;recovered_series[datetime_i]=recovered;
+        deaths_series[datetime_i]=deaths;active_series[datetime_i]=active
+
+  if return_full_series:
+    x=[]
+    for date in confirmed_series: x.append((date,confirmed_series[date]))
+    confirmed_series=x;confirmed_series.sort()
+    x=[]
+    for date in deaths_series: x.append((date,deaths_series[date]))
+    deaths_series=x;deaths_series.sort()
+    x=[]
+    for date in active_series: x.append((date,active_series[date]))
+    active_series=x;active_series.sort()
+    x=[]
+    for date in recovered_series: x.append((date,recovered_series[date]))
+    recovered_series=x;recovered_series.sort()
+    
+  if case_type=='active':
+    if verbose: print 'Active cases in %s on %s were %d' %(state,date,active)
+    if return_full_series:  return active_series
+    else:                   return active
+  elif case_type=='confirmed':
+    if verbose: print 'Total cases in %s on %s were %d' %(state,date,confirmed)
+    if return_full_series:  return confirmed_series
+    else:                   return confirmed
+  elif case_type=='recovered':
+    if verbose: print 'Recovered cases in %s on %s were %d' %(state,date,recovered)
+    if return_full_series:  return recovered_series
+    else:                   return recovered
+  elif case_type=='deaths':
+    if verbose: print 'Deaths in %s on %s were %d' %(state,date,deaths)
+    if return_full_series:  return deaths_series
+    else:                   return deaths
 
 
+#cache this to avoid repeated file reads
+global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
+global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
+  
 def highlight(text):
   highlight_begin=colorama.Back.BLACK+colorama.Fore.WHITE+colorama.Style.BRIGHT
   highlight_reset=colorama.Back.RESET+colorama.Fore.RESET+colorama.Style.RESET_ALL
@@ -57,7 +118,9 @@ def helper_download_karnataka_bulletin(twitter_link,debug=False):
     bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
   os.system('cp -v tmp.pdf "'+bulletin_date_string+'.pdf"')
 
-  
+
+
+    
 def update_data_files():
   urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/data.json','https://api.covid19india.org/state_test_data.json']
   for i in urls:
@@ -258,63 +321,6 @@ def moving_average(input_array=[],window_size=5,index_to_do_ma=1):
   else:
     return numpy.convolve(input_array, numpy.ones((window_size,))/window_size, mode='valid')
    
-##date must be given as 01/09/2020 for September 1,2020
-##State must be fullname (see dict above)
-def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full_series=False,verbose=False):
-  x=json.load(open('states_daily.json'))['states_daily']
-
-  target_datetime=datetime.datetime.strptime(date,'%d/%m/%Y')
-  state_code=state_name_to_code[state]
-
-  #get all confirmed cases till date
-  confirmed=0;recovered=0;deaths=0;active=0;
-
-  if return_full_series:
-    confirmed_series={};recovered_series={};deaths_series={};active_series={};
-    target_datetime=datetime.datetime.strptime(x[-1]['date'].replace('-20','-2020'),'%d-%b-%Y');#choose last date available
-    
-  for i in x:
-    datetime_i=datetime.datetime.strptime(i['date'].replace('-20','-2020'),'%d-%b-%Y')
-    if datetime_i<=target_datetime:
-      if   i['status']=='Deceased':  deaths+=int(i[state_code])
-      elif i['status']=='Recovered': recovered+=int(i[state_code])
-      elif i['status']=='Confirmed': confirmed+=int(i[state_code])
-      active=confirmed-deaths-recovered
-
-      if return_full_series:
-        confirmed_series[datetime_i]=confirmed;recovered_series[datetime_i]=recovered;
-        deaths_series[datetime_i]=deaths;active_series[datetime_i]=active
-
-  if return_full_series:
-    x=[]
-    for date in confirmed_series: x.append((date,confirmed_series[date]))
-    confirmed_series=x;confirmed_series.sort()
-    x=[]
-    for date in deaths_series: x.append((date,deaths_series[date]))
-    deaths_series=x;deaths_series.sort()
-    x=[]
-    for date in active_series: x.append((date,active_series[date]))
-    active_series=x;active_series.sort()
-    x=[]
-    for date in recovered_series: x.append((date,recovered_series[date]))
-    recovered_series=x;recovered_series.sort()
-    
-  if case_type=='active':
-    if verbose: print 'Active cases in %s on %s were %d' %(state,date,active)
-    if return_full_series:  return active_series
-    else:                   return active
-  elif case_type=='confirmed':
-    if verbose: print 'Total cases in %s on %s were %d' %(state,date,confirmed)
-    if return_full_series:  return confirmed_series
-    else:                   return confirmed
-  elif case_type=='recovered':
-    if verbose: print 'Recovered cases in %s on %s were %d' %(state,date,recovered)
-    if return_full_series:  return recovered_series
-    else:                   return recovered
-  elif case_type=='deaths':
-    if verbose: print 'Deaths in %s on %s were %d' %(state,date,deaths)
-    if return_full_series:  return deaths_series
-    else:                   return deaths
 
 def odisha_parser():
       
@@ -339,17 +345,29 @@ def odisha_parser():
     current_index=entry_index
   return fatalities
 
-def karnataka_map_patient_no_to_date(patient_no=1,case_series=[]):
-  date_of_case=''
 
-  #need this for function that calculates which date a P. no. falls on
-  if not case_series:
-    case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+# ~ def karnataka_map_patient_no_to_date(patient_no=1,case_series=[]):
+  # ~ date_of_case=''
+
+  # ~ #need this for function that calculates which date a P. no. falls on
+  # ~ if not case_series:
+    # ~ case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
     
-  for i in case_series:
-    if patient_no>i[1]: continue
-    else:               date_of_case=i[0];break;
-  return date_of_case
+  # ~ for i in case_series:
+    # ~ if patient_no>i[1]: continue
+    # ~ else:               date_of_case=i[0];break;
+  # ~ return date_of_case
+
+# ~ def karnataka_map_patient_no_to_date2(patient_no=1,case_series=[]):
+def karnataka_map_patient_no_to_date(patient_no=1,case_series=''):
+  date=''
+  try:
+    date=global_karnataka_case_date_series[numpy.searchsorted(global_karnataka_case_number_series,patient_no)]
+  except:
+    # ~ print 'could not find date for patient no: '+str(patient_no)
+    pass
+  return date
+
 
 def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin=False,dump_clippings=False):
   cmd='pdftotext  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
@@ -1321,16 +1339,41 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
       
   
   
-def karnataka_parse_icu_usage(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)):
-  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and i.strip()[0].isdigit()]
-  all_icu_obj=[]
+def karnataka_parse_icu_usage(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),dump_only=True):
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and i.strip().split()[0].isdigit()]
+  all_icu_obj=[];tot=0
+  a=open('allicu.txt','a')
+  bd=bulletin_date.strftime('%d-%m-%Y')
+  a.write('##BULLETIN_DATE '+bd+'\n')
+  
   for i in b:
-    district_name=''.join(i.split()[1:-1])
-    icu_usage=i.split()[-1]
+    icu_usage=''
+    for j in range(1,len(i.split())): #break at first non-digit in split[1:]
+      if i.split()[j].strip().replace('(','').replace(')','').isdigit():
+        icu_usage=i.split()[j].strip().replace('(','').replace(')','')        
+        # ~ print 'found icu_usage: %s for line: %s' %(icu_usage,i)
+        break
+      j+=1
+    
+    
+    if not icu_usage: #no "split" entry was digit
+      print 'error in getting icu usage with line: %s and bulletin_date ' %(i)+str(bulletin_date)
+    
     assert(icu_usage.isdigit())
     icu_usage=int(icu_usage)
+    tot+=icu_usage
+    district_name=''.join(i.split()[1:j])
+    
     icu_obj=generic_icu_usage(bulletin_date,district_name,icu_usage,state='Karnataka')
+    a.write(district_name+' : '+str(icu_usage)+'\n')
     all_icu_obj.append(icu_obj)
+  
+  icu_obj=generic_icu_usage(bulletin_date,'Total',tot,state='Karnataka')
+  all_icu_obj.append(icu_obj)
+  a.write('Total : '+str(tot)+'\n')
+  # ~ a.write('------\n')
+  # ~ for i in b: a.write(i+'\n')  
+  a.close()
   return all_icu_obj
 
   
@@ -1374,7 +1417,8 @@ def karnataka_parse_discharges(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)
       
     district_names.append(district_name)
     for patient_number in discharges:
-      if not patient_number.replace('n','').replace(',','').isdigit(): continue #p.no must be digit
+      patient_number=patient_number.replace('n','').replace('P-','').replace(',','').strip()
+      if not patient_number.isdigit(): continue #p.no must be digit
       dd=karnataka_discharge(district_name,patient_number,bulletin_date)
       if dd.district!='ERROR':      all_dischages_objects.append(dd)
 
@@ -1383,7 +1427,7 @@ def karnataka_parse_discharges(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)
 
 
 
-def karnataka_bulletin_parser(bulletin='',return_date_only=False):
+def karnataka_bulletin_parser(bulletin='',return_date_only=False,return_specific=''):
   if not os.path.exists(bulletin):
     print '%s does not exist. Please give pdf bulletin file as input' %(bulletin)
     return -1
@@ -1411,7 +1455,7 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False):
   annex_range=[];lastpage=0
 
   #HACKS FOR MISFORMED BULLETINS
-  misformed_bulletins=['08_05_2020.pdf','08_07_2020.pdf']
+  misformed_bulletins=['08_05_2020.pdf','08_07_2020.pdf','07_18_2020.pdf']
       
   if bulletin not in misformed_bulletins:
     for annexure_index in annexures_indices:
@@ -1430,7 +1474,9 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False):
         pagenum=page_string.split('page')[1].strip().split('of')[0].strip()
         assert(pagenum.isdigit());
         pagenum=int(pagenum)+1
-      else:               
+      else:
+        if bulletin=='06_07_2020.pdf': pagenum=15
+        elif bulletin=='06_07_2020.pdf': pagenum=15
         print '"page n/n" info not found for %s with page_string: %s' %(b[annexure_index],page_string)
 
       if not info_str_set:
@@ -1444,53 +1490,65 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False):
         annex_range.append(('icu',pagenum))
   else:
     if bulletin=='08_05_2020.pdf': annex_range=[('discharges',5,16),('deaths',17,22),('icu',23,23)]
-    elif bulletin=='08_07_2020.pdf': annex_range=[('discharges',5,16),('deaths',17,21),('icu',22,22)]
-      
+    elif bulletin=='08_07_2020.pdf': annex_range=[('discharges',5,16),('deaths',17,21),('icu',22,22)]    
+  # ~ print annex_range
   #convert to dict
   dc={}
   for i in range(len(annex_range)):
     if i<(len(annex_range)-1):
       dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i+1][1]-1)
     else:
-      dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i][1])
+      dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i][1]+2)
   annex_range=dc
-
+  if bulletin=='07_18_2020.pdf': annex_range={'discharges':(4,5),'deaths':(311,314),'icu':(315,315)}
   if return_date_only:    return (bulletin_date,annex_range)
-  #get discharges info
 
-  # ~ cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['discharges'][0])+' -l '+str(annex_range['discharges'][1])+' '+bulletin+' tmp.txt';os.system(cmd);
-
-  discharges=karnataka_parse_discharges(bulletin_date,annex_range['discharges'])
+  discharges='';deaths='';icu_usage=''
+  #get discharges info  
+  if (not return_specific) or (return_specific and return_specific=='discharges'):
+    discharges=karnataka_parse_discharges(bulletin_date,annex_range['discharges'])
 
   #get icu info
-  cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['icu'][0])+' -l '+str(annex_range['icu'][1])+' '+bulletin+' tmp.txt';os.system(cmd);
-  icu_usage=karnataka_parse_icu_usage(bulletin_date)
+  if (not return_specific) or (return_specific and return_specific=='icu'):
+    cmd='pdftotextx -nopgbrk -layout -table -f '+str(annex_range['icu'][0])+' -l '+str(annex_range['icu'][1])+' '+bulletin+' tmp.txt';os.system(cmd);
+    icu_usage=karnataka_parse_icu_usage(bulletin_date)
   
   #get deaths info
-  
-  deaths=karnataka_parse_deaths(bulletin,bulletin_date,annex_range['deaths'])
+  if (not return_specific) or (return_specific and return_specific=='deaths'):
+    deaths=karnataka_parse_deaths(bulletin,bulletin_date,annex_range['deaths'])
 
  
   
-  # ~ return bulletin_date,annex_range,discharges
-  return (discharges,icu_usage,deaths)
+  if return_specific:
+    if return_specific=='icu':
+      return icu_usage
+  else:
+    return (discharges,icu_usage,deaths)
 
 
 
-def karnataka_parser():
+def karnataka_parser(return_specific=''):
   bulletin_pdfs=[i for i in os.listdir('.') if i.endswith('.pdf')]
   bulletin_pdfs.sort()
   all_discharges=[];all_icu_usage=[];all_deaths=[]
   for bulletin_pdf in bulletin_pdfs:
     print 'parsing bulletin %s' %(bulletin_pdf)    
     try:
-      (discharges,icu_usage,deaths)=karnataka_bulletin_parser(bulletin_pdf)
-      all_discharges.extend(discharges)
-      all_icu_usage.extend(icu_usage)
-      all_deaths.extend(deaths)
+      if return_specific:
+        if return_specific=='icu':
+          icu_usage=karnataka_bulletin_parser(bulletin_pdf,return_specific='icu')
+          all_icu_usage.extend(icu_usage)
+      else:
+        (discharges,icu_usage,deaths)=karnataka_bulletin_parser(bulletin_pdf)
+        all_discharges.extend(discharges)
+        all_icu_usage.extend(icu_usage)
+        all_deaths.extend(deaths)
     except:
-      print 'parsing failed for :%s' %(bulletin_pdf)    
-  return (all_discharges,all_icu_usage,all_deaths)
+      print 'parsing failed for :%s' %(bulletin_pdf)
+  if return_specific:
+    if return_specific=='icu': return all_icu_usage
+  else:    
+    return (all_discharges,all_icu_usage,all_deaths)
   
 # ~ Returns percent of antigen tests as fraction of daily tests in state
 # as of sep 5, data on antigen tests is available for (state_name: number_of_days_of_data_available)
@@ -1635,9 +1693,7 @@ def make_plots(use_all_states=False,use_solid_lines=False):
   pylab.show(); pylab.close()
   figure = pylab.gcf();figure.set_size_inches(8, 6);pylab.savefig('Ventilator_usage.png', dpi = 100);
 
-#cache this to avoid repeated file reads
-if os.path.exists('states_daily.json'):
-  global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+
 
     
 if __name__=='__main__':
