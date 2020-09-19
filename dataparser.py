@@ -142,12 +142,28 @@ def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
   if not date_string:
     print 'could not find date for bulletin ',bulletin
     return
-  date_string=date_string[0]
-  date_string=date_string.split('/')[1].replace(')','').replace('(','').replace(',',' ').replace('2020',' ').strip()
-  day=date_string.split()[1].replace('th','').replace('nd','').replace('st','').replace('rd','').strip()
+  date_string=date_string[0].lower()
+  try:
+    if '/' in date_string:
+      date_string=date_string.split('/')[1].replace(')','').replace('(','').replace(',',' ').replace('2020',' ').strip()
+    else:
+      date_string=date_string.replace(')','').replace('(','').replace(',',' ').replace('2020',' ').strip()
+  except:
+    print 'error getting date for bulletin: '+bulletin+' with string: '+date_string
+  # ~ print date_string
+  if len(date_string.split())==1: #all jumbled        
+    for mm in ['june','july','august','september']: date_string=date_string.replace(mm,'')
+    day=date_string
+    month_string=date_string.split()[0].strip().lower()
+    # ~ print date_string,month_string
+    month_string=month_string[:month_string.index(date_string)]
+  else:
+    day=date_string.split()[1]
+    month_string=date_string.split()[0].strip().lower()
+  day=day.replace('th','').replace('nd','').replace('st','').replace('rd','').strip()
   day=int(day)
-
-  month_string=date_string.split()[0].strip().lower()
+  
+  
   month=9
   if 'august' in month_string: month=8
   elif 'july' in month_string: month=7
@@ -156,6 +172,235 @@ def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
   date=datetime.datetime(2020,month,day,0,0)
 
   if return_date_only: return date
+
+  hos=[i for i in b if i.lower().startswith('hospital')]
+  if not hos:
+    print 'could not find data in bulletin %s for covid hospitals' %(bulletin)
+    return
+  hos=hos[0];hos_capacity=hos.split()[-3];hos_used=hos.split()[-2];
+
+  dcc=[i for i in b if i.lower().startswith('dedicated covid care centre')]
+  if not dcc:
+    print 'could not find data in bulletin %s for DCCC' %(bulletin)
+    return
+  dcc=dcc[0];dcc_capacity=dcc.split()[-3];dcc_used=dcc.split()[-2];
+
+  dchc=[i for i in b if i.lower().startswith('dedicated covid health')]
+  if not dchc:
+    print 'could not find data in bulletin %s for DCHC' %(bulletin)
+    return
+  dchc=dchc[0];dchc_capacity=dchc.split()[-3];dchc_used=dchc.split()[-2];
+
+  tt=[i for i in b if i.lower().startswith('tests conducted today')]  
+  rtpcr=0;rapid=0;total=0
+  if tt: #old type
+    total=tt[0].split()[-1]
+    total=int(total)
+  else:
+    rtpcr=[i for i in b if i.lower().startswith('rtpcr')]
+    if not rtpcr:
+      print 'could not find data in bulletin %s for RTPCR' %(bulletin)
+      return
+    rtpcr=rtpcr[0].split()[-1]
+
+    rapid=[i for i in b if i.lower().startswith('rapid antigen')]
+    if not rapid:
+      print 'could not find data in bulletin %s for rapid tests' %(bulletin)
+      return
+    rapid=rapid[0].split()[-1]
+    total=int(rapid)+int(rtpcr)
+
+  cz=[i for i in b if 'number of containment zones' in i.lower()]
+  if not cz:
+    print 'could not find data in bulletin %s for containment zones' %(bulletin)
+    return
+  cz=cz[0].split()[-1].split(':')[-1].split('\x93')[-1]
+
+  amb=[i for i in b if 'ambulance' in i.lower()]
+  if not amb:
+    print 'could not find data in bulletin %s for ambulances' %(bulletin)
+    return
+  amb=amb[0].split()[-1].split('\x93')[-1]
+
+  # ~ print date,hos_capacity,hos_used,dcc_capacity,dcc_used,dchc_capacity,dchc_used,total,rtpcr,rapid,cz,amb
+  
+  delhi_obj=delhi_status(date,int(hos_capacity),int(hos_used),int(dcc_capacity),int(dcc_used),int(dchc_capacity),int(dchc_used),int(total),int(rtpcr),int(rapid),int(cz),int(amb))
+  return delhi_obj
+
+def delhi_parser():
+  pdfs=[i for i in os.listdir('.') if i.endswith('.pdf')];pdfs.sort()
+  do=[]
+  for pdf in pdfs:
+    try:
+      do.append(delhi_bulletin_parser(pdf))
+      if pdf=='09_08_2020.pdf':
+        ds=delhi_bulletin_parser(pdf)
+        ds.date=datetime.datetime(2020,9,9,0,0)
+        do.append(ds); #duplicate to avoid error
+      elif pdf=='07_29_2020.pdf':
+        ds=delhi_bulletin_parser(pdf)
+        ds.date=datetime.datetime(2020,7,30,0,0)
+        do.append(ds); #duplicate to avoid error
+    except:
+      print 'could not parse delhi_bulletin: '+pdf
+  #manually add data for malformed bulletin days (aug 29,30 and sep 9)
+  do.append(delhi_status(datetime.datetime(2020,8,29,0,0),14143, 3966, 10143, 821, 594, 275, 22004,6597,15407,803,1371))
+  do.append(delhi_status(datetime.datetime(2020,8,30,0,0),14145, 4030, 10143, 876, 599, 336, 20437,6881,13556,820,1319))
+  # ~ do.append(delhi_status(datetime.datetime(2020,6,9,0,0),8872, 4680, 285, 187, 6038, 1414, 54517,0,0,0,0))
+  do.sort(key= lambda y: y.date)
+  return do
+
+def delhi_analysis(do):
+  #hos_capacity='';hos_used='';dcc_capacity='';dcc_used='';dchc_capacity='';dchc_used='';
+  # ~ hos_util=0;dcc_util=0;dchc_util=0
+  # ~ total='';rtpcr='';rapid='';
+  # ~ cz='';amb='';date=''
+  import pylab
+  dates=pylab.date2num([i.date for i in do])
+  hos_used=[i.hos_used for i in do]
+  tot=[i.total for i in do]
+  r=[i.rapid for i in do]
+  rtpcr=[i.rtpcr for i in do]
+  rp=numpy.float64(r)/numpy.float64(tot)
+
+  cz=[i.cz for i in do]
+
+  actives=get_cases(state='Delhi',case_type='active',return_full_series=True,verbose=True)
+  deaths=get_cases(state='Delhi',case_type='deaths',return_full_series=True,verbose=True)
+  dates2=pylab.date2num([i[0] for i in actives])
+
+  actives=[i[1] for i in actives if i[0]>=datetime.datetime(2020, 6, 18, 0, 0) and i[0]<=datetime.datetime(2020, 9, 15, 0, 0)]
+  
+  deaths=numpy.diff([i[1] for i in deaths if i[0]<=datetime.datetime(2020, 9, 15, 0, 0)])#have more
+  deaths=moving_average(deaths)
+  dates_skip=5; #have anomaly of sudden addition in mid-June
+  deaths=deaths[-1*len(dates):]
+   
+  
+
+  hp=100*(numpy.float64(hos_used)/numpy.float64(actives))
+  
+  # ~ sp,ax=pylab.subplots()
+
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Hospitalization Percent (of active cases)',color=color)
+  # ~ ax.plot_date(dates,hp,color=color,label='Hospitalization Percentage')
+  # ~ ax.tick_params(axis='y', labelcolor=color)  
+
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:green'
+  # ~ ax2.set_ylabel('Daily Tests',color=color)
+  # ~ ax2.plot_date(dates,tot,color=color,label='Daily Tests')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+
+  # ~ sp.tight_layout()
+
+  # ~ title='Hospitalion-percent(of actives) vs Daily-tests in Delhi'
+  # ~ pylab.title(title);
+  # ~ ax2.legend(loc='upper right'); ax.legend(loc='upper left');
+  # ~ pylab.legend();
+  # ~ pylab.show()
+
+  # ~ sp,ax=pylab.subplots()
+
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Hospital beds used',color=color)
+  # ~ ax.plot_date(dates,hos_used,color=color,label='Hospital Beds')
+  # ~ ax.tick_params(axis='y', labelcolor=color)  
+  # ~ ax.legend(loc='upper left');
+  
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:orange'
+  # ~ ax2.set_ylabel('Active Cases',color=color)
+  # ~ ax2.plot_date(dates,actives,color=color,label='Active Cases')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower left');
+  
+  # ~ sp.tight_layout()
+
+  # ~ title='Hospital-beds-used vs Active-Cases in Delhi'
+  # ~ pylab.title(title);
+  # ~ ax2.legend(loc='upper right'); 
+
+  # ~ sp,ax=pylab.subplots()
+
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Number of Containment Zones',color=color)
+  # ~ ax.plot_date(dates,cz,color=color,label='Containment Zones')
+  # ~ ax.tick_params(axis='y', labelcolor=color)  
+  # ~ ax.legend(loc='upper left');
+  
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:orange'
+  # ~ ax2.set_ylabel('Active Cases',color=color)
+  # ~ ax2.plot_date(dates,actives,color=color,label='Active Cases')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower left');
+  
+  # ~ sp.tight_layout()
+
+  # ~ title='Containment-Zones vs Active-Cases in Delhi'
+  # ~ pylab.title(title);
+  # ~ ax2.legend(loc='upper right'); 
+
+  # ~ sp,ax=pylab.subplots()
+
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Hospital beds used',color=color)
+  # ~ ax.plot_date(dates,hos_used,color=color,label='Hospital Beds')
+  # ~ ax.tick_params(axis='y', labelcolor=color)  
+  # ~ ax.legend(loc='upper left');
+  
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Daily Deaths (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates[dates_skip:],deaths[dates_skip:],color=color,label='Daily Deaths (7-day MA)')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower left');
+  
+  # ~ sp.tight_layout()
+
+  # ~ title='Hospital-beds-used vs Daily-deaths in Delhi'
+  # ~ pylab.title(title);
+  # ~ ax2.legend(loc='upper right'); 
+  sp,ax=pylab.subplots()
+
+  color = 'tab:blue'
+  ax.set_xlabel('Date')
+  ax.set_ylabel('Active Cases',color=color)
+  ax.plot_date(dates,actives,color=color,label='Active Cases')
+  ax.tick_params(axis='y', labelcolor=color)  
+  ax.legend(loc='upper left');
+  
+  ax2=ax.twinx()
+  color = 'tab:red'
+  ax2.set_ylabel('Daily Deaths (7-day MA)',color=color)
+  ax2.plot_date(dates[dates_skip:],deaths[dates_skip:],color=color,label='Daily Deaths (7-day MA)')
+  ax2.tick_params(axis='y', labelcolor=color)
+  ax2.legend(loc='lower left');
+  
+  sp.tight_layout()
+
+  title='Active-cases vs Daily-deaths in Delhi'
+  pylab.title(title);
+  ax2.legend(loc='upper right'); 
+
+  # ~ ax=pylab.figure()
+  # ~ pylab.plot_date(dates,tot,label='Total tests')
+  # ~ pylab.plot_date(dates,r,label='Rapid antigen tests')
+  # ~ xlabel='Date';ylabel='Tests';title='Scale-up of Testing in Delhi over time'
+  # ~ pylab.xlabel(xlabel);pylab.ylabel(ylabel);pylab.title(title);pylab.legend()
+
+  # ~ ax=pylab.figure()
+  # ~ pylab.plot_date(dates,rp,label='Rapid tests percentage')
+  # ~ xlabel='Date';ylabel='Percent of Rapid antigen tests';title='Reliance on rapid tests in Delhi over time'
+  # ~ pylab.xlabel(xlabel);pylab.ylabel(ylabel);pylab.title(title);pylab.legend()
+  
+  return (hos_used,deaths)
   
 def update_data_files():
   urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/data.json','https://api.covid19india.org/state_test_data.json']
@@ -172,7 +417,34 @@ class kerala_community_tr():
   def __init__(self,date,percent_unknown):
     self.percent_unknown=percent_unknown
     self.date=date
+
+class delhi_status():
+  hos_capacity='';hos_used='';dcc_capacity='';dcc_used='';dchc_capacity='';dchc_used='';
+  hos_util=0;dcc_util=0;dchc_util=0
+  total='';rtpcr='';rapid='';
+  cz='';amb='';date=''
+  def __init__(self,date,hos_capacity,hos_used,dcc_capacity,dcc_used,dchc_capacity,dchc_used,total,rtpcr,rapid,cz,amb):
     
+    self.date,self.hos_capacity,self.hos_used,self.dcc_capacity,self.dcc_used,self.dchc_capacity,self.dchc_used,self.total,self.rtpcr,self.rapid,self.cz,self.amb=date,hos_capacity,hos_used,dcc_capacity,dcc_used,dchc_capacity,dchc_used,total,rtpcr,rapid,cz,amb
+    if self.hos_used: self.hos_util=100*(self.hos_used/float(self.hos_capacity))
+    if self.dchc_used: self.dchc_util=100*(self.dchc_used/float(self.dchc_capacity))
+    if self.dcc_used: self.dcc_util=100*(self.dcc_used/float(self.dcc_capacity))
+  def info(self):
+    info=''
+    if self.date: info='On date: %s\n' %(datetime.datetime.strftime(self.date,'%d/%m/%Y'))
+    info+='\tHospital: %d/%d (%.1f percent)\n' %(self.hos_capacity,self.hos_used,self.hos_util)
+    info+='\tDCHC: %d/%d (%.1f percent)\n'  %(self.dchc_capacity,self.dchc_used,self.dchc_util)
+    info+='\tDCCC: %d/%d (%.1f percent)\n'%(self.dcc_capacity,self.dcc_used,self.dcc_util)
+    info+='Tests:\n\tTotal: %d\n' %(self.total)
+    if self.rtpcr:
+      info+='\tRTPCR: %d\n\tRapid: %d' %(self.rtpcr,self.rapid)
+    info+='Misc:\n\tContainment Zones: %d\n\tAmbulance calls: %d' %(self.cz,self.amb)
+    print info
+  def csv_row(self):
+    row=[self.date,str(self.hos_capacity),str(self.hos_used),str(self.dcc_capacity),str(self.dcc_used),str(self.dchc_capacity),str(self.dchc_used),str(self.total),str(self.rtpcr),str(self.rapid),str(self.cz),str(self.amb)]
+    return row
+    
+  
 #class meant to represent Odisha's fatality data (in a very specific format)
 class fatality():
   date='';age='';gender='';district='';comorbidity=[];comorb_string=''
