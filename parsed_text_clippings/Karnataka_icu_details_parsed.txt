@@ -1779,7 +1779,7 @@ Haveri : 1
 Belagavi : 1
 Total : 80
 ##BULLETIN_DATE 23-06-2020
-Bengaluru : 71
+BengaluruUrban : 71
 Kalaburagi : 11
 Dharwada : 6
 Tumakuru : 6
@@ -1797,7 +1797,7 @@ Chamarajanagara : 1
 Vijayapura : 3
 Total : 120
 ##BULLETIN_DATE 24-06-2020
-Bengaluru : 63
+BengaluruUrban : 63
 Kalaburagi : 9
 Dharwada : 6
 Ballari : 6
@@ -1816,7 +1816,7 @@ Raichuru : 1
 Chamarajanagara : 1
 Total : 112
 ##BULLETIN_DATE 25-06-2020
-Bengaluru : 112
+BengaluruUrban : 112
 Kalaburagi : 7
 Ballari : 6
 Dharwada : 5
@@ -1837,7 +1837,7 @@ Kodagu : 1
 Chikkamgaluru : 1
 Total : 160
 ##BULLETIN_DATE 26-06-2020
-Bengaluru : 123
+BengaluruUrban : 123
 Kalaburagi : 8
 Dharwada : 8
 Ballari : 6
@@ -1858,7 +1858,7 @@ Chikkamgaluru : 1
 UttaraKannada : 1
 Total : 178
 ##BULLETIN_DATE 27-06-2020
-Bengaluru : 125
+BengaluruUrban : 125
 Dharwada : 10
 Kalaburagi : 9
 Ballari : 6
@@ -1883,7 +1883,7 @@ Kolara : 1
 Bagalakote : 1
 Total : 197
 ##BULLETIN_DATE 28-06-2020
-Bengaluru : 155
+BengaluruUrban : 155
 Dharwada : 12
 Kalaburagi : 10
 Ballari : 10
@@ -1909,7 +1909,7 @@ Bagalakote : 1
 Haveri : 1
 Total : 243
 ##BULLETIN_DATE 29-06-2020
-Bengaluru : 178
+BengaluruUrban : 178
 Dharwada : 15
 Kalaburagi : 12
 Bidar : 8
@@ -1933,7 +1933,7 @@ UttaraKannada : 1
 Kodagu : 1
 Total : 268
 ##BULLETIN_DATE 30-06-2020
-Bengaluru : 171
+BengaluruUrban : 171
 Dharwada : 17
 Kalaburagi : 14
 Bidar : 8
@@ -1956,7 +1956,7 @@ Kodagu : 1
 Bagalakote : 1
 Total : 271
 ##BULLETIN_DATE 01-07-2020
-Bengaluru : 191
+BengaluruUrban : 191
 Dharwada : 16
 Kalaburagi : 13
 Ballari : 11
@@ -1980,7 +1980,7 @@ Kodagu : 1
 Mandya : 1
 Total : 292
 ##BULLETIN_DATE 02-07-2020
-Bengaluru : 113
+BengaluruUrban : 113
 Dharwada : 8
 Kalaburagi : 5
 Ballari : 5

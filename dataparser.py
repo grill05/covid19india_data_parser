@@ -118,9 +118,45 @@ def helper_download_karnataka_bulletin(twitter_link,debug=False):
     bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
   os.system('cp -v tmp.pdf "'+bulletin_date_string+'.pdf"')
 
+def helper_download_delhi_bulletin(link,debug=False):
+  download_cmd='wget -q --no-check-certificate "'+link+'" -O tmp.pdf'
+  if debug: print download_cmd
+  os.system(download_cmd)
+  bulletin_date=delhi_bulletin_parser('tmp.pdf',return_date_only=True)
+  if debug: print 'bulletin_date: '+str(bulletin_date)
+  if not bulletin_date:
+    print 'could not find date for bulletin. Using tmp format'
+    bulletin_date_string=datetime.datetime.now().strftime('%H-%s')
+  else:    
+    bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
+  os.system('cp -v tmp.pdf "'+bulletin_date_string+'.pdf"')
 
 
-    
+
+
+def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
+  cmd='pdftotext -layout "'+bulletin+'" tmp.txt';os.system(cmd)
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+
+  date_string=[i for i in b if ' 2020' in i]
+  if not date_string:
+    print 'could not find date for bulletin ',bulletin
+    return
+  date_string=date_string[0]
+  date_string=date_string.split('/')[1].replace(')','').replace('(','').replace(',',' ').strip()
+  day=date_string.split()[1].replace('th','').replace('nd','').replace('st','').replace('rd','').strip()
+  day=int(day)
+
+  month_string=date_string.split()[0].strip().lower()
+  month=9
+  if 'august' in month_string: month=8
+  elif 'july' in month_string: month=7
+  elif 'june' in month_string: month=6
+
+  date=datetime.datetime(2020,month,day,0,0)
+
+  if return_date_only: return date
+  
 def update_data_files():
   urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/data.json','https://api.covid19india.org/state_test_data.json']
   for i in urls:
@@ -584,6 +620,66 @@ def tamil_nadu_parse_clippings():
   print len(indices)-1,' death cases found'
   return deaths
   
+def karnataka_bulletin_get_margins_confirmed(bulletin='06_18_2020.pdf',page_range=(5,12),execute=True,debug_clip='',debug=False):
+  cmd='pdftotext -x 0 -y 0 -W 1000 -H 2000 -bbox-layout -nopgbrk -layout -f '+str(page_range[0])+' -l '+str(page_range[1])+' "'+bulletin+'" tmp.txt';os.system(cmd)
+  from bs4 import BeautifulSoup
+  soup=BeautifulSoup(open('tmp.txt').read(),'lxml')
+  d_idx=[i for i in range(len(soup('block'))) if soup('block')[i]('word')[0].text.strip().lower()=='district']  
+  if not d_idx:
+    print 'could not find "block" for District in '+bulletin+' with range '+str(page_range)
+    return
+  d=soup('block')[d_idx[0]]
+  
+  #find x,y of block
+  xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+  ymin=float(d.get('ymin'));  ymax=float(d.get('ymax'))
+
+  #get all blocks between y=0 and y=2*ymax
+  hblocks=[i for i in soup('block') if float(i.get('ymin'))>0 and float(i.get('ymax'))<(2*ymax)]
+  hwords=[i for i in soup('word') if float(i.get('ymin'))>0 and float(i.get('ymax'))<(2*ymax)]
+  # ~ return soup,hblocks,hwords
+
+  bboxes={}
+  
+  #history
+  history=[i for i in hblocks if i.text.strip().startswith('History')]
+  if not history: history=[i for i in hwords if i.text.startswith('History')]
+  if not history: history=[i for i in hblocks if i.text.startswith('Description')]
+  if not history: history=[i for i in hwords if i.text.startswith('Description')]
+  if not history:
+    print 'could not find block for history'
+    return
+  else:
+    history=history[0];d=history
+    xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+    bboxes['history']=(xmin,xmax)
+
+  #isolated
+  isolated=[i for i in hblocks if i.text.strip().startswith('Isolated')]
+  if not isolated: isolated=[i for i in hwords if i.text.startswith('Isolated')]
+  if not isolated:
+    print 'could not find block for isolated'
+    return
+  else:
+    isolated=isolated[0];d=isolated
+    xmin=float(d.get('xmin'));  xmax=float(d.get('xmax'))
+    bboxes['isolated']=(xmin,xmax)
+
+  xcut=0
+  xcut=bboxes['history'][1] + (bboxes['isolated'][0]-bboxes['history'][1])*0.5  
+  xcut=int(xcut)+1
+  
+  if debug_clip or execute:
+    if not xcut:
+      print 'could not find margins(confirmed) for bulletin: '+ str(bulletin)
+      return
+    w=str(xcut)
+    cmd='pdftotext -x 0  -W '+w+' -y 0 -H 1000  -nopgbrk -layout -f '+str(page_range[0])+' -l '+str(page_range[1])+' '+bulletin+' tmp.txt'
+    if debug_clip: print cmd
+    os.system(cmd)
+    if debug_clip: print 'created debug clip in tmp.txt '
+  return xcut
+  
 def karnataka_bulletin_get_margins(bulletin='09_09_2020.pdf',page_range=(19,23),debug_clip='',debug=False):
   cmd='pdftotext -x 0 -y 0 -W 1000 -H 2000 -bbox-layout -nopgbrk -layout -f '+str(page_range[0])+' -l '+str(page_range[1])+' "'+bulletin+'" tmp.txt';os.system(cmd)
   from bs4 import BeautifulSoup
@@ -814,7 +910,18 @@ def helper_map_district_start_char_to_fullname(startchars=''):
   for k in karnataka_districts_map:
     if startchars.lower().startswith(k):
       return karnataka_districts_map[k]
-
+def helper_correlate_signals(x,y,plot=False):
+  if len(x)!=len(y):
+    print 'array length %d %d are not same' %(len(x),len(y))
+  # ~ corr=numpy.correlate(x-numpy.mean(x),y-numpy.mean(y),mode='full')
+  corr=numpy.correlate(x,y,mode='full')
+  lag = corr.argmax()-(len(x)- 1)
+  if plot:
+    import pylab
+    pylab.plot(corr)
+  print 'best lag between signals: '+str(lag)
+  return corr
+  
 def helper_plot_linear_fit(x,y,label='',color=''):
   import pylab
   xr=numpy.arange(len(x))
@@ -862,7 +969,23 @@ def helper_get_mean_timeseries(recoveries):
     # ~ mean_values.append((dd,numpy.median(r),numpy.median(r1),numpy.median(r2)))
   return mean_values
 
-
+def karnataka_read_csv():
+  import csv;info=[]
+  r=csv.reader(open('karnataka_fatalities_details_jul16_sep10.csv'))
+  for i in r: info.append(i);
+  info=info[1:];fatalities=[]
+  for row in info[2:]:
+    patient_number=row[0]
+    district=row[1];
+    age=row[2];gender=row[3];origin=row[4];date_of_detection=row[5];date_of_admission=row[6];date_of_death=row[7];
+    bulletin_date=row[8];comorbidity=','.join(row[9:])
+    # ~ print comorbidity
+    date_of_admission=datetime.datetime.strptime(date_of_admission,'%Y-%m-%d')
+    date_of_death=datetime.datetime.strptime(date_of_death,'%Y-%m-%d')
+    bulletin_date=datetime.datetime.strptime(bulletin_date,'%Y-%m-%d')
+    fatality=generic_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date)
+    fatalities.append(fatality)
+  return fatalities
 def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=True,ma_size=3,state='Tamil Nadu'):
   d1=datetime.date(2020,6,1);d2=datetime.date(2020,9,11);delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
@@ -1424,7 +1547,131 @@ def karnataka_parse_discharges(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0)
 
   return all_dischages_objects
         
+def karnataka_parse_confirmed(bulletin='07_01_2020.pdf',bulletin_date='',annex_range='',parse_txt=False):
+  if not (bulletin_date and annex_range):
+    bulletin_date,annex_range=karnataka_get_annexure_range(bulletin)
+  if 'confirmed' not in annex_range: return #bulletin is truncated
+  page_range=annex_range['confirmed']
+  if parse_txt:
+    b=[i for i in open('confirmed.txt') if i.strip()]
+  else:
+    karnataka_bulletin_get_margins_confirmed(bulletin=bulletin,page_range=page_range,execute=True)
+    b=[i for i in open('tmp.txt') if i.strip()]
 
+  indices=[i for i in range(len(b)) if b[i].strip() and b[i].split()[0].strip().isdigit() and len(b[i].split())>=4]
+  special=[('bangalore rural','bengaluru'),('bangalore urban','bengaluru'),('bengaluru rural','bengaluru'),('bengaluru urban','bengaluru'),('dakshina kannada','dakshinakannada'),('uttara kannada','uttarakannada')]
+
+  a=open('debug.txt','w');a.write('##BULLETIN_DATE '+bulletin_date.strftime('%d-%m-%Y')+'\n')
+  for index in indices:
+    line=b[index].strip().lower()
+    for j in special: line=line.replace(j[0],j[1]); #get districts in one word
+    ls=line.split()
+    if len(ls)<3: #doesn't have all entries
+      print 'error parsing line '+line+' in bulletin: '+bulletin
+      return
+    gi=''
+    if 'female' in ls: gi=ls.index('female')
+    elif 'male' in ls: gi=ls.index('male')
+    gender=ls[gi]
+    age=ls[gi-1];sub1=False
+    if len(age)>2: #age should normally be 2 go above below
+      age=''   
+      char_idx=b[index].lower().index('male')
+      above=b[index-1][:char_idx-2];below=b[index+1][:char_idx-2];
+      if above.strip() and above.strip().split()[-1].isdigit(): #age was above
+        age=above.strip().split()[-1];sub1=True
+      if not age and below.strip() and below.strip().split()[-1].isdigit(): #age was above
+        age=below.strip().split()[-1];sub1=True
+    if sub1:
+      pno=ls[gi-1].replace('p-','').replace('-','').strip()
+    else:
+      pno=ls[gi-2].replace('p-','').replace('-','').strip()
+
+    try:
+      district=ls[gi+1]
+    except:
+      print 'error parsing district in line: %s in bulletin: %s' %(line,bulletin)
+      return
+
+    #maybe it is next
+    history=''
+    if len(ls)>(gi+2):
+      history=''.join(ls[gi+2:])
+      # ~ print 'fioio'
+    else: #look above and below
+      char_idx=b[index].lower().index('male')+4
+      above=b[index-1][char_idx:];below=b[index+1][char_idx:];
+      # ~ print 'aboeve,below in history '+str(above)+' :: '+str(below)
+      if above.strip(): #age was above
+        history=''.join(above.lower().strip().split())
+      if not history and below.strip():#history was above
+        history=''.join(below.lower().strip().split())
+        
+    if not age.isdigit():
+      print 'error parsing age: %s in line: %s in bulletin: %s' %(age,line,bulletin)
+      return
+    if not pno.isdigit():
+      print 'error parsing pno: %s in line: %s in bulletin: %s' %(pno,line,bulletin)
+      return
+    if not history:
+      print 'error parsing history in line: %s in bulletin: %s' %(line,bulletin)
+      return
+    info='%s : %s : %s : %s' %(pno,age,gender,district)
+    if history: info+=' : %s' %(history)
+    a.write(info+'\n')
+  a.close()
+    
+  
+def karnataka_get_annexure_range(bulletin=''):
+  cmd='pdftotext -layout "'+bulletin+'" tmp.txt';os.system(cmd);
+  b=[i for i in open('tmp.txt').readlines() if i.strip()]  
+  for i in b:
+    i=i.lower().strip()
+    if i.startswith(('date:','dated:')):
+      date_string=i.split(':')[1].strip().replace('202020','2020').replace('/','-')
+      if '-' in date_string:
+        bulletin_date=datetime.datetime.strptime(date_string,'%d-%m-%Y')      
+      break
+  annexures=[i for i in b if 'nnexure' in i]
+  annexures_indices=[b.index(i) for i in annexures]
+
+  discharge_annex_range=[];deaths_annex_range=[];icu_annex_range=[];
+  annex_range=[];lastpage=0
+
+  #HACKS FOR MISFORMED BULLETINS
+  misformed_bulletins=['08_05_2020.pdf','08_07_2020.pdf','07_18_2020.pdf']
+      
+  # ~ if bulletin not in misformed_bulletins:
+  pagenum=1;
+  for j in range(len(b)):
+    i=b[j].strip();info_string='' 
+    if '\x0c' in b[j]: pagenum+=1
+    
+    if j in annexures_indices: info_string=b[j+1].strip().lower()
+    # ~ print 'info_str: '+info_str
+    if 'discharge' in info_string:
+      annex_range.append(('discharges',pagenum))
+    elif 'death' in info_string:
+      annex_range.append(('deaths',pagenum))
+    elif 'icu' in info_string:
+      annex_range.append(('icu',pagenum))
+    elif i.endswith('2') and (j in annexures_indices):
+      annex_range.append(('confirmed',pagenum))
+  # ~ else:
+    # ~ if bulletin=='08_05_2020.pdf': annex_range=[('discharges',5,16),('deaths',17,22),('icu',23,23)]
+    # ~ elif bulletin=='08_07_2020.pdf': annex_range=[('discharges',5,16),('deaths',17,21),('icu',22,22)]    
+
+  # ~ print annex_range
+  #convert to dict
+  dc={}
+  for i in range(len(annex_range)):
+    if i<(len(annex_range)-1):
+      dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i+1][1]-1)
+    else:
+      dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i][1]+2)
+  annex_range=dc
+  if bulletin=='07_18_2020.pdf': annex_range={'discharges':(4,5),'deaths':(311,314),'icu':(315,315)}
+  return (bulletin_date,annex_range)
 
 
 def karnataka_bulletin_parser(bulletin='',return_date_only=False,return_specific=''):
@@ -1525,19 +1772,51 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False,return_specific
   else:
     return (discharges,icu_usage,deaths)
 
+def karnataka_parse_icu_clipping():
+  infile='allicu.txt'
+  if not os.path.exists(infile) and os.path.exists('parsed_text_clippings/Karnataka_icu_details_parsed.txt'):
+    infile='parsed_text_clippings/Karnataka_icu_details_parsed.txt'
+  b=[i.strip() for i in open(infile).readlines() if i.strip()]
+  indices=[j for j in range(len(b)) if b[j].startswith('##BULLETIN_DATE')];bulletin_date_string=''
 
+  all_icu=[]
+  bulletin_date_string=''
+  for j in range(len(indices)-1):
+    bulletin_date_string=b[indices[j]].split()[1]
+    bulletin_date=datetime.datetime.strptime(bulletin_date_string,'%d-%m-%Y')
+    chunk=b[indices[j]+1:indices[j+1]]
+    for entry in chunk:
+      district=entry.split(':')[0].strip()
+      try:
+        icu=entry.split(':')[1].strip();
+      except:
+        print 'crashed in '+entry
+        return
+      icu=int(icu);
+      icu_obj=generic_icu_usage(bulletin_date,district,icu,state='Karnataka');all_icu.append(icu_obj)
+  #last
+  chunk=b[indices[-1]+1:]
+  for entry in chunk:
+    district=entry.split(':')[0].strip()
+    try:
+      icu=entry.split(':')[1].strip();icu=int(icu);
+    except:
+      print 'crashed in '+entry
+      return
+    icu_obj=generic_icu_usage(bulletin_date,district,icu,state='Karnataka');all_icu.append(icu_obj)
+  return all_icu
 
 def karnataka_parser(return_specific=''):
   bulletin_pdfs=[i for i in os.listdir('.') if i.endswith('.pdf')]
   bulletin_pdfs.sort()
   all_discharges=[];all_icu_usage=[];all_deaths=[]
+  if return_specific=='icu': #directly parse txt clipping of icu usage
+    all_icu_usage=karnataka_parse_icu_clipping()
   for bulletin_pdf in bulletin_pdfs:
     print 'parsing bulletin %s' %(bulletin_pdf)    
     try:
       if return_specific:
-        if return_specific=='icu':
-          icu_usage=karnataka_bulletin_parser(bulletin_pdf,return_specific='icu')
-          all_icu_usage.extend(icu_usage)
+        pass
       else:
         (discharges,icu_usage,deaths)=karnataka_bulletin_parser(bulletin_pdf)
         all_discharges.extend(discharges)
