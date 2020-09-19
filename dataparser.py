@@ -138,12 +138,12 @@ def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
   cmd='pdftotext -layout "'+bulletin+'" tmp.txt';os.system(cmd)
   b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
 
-  date_string=[i for i in b if ' 2020' in i]
+  date_string=[i for i in b if '2020' in i]
   if not date_string:
     print 'could not find date for bulletin ',bulletin
     return
   date_string=date_string[0]
-  date_string=date_string.split('/')[1].replace(')','').replace('(','').replace(',',' ').strip()
+  date_string=date_string.split('/')[1].replace(')','').replace('(','').replace(',',' ').replace('2020',' ').strip()
   day=date_string.split()[1].replace('th','').replace('nd','').replace('st','').replace('rd','').strip()
   day=int(day)
 
