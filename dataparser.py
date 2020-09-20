@@ -258,6 +258,9 @@ def delhi_analysis(do):
   import pylab
   dates=pylab.date2num([i.date for i in do])
   hos_used=[i.hos_used for i in do]
+  dhc_used=[i.dchc_used for i in do]  
+  dcc_used=[i.dcc_used for i in do]
+  
   tot=[i.total for i in do]
   r=[i.rapid for i in do]
   rtpcr=[i.rtpcr for i in do]
@@ -279,7 +282,30 @@ def delhi_analysis(do):
   
 
   hp=100*(numpy.float64(hos_used)/numpy.float64(actives))
+  dhp=100*(numpy.float64(dhc_used)/numpy.float64(actives))
+  ccp=100*(numpy.float64(dcc_used)/numpy.float64(actives))
   
+  sp,ax=pylab.subplots()
+
+  color = 'tab:blue'
+  ax.set_xlabel('Date')
+  ax.set_ylabel('Hospitalization (DCH) Percent (of active cases)',color=color)
+  ax.plot_date(dates,hp,color=color,label='Hospitalization Percentage')
+  ax.tick_params(axis='y', labelcolor=color)  
+
+  ax2=ax.twinx()
+  color = 'tab:green'
+  ax2.set_ylabel('Health Center (DCHC) Percent (of active cases)',color=color)
+  ax2.plot_date(dates,dhp,color=color,label='Health Center Percentage')
+  ax2.tick_params(axis='y', labelcolor=color)
+
+  sp.tight_layout()
+
+  title='Hospitalion-percent(of actives) vs Health center percent in Delhi'
+  pylab.title(title);
+  ax2.legend(loc='upper right'); ax.legend(loc='upper left');
+  pylab.legend();
+  pylab.show()
   # ~ sp,ax=pylab.subplots()
 
   # ~ color = 'tab:blue'
@@ -367,25 +393,46 @@ def delhi_analysis(do):
   # ~ title='Hospital-beds-used vs Daily-deaths in Delhi'
   # ~ pylab.title(title);
   # ~ ax2.legend(loc='upper right'); 
+  # ~ sp,ax=pylab.subplots()
+
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Active Cases',color=color)
+  # ~ ax.plot_date(dates,actives,color=color,label='Active Cases')
+  # ~ ax.tick_params(axis='y', labelcolor=color)  
+  # ~ ax.legend(loc='upper left');
+  
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Daily Deaths (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates[dates_skip:],deaths[dates_skip:],color=color,label='Daily Deaths (7-day MA)')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower left');
+  
+  # ~ sp.tight_layout()
+
+  # ~ title='Active-cases vs Daily-deaths in Delhi'
+  # ~ pylab.title(title);
+  # ~ ax2.legend(loc='upper right'); 
   sp,ax=pylab.subplots()
 
   color = 'tab:blue'
   ax.set_xlabel('Date')
-  ax.set_ylabel('Active Cases',color=color)
-  ax.plot_date(dates,actives,color=color,label='Active Cases')
+  ax.set_ylabel('DCH(hospital) beds',color=color)
+  ax.plot_date(dates,hos_used,color=color,label='DCH(hospital) beds')
   ax.tick_params(axis='y', labelcolor=color)  
   ax.legend(loc='upper left');
   
   ax2=ax.twinx()
   color = 'tab:red'
-  ax2.set_ylabel('Daily Deaths (7-day MA)',color=color)
-  ax2.plot_date(dates[dates_skip:],deaths[dates_skip:],color=color,label='Daily Deaths (7-day MA)')
+  ax2.set_ylabel('DCHC(Health Center) beds',color=color)
+  ax2.plot_date(dates,dhc_used,color=color,label='DCHC(Health Center) beds')
   ax2.tick_params(axis='y', labelcolor=color)
   ax2.legend(loc='lower left');
   
   sp.tight_layout()
 
-  title='Active-cases vs Daily-deaths in Delhi'
+  title='Bed Utilization in Delhi\'s Hospitals (DCH) and Health Centers (DCHC) over time'
   pylab.title(title);
   ax2.legend(loc='upper right'); 
 
