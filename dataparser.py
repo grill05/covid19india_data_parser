@@ -2220,6 +2220,22 @@ def estimate_lag():
   for state in states:
     d=get_cases(state=states,case_type='deaths',return_full_series=True)
 
+def state_demographics(state='Punjab'):
+  import csv
+  
+  a=open('population_pyramid_all_states.csv');r=csv.reader(a);info=[];
+  for i in r: info.append(i)
+  pop=[i for i in info if state.lower() in i[0].lower()][1:-3];
+  totinfo=[i for i in info if (state.lower() in i[0].lower()) and ('all ages' in i[1].lower())][0];
+  del info;a.close()
+
+  state_total_pop=int(totinfo[2])
+  state_total_male=int(totinfo[3])
+  state_total_female=int(totinfo[4])
+
+  gender_ratio=float(state_total_female)/state_total_male
+  return (totinfo,gender_ratio,pop)
+  
     
 #finds pecent on ventilators on all dates for which data is available for that state
 #"state" must be fullname
