@@ -20,6 +20,7 @@ state_code_to_name={'pb':'Punjab',            'hr':'Haryana',
                     'as':'Assam',             'wb': 'West Bengal',
                     'mp':'Madhya Pradesh',    'jh': 'Jharkhand',
                     'rj':'Rajasthan',         'or': 'Odisha',
+                    'mh':'Maharashtra',
                     }
 state_name_to_code={}
 for k in state_code_to_name: state_name_to_code[state_code_to_name[k]]=k
@@ -43,6 +44,7 @@ def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full
 
   #get all confirmed cases till date
   confirmed=0;recovered=0;deaths=0;active=0;
+  confirmed_prev=0;recovered_prev=0;deaths_prev=0;active_prev=0;
 
   if return_full_series:
     confirmed_series={};recovered_series={};deaths_series={};active_series={};
@@ -50,7 +52,16 @@ def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full
     
   for i in x:
     datetime_i=datetime.datetime.strptime(i['date'].replace('-20','-2020'),'%d-%b-%Y')
-    if datetime_i<=target_datetime:
+    if datetime_i<target_datetime:
+      if   i['status']=='Deceased':  deaths+=int(i[state_code]);deaths_prev+=int(i[state_code])
+      elif i['status']=='Recovered': recovered+=int(i[state_code]);recovered_prev+=int(i[state_code]);
+      elif i['status']=='Confirmed': confirmed+=int(i[state_code]);confirmed_prev+=int(i[state_code]);
+      active=confirmed-deaths-recovered;active_prev=active
+
+      if return_full_series:
+        confirmed_series[datetime_i]=confirmed;recovered_series[datetime_i]=recovered;
+        deaths_series[datetime_i]=deaths;active_series[datetime_i]=active
+    if datetime_i==target_datetime:
       if   i['status']=='Deceased':  deaths+=int(i[state_code])
       elif i['status']=='Recovered': recovered+=int(i[state_code])
       elif i['status']=='Confirmed': confirmed+=int(i[state_code])
@@ -90,6 +101,22 @@ def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full
     if verbose: print 'Deaths in %s on %s were %d' %(state,date,deaths)
     if return_full_series:  return deaths_series
     else:                   return deaths
+  if case_type=='active_day':
+    active_day=active-active_prev
+    if verbose: print 'Active cases in %s on %s were %d' %(state,date,active_day)
+    return active_day
+  elif case_type=='confirmed_day':
+    confirmed_day=confirmed-confirmed_prev
+    if verbose: print 'new cases in %s on %s were %d' %(state,date,confirmed_day)
+    return confirmed_day    
+  elif case_type=='recovered_day':
+    recovered_day=recovered-recovered_prev
+    if verbose: print 'Recovered cases in %s on %s were %d' %(state,date,recovered_day)
+    return recovered_day
+  elif case_type=='deaths_day':
+    deaths_day=deaths-deaths_prev
+    if verbose: print 'Deaths in %s on %s were %d' %(state,date,deaths_day)
+    return deaths_day
 
 
 #cache this to avoid repeated file reads
@@ -2183,6 +2210,57 @@ def get_antigen_tests(state='Karnataka',verbose=False):
       print '%s: %d tests,  %.1f percent (%d tests) were antigen' %(date,tests_on_day,percent_antigen,antigen_on_day)
   return all_antigen
 
+def get_tests(state='Karnataka',date='',return_full_series=True,verbose=False):
+  x=json.load(open('state_test_data.json'))
+  x=[i for i in x['states_tested_data'] if i['state']==state]
+
+  tests_on_day=0
+  all_tests=[]
+  
+  for idx in range(1,len(x)):
+    i=x[idx]
+    date=i['updatedon']
+    datetime_i=datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')
+    
+    tests_on_day=int(i['totaltested'])-int(x[idx-1]['totaltested'])    
+    all_tests.append((datetime_i,tests_on_day))
+  
+  # ~ if verbose:
+    # ~ print 'For state: %s' %(state)
+    # ~ for i in all_antigen:
+      # ~ (date,tests_on_day,antigen_on_day,percent_antigen)=i
+      # ~ print '%s: %d tests,  %.1f percent (%d tests) were antigen' %(date,tests_on_day,percent_antigen,antigen_on_day)
+  return all_tests
+
+def get_positivity(state='Karnataka',do_moving_average=True):
+  cases_cum=get_cases(state=state,case_type='confirmed',return_full_series=True,verbose=False)
+  d=[i[0] for i in cases_cum][1:]
+  c=numpy.diff([i[1] for i in cases_cum])
+  window_size=5
+  if do_moving_average:
+    c=moving_average(c,window_size=window_size)
+    d=d[window_size-1:]
+  cases=zip(d,c)
+  tests=get_tests(state=state)
+  if do_moving_average:
+    d=[i[0] for i in tests]
+    t=[i[1] for i in tests]
+    t=moving_average(t,window_size=window_size)
+    d=d[window_size-1:]
+    tests=zip(d,t)
+  cd={}
+  for i in cases:
+    date,c=i;cd[date]=c
+  td={}
+  for i in tests:
+    date,t=i;td[date]=t
+  pd={}
+  for date in td:
+    if date in cd:
+      if td[date]: pd[date]=100*float(cd[date])/td[date]
+  p=pd.items();p.sort()
+  return p
+
 #finds pecent on icus on all dates for which data is available for that state
 #"state" must be fullname
 # as of sep 5, data on icu usage is available for (state_name: number_of_days_of_data_available
@@ -2269,10 +2347,10 @@ def get_people_on_ventilators(state='Telangana',verbose=False):
 
 def make_plots(use_all_states=False,use_solid_lines=False):
   import pylab
-  states_icu=['Punjab','Haryana','Kerala','Telangana','Karnataka']
-  states_ventilator=['Punjab','Haryana','Kerala','Telangana','Gujarat']
-  # ~ states_icu=['Telangana']
-  # ~ states_ventilator=['Telangana']
+  # ~ states_icu=['Punjab','Haryana','Kerala','Telangana','Karnataka']
+  states_icu=['Punjab','Haryana','Kerala']
+  states_ventilator=['Punjab','Haryana','Kerala']
+
 
   #make ICU plot
   for state in states_icu:
@@ -2288,8 +2366,7 @@ def make_plots(use_all_states=False,use_solid_lines=False):
       pylab.plot_date(dates,icu_percent,label=state)
   pylab.xlabel('date');pylab.ylabel('percent of active cases in ICU');pylab.legend()
   pylab.title('ICU use in states over time')
-  pylab.show(); pylab.close();
-  figure = pylab.gcf();figure.set_size_inches(8, 6);pylab.savefig('ICU_usage.png', dpi = 100);
+  pylab.show();
   # ~ #make ventilator plot
   for state in states_ventilator:
     ventilator_data=get_people_on_ventilators(state)
@@ -2304,8 +2381,8 @@ def make_plots(use_all_states=False,use_solid_lines=False):
       pylab.plot_date(dates,ventilator_percent,label=state)
   pylab.xlabel('date');pylab.ylabel('percent of active cases on ventilator');pylab.legend()
   pylab.title('Ventilator use in states over time')
-  pylab.show(); pylab.close()
-  figure = pylab.gcf();figure.set_size_inches(8, 6);pylab.savefig('Ventilator_usage.png', dpi = 100);
+  pylab.show(); 
+  
 
 
 
