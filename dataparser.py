@@ -36,6 +36,58 @@ karnataka_districts_map={'bagal':'bagalkote','balla':'ballari','chikkam':'chikka
 
 ##date must be given as 01/09/2020 for September 1,2020
 ##State must be fullname (see dict above)
+def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/2020',case_type='confirmed_delta',return_full_series=True,verbose=False):
+  
+  x=json.load(open('data-all.json'))
+  d=x.keys();d.sort()
+  dates=[datetime.datetime.strptime(i,'%Y-%m-%d') for i in d];
+  state_code=state_name_to_code[state].upper()
+  returned=[]
+  
+  for date in d:
+    dt=datetime.datetime.strptime(date,'%Y-%m-%d')
+    if dt<=datetime.datetime(2020,4,1,0,0): continue
+    if  not (state_code in x[date] and 'districts' in x[date][state_code]) : continue
+    state_data=x[date][state_code]['districts']
+    # ~ except:
+      # ~ print 'no data for date: %s in state: %s' %(date,state_code)
+      # ~ continue
+    
+    if district in state_data:
+      district_data=state_data[district]
+      if not ('total' in district_data and 'delta' in district_data): continue
+      tested=0;tested_delta=0;deaths_delta=0
+      confirmed=district_data['total']['confirmed']
+      recovered=district_data['total']['recovered']
+      deaths=district_data['total']['deceased']
+      if 'tested' in district_data['total']: tested=district_data['total']['tested']
+      
+      active=confirmed-recovered-deaths
+
+      if not ('recovered' in district_data['delta'] and 'confirmed' in district_data['delta']): continue
+      confirmed_delta=district_data['delta']['confirmed']
+      try:
+        recovered_delta=district_data['delta']['recovered']
+      except:
+        print 'error getting recovered_delta on date: '+date
+        print district_data['delta']
+        return
+      if 'deceased' in district_data['delta']: deaths_delta=district_data['delta']['deceased']
+      active_delta=confirmed_delta-recovered_delta-deaths_delta
+      if 'tested' in district_data['delta']: tested_delta=district_data['delta']['tested']
+
+      if case_type=='confirmed_delta': returned.append((dt,confirmed_delta))
+      elif case_type=='recovered_delta': returned.append((dt,recovered_delta))
+      elif case_type=='deaths_delta': returned.append((dt,deaths_delta))
+      elif case_type=='active_delta': returned.append((dt,active_delta))
+      elif case_type=='tested_delta': returned.append((dt,tested_delta))
+    else:
+      # ~ print 'district: %s not found in state: %s on date: %s' %(district,state,date)
+      continue
+      # ~ return
+  del x
+  return returned
+  
 def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full_series=False,verbose=False):
   x=json.load(open('states_daily.json'))['states_daily']
 
