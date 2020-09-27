@@ -2391,7 +2391,7 @@ def karnataka_parse_icu_clipping():
   all_icu=[]
   bulletin_date_string=''
   for j in range(len(indices)-1):
-    bulletin_date_string=b[indices[j]].split()[1]
+    bulletin_date_string=b[indices[j]].split()[1]    
     bulletin_date=datetime.datetime.strptime(bulletin_date_string,'%d-%m-%Y')
     chunk=b[indices[j]+1:indices[j+1]]
     for entry in chunk:
@@ -2405,6 +2405,8 @@ def karnataka_parse_icu_clipping():
       icu_obj=generic_icu_usage(bulletin_date,district,icu,state='Karnataka');all_icu.append(icu_obj)
   #last
   chunk=b[indices[-1]+1:]
+  bulletin_date_string=b[indices[-1]].split()[1]    
+  bulletin_date=datetime.datetime.strptime(bulletin_date_string,'%d-%m-%Y')
   for entry in chunk:
     district=entry.split(':')[0].strip()
     try:
