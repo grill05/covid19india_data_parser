@@ -132,6 +132,8 @@ def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/
   del x
   return returned
   
+def get_national_data(case_type='active',verbose=False):
+  pass
 def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full_series=False,verbose=False):
   x=json.load(open('states_daily.json'))['states_daily']
 
@@ -373,7 +375,7 @@ def delhi_parser():
   do.sort(key= lambda y: y.date)
   return do
 
-def cartogram_date(date='09_20_2020',window_size=3,plot_base=False,verbose=True,positivity=False):  
+def cartogram_date(date='09_20_2020',window_size=3,plot_base=False,verbose=True,ctype=''):  
   import geojson;import matplotlib.pyplot as plt;from descartes import PolygonPatch
   
   date=datetime.datetime.strptime(date,'%m_%d_%Y');orig_date=date
@@ -381,24 +383,29 @@ def cartogram_date(date='09_20_2020',window_size=3,plot_base=False,verbose=True,
   states_deaths={}
   for state in state_name_to_code:
     if state.startswith(('Dadra','State Unassigned')): continue
-    if positivity and  state.startswith(('Laks')): continue
-    if positivity:
+    if ctype and  state.startswith(('Laks')): continue
+    if ctype=='positivity':
       y=get_positivity(state=state)
       d_y=[i[1] for i in y if i[0]<=date and i[0]>date_delta]
       deaths_window=sum(d_y)*10 # 10 is scaling factor
+    elif ctype=='confirmed':
+      y=get_cases(state=state,case_type='confirmed',return_full_series=True,verbose=False)
+      c_y=[i[1] for i in y if i[0]<=date and i[0]>date_delta]
+      deaths_window=c_y[-1]-c_y[0] # 10 is scaling factor
     else:
       y=get_cases(state=state,case_type='deaths',return_full_series=True,verbose=False)
       d_y=[i[1] for i in y if i[0]<=date and i[0]>date_delta]
       deaths_window=d_y[-1]-d_y[0]
     states_deaths[state]=deaths_window
   #apply corrections
-  states_deaths['Andhra Pradesh']=states_deaths['Andhra Pradesh']+states_deaths['Telangana']
+  # ~ states_deaths['Andhra Pradesh']=states_deaths['Andhra Pradesh']+states_deaths['Telangana']
   states_deaths['Jammu and Kashmir']=states_deaths['Jammu and Kashmir']+states_deaths['Ladakh']
   states_deaths['Uttaranchal']=states_deaths['Uttarakhand']
   
   states_deaths['Lakshadweep']=0;states_deaths['Daman and Diu']=0;states_deaths['Dadra and Nagar Haveli']=0
 
-  states_deaths.pop('Telangana');states_deaths.pop('Ladakh');states_deaths.pop('Uttarakhand')
+  # ~ states_deaths.pop('Telangana');
+  states_deaths.pop('Ladakh');states_deaths.pop('Uttarakhand')
   # ~ states_deaths.pop('Dadra and Nagar Haveli and Daman and Diu')
 
   #now make datafile.csv for "cartogram" utility
@@ -414,7 +421,8 @@ def cartogram_date(date='09_20_2020',window_size=3,plot_base=False,verbose=True,
   #now actually make cartogram
   os.system('mv -fv mapdata.csv cartogram/')
   os.chdir('cartogram')
-  cmd='time cartogram -g Indian_States_processedmap.json -a mapdata.csv'
+  # ~ cmd='time cartogram -g Indian_States_processedmap.json -a mapdata.csv'
+  cmd='time cartogram -g india_telengana_processedmap.json -a mapdata.csv'
   if verbose:
     os.system(cmd)
   else:
@@ -423,7 +431,7 @@ def cartogram_date(date='09_20_2020',window_size=3,plot_base=False,verbose=True,
 
   #plot cartogram present in cartogram.json
   if plot_base:
-    json_data=geojson.load(open('Indian_States_processedmap.json'))
+    json_data=geojson.load(open('india_telengana_processedmap.json'))
   else:
     json_data=geojson.load(open('cartogram.json'))
   
@@ -448,14 +456,15 @@ def cartogram_date(date='09_20_2020',window_size=3,plot_base=False,verbose=True,
   
   return (plt,ax,patch)
 
-def cartogram(window_size=7,positivity=False):
-  d1=datetime.date(2020,5,1);d2=datetime.date(2020,9,23);delta=d2-d1
+def cartogram(window_size=3,ctype=''):
+  # ~ d1=datetime.date(2020,5,1);d2=datetime.date(2020,9,23);delta=d2-d1
+  d1=datetime.date(2020,8,1);d2=datetime.date(2020,9,28);delta=d2-d1
   dates=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   dates=dates[::window_size]
   for date in dates:
     str_date=date.strftime('%m_%d_%Y')
     print 'DATE: '+str_date
-    x=cartogram_date(str_date,window_size=window_size,verbose=False,positivity=positivity)
+    x=cartogram_date(str_date,window_size=window_size,verbose=False,ctype=ctype)
   
 def karnataka_analysis(district='Bengaluru Urban'):
   #hos_capacity='';hos_used='';dcc_capacity='';dcc_used='';dchc_capacity='';dchc_used='';
@@ -531,17 +540,136 @@ def karnataka_analysis(district='Bengaluru Urban'):
   ax2.legend(loc='lower left');
   pylab.legend();
   pylab.show()
+
+def parse_bbmp_beds():
+  base='bed_status/bbmp/'  
+  if not os.path.exists(base): print base+' not found';return
+  htm=[i for i in os.listdir(base) if i[0].isdigit() and i.endswith(('.htm','.html'))];htm.sort()
+  from bs4 import BeautifulSoup
+  bed_availability={}
+  import tqdm;pbar=tqdm.tqdm(htm,desc='parsing')
+  for i in pbar:
+    pbar.set_description('parsing '+i)
+
+    date=datetime.datetime.strptime(i.split('.')[0],'%d_%m')
+    if not date in bed_availability: bed_availability[date]={}
+
+    fname=base+i.split('.')[0]+'_files/saved_resource.html'
+    soup=BeautifulSoup(open(fname).read(),'lxml')
+
+    t=soup('table',attrs={'id':'PrivateQuota'})[0]
+
+    private_beds=int(t('tr')[1]('td')[-1].text.replace(',',''))
+    private_ccc=int(t('tr')[2]('td')[-1].text.replace(',',''))
+    home_isolation=int(t('tr')[3]('td')[-1].text.replace(',',''))
+
+    t=soup('table',attrs={'id':'GovernmentHospitalsDetail'})[0]
+    val=[i.text.replace(',','') for i in t('tr')[-1]('td')]
+    hdu=int(val[3]);icu=int(val[4]);vent=int(val[5])
+    hdu_occ=int(val[8]);icu_occ=int(val[9]);vent_occ=int(val[10])
+
+    for t in soup('table',attrs={'id':'GovernmentMedical'})[:-1]:
+      val=[i.text.replace(',','') for i in t('tr')[-1]('td')]
+      hdu+=int(val[3]);icu+=int(val[4]);vent+=int(val[5])
+      hdu_occ+=int(val[8]);icu_occ+=int(val[9]);vent_occ+=int(val[10])
+    bed_availability[date]={'hdu':(hdu,hdu_occ),'icu':(icu,icu_occ),'vent':(vent,vent_occ),'home':home_isolation,'private':private_beds}
+
+  print '-------------\nDATE\tICU\tVent.\tHDU\tHome.Isol.\n'
+  x=bed_availability;xk=x.keys();xk.sort()
+  for i in xk:
+    date=i.strftime('%d-%m')
+    info='%s\t%s\t%s\t%s\t%s' %(date,x[i]['icu'][1],x[i]['vent'][1],x[i]['hdu'][1],x[i]['home'])
+    print info
+
+  return bed_availability
   
+def parse_chennai_beds(print_district='Chennai'):
+  base='bed_status/chennai/'  
+  if not os.path.exists(base): print base+' not found';return
+  
+  htm=[i for i in os.listdir('bed_status/chennai/') if i[0].isdigit() and i.endswith(('.htm','.html'))];htm.sort()
+  from bs4 import BeautifulSoup
+  bed_availability={}
+  import tqdm;pbar=tqdm.tqdm(htm,desc='parsing')
+  for i in pbar:
+    # ~ print 'parsing '+i
+    pbar.set_description('parsing '+i)
+
+    date=datetime.datetime.strptime(i.split('-')[0],'%d_%m')
+    if not date in bed_availability: bed_availability[date]={}
+    
+    soup=BeautifulSoup(open(base+i).read(),'lxml')
+    rows=soup('tr',attrs={'role':'row'})[2:]
+
+    for row in rows:
+      entries=row('td')
+      district=entries[0].text
+      if district not in bed_availability[date]: bed_availability[date][district]={}
+      
+      hospital_name=entries[1].text
+      # ~ covid_beds=int(entries[2].text)
+      # ~ covid_beds_used=int(entries[3].text)
+      oxygen_beds=int(entries[5].text)
+      oxygen_beds_used=int(entries[6].text)
+      # ~ non_oxygen_beds=int(entries[8].text)
+      # ~ non_oxygen_beds_used=int(entries[9].text)
+      icu_beds=int(entries[11].text)
+      icu_beds_used=int(entries[12].text)
+      ventilator_beds=int(entries[14].text)
+      ventilator_beds_used=int(entries[15].text)
+
+      
+      if 'oxygen' in bed_availability[date][district]:
+        bed_availability[date][district]['oxygen']=(bed_availability[date][district]['oxygen'][0]+oxygen_beds,bed_availability[date][district]['oxygen'][1]+oxygen_beds_used)
+      else:
+        bed_availability[date][district]['oxygen']=(oxygen_beds,oxygen_beds_used)
+      if 'icu' in bed_availability[date][district]:
+        bed_availability[date][district]['icu']=(bed_availability[date][district]['icu'][0]+icu_beds,bed_availability[date][district]['icu'][1]+icu_beds_used)
+      else:
+        bed_availability[date][district]['icu']=(icu_beds,icu_beds_used)
+      if 'ventilator' in bed_availability[date][district]:
+        bed_availability[date][district]['ventilator']=(bed_availability[date][district]['ventilator'][0]+ventilator_beds,bed_availability[date][district]['ventilator'][1]+ventilator_beds_used)
+      else:
+        bed_availability[date][district]['ventilator']=(ventilator_beds,ventilator_beds_used)
+  # ~ bed_availabilities=[]
+  # ~ for date in bed_availability:
+    # ~ ba=generic_bed_availability(bed_availability[date],date)
+  print '-----------\n'+print_district+':\nDATE\tICU\tVent.\tOxygen'
+  x=bed_availability;xk=x.keys();xk.sort()
+  for i in x:
+    date=i.strftime('%d-%m')
+    info='%s\t%s\t%s\t%s' %(date,x[i][print_district]['icu'][1],x[i][print_district]['ventilator'][1],x[i][print_district]['oxygen'][1])
+    print info
+  return bed_availability
+      
+    
 def delhi_analysis(do):
   #hos_capacity='';hos_used='';dcc_capacity='';dcc_used='';dchc_capacity='';dchc_used='';
   # ~ hos_util=0;dcc_util=0;dchc_util=0
   # ~ total='';rtpcr='';rapid='';
   # ~ cz='';amb='';date=''
   # ~ import pylab
-  dates=pylab.date2num([i.date for i in do])
+  dates=[i.date for i in do]
   hos_used=[i.hos_used for i in do]
   dhc_used=[i.dchc_used for i in do]  
   dcc_used=[i.dcc_used for i in do]
+
+  # ~ data.append((datetime.datetime(2020, 9, 23, 0, 0), 6998))
+  # ~ data.append((datetime.datetime(2020, 9, 24, 0, 0), 7026))
+  # ~ data.append((datetime.datetime(2020, 9, 25, 0, 0), 6990)) 
+  # ~ data.append((datetime.datetime(2020, 9, 26, 0, 0), 6840))
+  # ~ data.append((datetime.datetime(2020, 9, 27, 0, 0), 6758))
+  # ~ data.append((datetime.datetime(2020, 9, 28, 0, 0), 6659))
+  dates.append(datetime.datetime(2020, 9, 23, 0, 0));hos_used.append(6998)
+  dates.append(datetime.datetime(2020, 9, 24, 0, 0));hos_used.append(7026)
+  dates.append(datetime.datetime(2020, 9, 25, 0, 0));hos_used.append(6990)
+  dates.append(datetime.datetime(2020, 9, 26, 0, 0));hos_used.append(6840)
+  dates.append(datetime.datetime(2020, 9, 27, 0, 0));hos_used.append(6758)
+  dates.append(datetime.datetime(2020, 9, 28, 0, 0));hos_used.append(6659)
+  dates.append(datetime.datetime(2020, 9, 29, 0, 0));hos_used.append(6515)
+  dates.append(datetime.datetime(2020, 9, 30, 0, 0));hos_used.append(6283)
+
+  dates=pylab.date2num(dates)
   
   tot=[i.total for i in do]
   r=[i.rapid for i in do]
@@ -552,11 +680,15 @@ def delhi_analysis(do):
 
   actives=get_cases(state='Delhi',case_type='active',return_full_series=True,verbose=True)
   deaths=get_cases(state='Delhi',case_type='deaths',return_full_series=True,verbose=True)
+  #tmp
+  deaths.append((datetime.datetime(2020,9,29,0,0),5272));actives.append((datetime.datetime(2020,9,29,0,0),27123));
   dates2=pylab.date2num([i[0] for i in actives])
 
-  actives=[i[1] for i in actives if i[0]>=datetime.datetime(2020, 6, 18, 0, 0) and i[0]<=datetime.datetime(2020, 9, 22, 0, 0)]
+  # ~ actives=[i[1] for i in actives if i[0]>=datetime.datetime(2020, 6, 18, 0, 0) and i[0]<=datetime.datetime(2020, 9, 22, 0, 0)]
+  actives=[i[1] for i in actives if i[0]>=datetime.datetime(2020, 6, 18, 0, 0) ]
   
-  deaths=numpy.diff([i[1] for i in deaths if i[0]<=datetime.datetime(2020, 9, 22, 0, 0)])#have more
+  # ~ deaths=numpy.diff([i[1] for i in deaths if i[0]<=datetime.datetime(2020, 9, 22, 0, 0)])#have more
+  deaths=numpy.diff([i[1] for i in deaths ])
   deaths=moving_average(deaths)
   dates_skip=5; #have anomaly of sudden addition in mid-June
   deaths=deaths[-1*len(dates):]
@@ -564,8 +696,8 @@ def delhi_analysis(do):
   
 
   hp=100*(numpy.float64(hos_used)/numpy.float64(actives))
-  dhp=100*(numpy.float64(dhc_used)/numpy.float64(actives))
-  ccp=100*(numpy.float64(dcc_used)/numpy.float64(actives))
+  # ~ dhp=100*(numpy.float64(dhc_used)/numpy.float64(actives))
+  # ~ ccp=100*(numpy.float64(dcc_used)/numpy.float64(actives))
   
   # ~ sp,ax=pylab.subplots()
 
@@ -589,27 +721,27 @@ def delhi_analysis(do):
   # ~ pylab.legend();
   # ~ pylab.show()
 
-  sp,ax=pylab.subplots()
+  # ~ sp,ax=pylab.subplots()
 
-  color = 'tab:blue'
-  ax.set_xlabel('Date')
-  ax.set_ylabel('Hospitalization Percent (of active cases)',color=color)
-  ax.plot_date(dates,hp,color=color,label='Hospitalization Percentage')
-  ax.tick_params(axis='y', labelcolor=color)  
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Hospitalization Percent (of active cases)',color=color)
+  # ~ ax.plot_date(dates,hp,color=color,label='Hospitalization Percentage')
+  # ~ ax.tick_params(axis='y', labelcolor=color)  
 
-  ax2=ax.twinx()
-  color = 'tab:green'
-  ax2.set_ylabel('Daily Tests',color=color)
-  ax2.plot_date(dates,tot,color=color,label='Daily Tests')
-  ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:green'
+  # ~ ax2.set_ylabel('Daily Tests',color=color)
+  # ~ ax2.plot_date(dates,tot,color=color,label='Daily Tests')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
 
-  sp.tight_layout()
+  # ~ sp.tight_layout()
 
-  title='Hospitalion-percent(of actives) vs Daily-tests in Delhi'
-  pylab.title(title);
-  ax2.legend(loc='lower right'); ax.legend(loc='lower left');
-  pylab.legend();
-  pylab.show()
+  # ~ title='Hospitalion-percent(of actives) vs Daily-tests in Delhi'
+  # ~ pylab.title(title);
+  # ~ ax2.legend(loc='lower right'); ax.legend(loc='lower left');
+  # ~ pylab.legend();
+  # ~ pylab.show()
 
   sp,ax=pylab.subplots()
 
@@ -655,26 +787,26 @@ def delhi_analysis(do):
   # ~ pylab.title(title);
   # ~ ax2.legend(loc='upper right'); 
 
-  sp,ax=pylab.subplots()
+  # ~ sp,ax=pylab.subplots()
 
-  color = 'tab:blue'
-  ax.set_xlabel('Date')
-  ax.set_ylabel('Hospital beds used',color=color)
-  ax.plot_date(dates,hos_used,color=color,label='Hospital Beds')
-  ax.tick_params(axis='y', labelcolor=color)  
-  ax.legend(loc='lower left');
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Hospital beds used',color=color)
+  # ~ ax.plot_date(dates,hos_used,color=color,label='Hospital Beds')
+  # ~ ax.tick_params(axis='y', labelcolor=color)  
+  # ~ ax.legend(loc='lower left');
   
-  ax2=ax.twinx()
-  color = 'tab:red'
-  ax2.set_ylabel('Daily Deaths (7-day MA)',color=color)
-  ax2.plot_date(dates[dates_skip:],deaths[dates_skip:],color=color,label='Daily Deaths (7-day MA)')
-  ax2.tick_params(axis='y', labelcolor=color)
-  ax2.legend(loc='lower right');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Daily Deaths (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates[dates_skip:],deaths[dates_skip:],color=color,label='Daily Deaths (7-day MA)')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
   
-  sp.tight_layout()
+  # ~ sp.tight_layout()
 
-  title='Hospital-beds-used vs Daily-deaths in Delhi'
-  pylab.title(title);
+  # ~ title='Hospital-beds-used vs Daily-deaths in Delhi'
+  # ~ pylab.title(title);
   # ~ ax2.legend(loc='lower right'); 
 
   # ~ sp,ax=pylab.subplots()
@@ -898,6 +1030,9 @@ class generic_fatality():
     row_objects=[self.patient_number,self.district,self.age,self.gender,self.origin,dode,doa,dod,dor]
     if self.comorbidities: row_objects.extend(self.comorbidities)
     return row_objects
+    
+    
+
 class generic_icu_usage():
   date='';district='';icu='';ventilator='';state=''
   def __init__(self,bulletin_date,district_name,icu_usage,ventilator_usage='',state='Kerala'):
@@ -1578,6 +1713,374 @@ def helper_get_mean_timeseries(recoveries):
     # ~ mean_values.append((dd,numpy.median(r),numpy.median(r1),numpy.median(r2)))
   return mean_values
 
+class mumbaihosp():
+  date=''
+  icu_cap=0;icu_used=0;
+  vent_cap=0;vent_used=0;
+  oxy_cap=0;oxy_used=0;
+  
+  def __init__(self,row):
+    try:
+      self.date,self.icu_cap,self.icu_used,x0,self.oxy_cap,self.oxy_used,x1,self.vent_cap,self.vent_used,x2=row    
+    except:
+      print 'error parsing '+str(row)
+    self.date=datetime.datetime.strptime(self.date,'%Y-%m-%d')
+    self.icu_cap=int(self.icu_cap)
+    self.oxy_cap=int(self.oxy_cap)
+    self.vent_cap=int(self.vent_cap)
+    self.icu_used=int(self.icu_used)
+    self.oxy_used=int(self.oxy_used)
+    self.vent_used=int(self.vent_used)
+  def info(self):
+    info='Date: %s\n' %(self.date.strftime('%d-%m'))
+    info+='\tICU  : %d/%d used\n' %(self.icu_used,self.icu_cap)
+    info+='\tVent.: %d/%d used\n' %(self.vent_used,self.vent_cap)
+    info+='\tOxyg.: %d/%d used\n' %(self.oxy_used,self.oxy_cap)
+    print info
+def parse_mumbai_beds():
+  infile='csv_dumps/MumbaiBeds.csv'
+  import csv;info=[]
+  r=csv.reader(open(infile))
+  for i in r: info.append(i);
+  info=info[1:]
+  # ~ objs=[mumbaihosp(i) for i in info[40:]]
+  objs=[mumbaihosp(i) for i in info[19:]]
+  # ~ return (info,objs)
+  return objs
+
+def mumbai_analysis():
+  x=get_cases_district(state='Maharashtra',district='Mumbai',case_type='deaths_delta')
+  x[49]=(datetime.datetime(2020, 6, 16, 0, 0), 69) #exclude sudden addition of 900+ deaths on June 16
+  
+  x=[i for i in x if i[0]>=datetime.datetime(2020,6,1,0,0)]
+  dates,deaths=zip(*x)
+  x=get_cases_district(state='Maharashtra',district='Mumbai',case_type='active')
+  x=[i for i in x if i[0]>=datetime.datetime(2020,6,1,0,0)]
+  dates2,actives=zip(*x)
+  deaths=moving_average(deaths);actives=moving_average(actives)
+
+  hos=parse_mumbai_beds()
+  dates3=[i.date for i in hos];
+  icu_used=[i.icu_used for i in hos];vent_used=[i.vent_used for i in hos];oxy_used=[i.oxy_used for i in hos]
+  icu_cap=[i.icu_cap for i in hos];vent_cap=[i.vent_cap for i in hos];oxy_cap=[i.oxy_cap for i in hos]
+  
+
+  dates=pylab.date2num(dates);dates2=pylab.date2num(dates2);dates3=pylab.date2num(dates3)
+  deaths=moving_average(deaths);actives=moving_average(actives)
+  icu_used=moving_average(icu_used);vent_used=moving_average(vent_used);oxy_used=moving_average(oxy_used)
+  icu_cap=moving_average(icu_cap);vent_cap=moving_average(vent_cap);oxy_cap=moving_average(oxy_cap)
+
+  icu_pc=[100*float(i.icu_used)/i.icu_cap for i in hos];vent_pc=[100*float(i.vent_used)/i.vent_cap for i in hos];oxy_pc=[100*float(i.oxy_used)/i.oxy_cap for i in hos]
+
+  # ~ pylab.plot_date(dates3,icu_cap,label='ICU beds')
+  # ~ pylab.plot_date(dates3,vent_cap,label='Vent beds')
+  # ~ pylab.plot_date(dates3,oxy_cap,label='Oxyg. beds')
+  # ~ pylab.xlabel('Date')
+  # ~ pylab.ylabel('Number of beds')
+  # ~ title='Mumbai hospital capacity over time'
+  # ~ pylab.title(title);pylab.legend()
+
+  # ~ pylab.plot_date(dates3,icu_pc,label='ICU utilization(%)')
+  # ~ pylab.plot_date(dates3,vent_pc,label='Vent utilization(%)')
+  # ~ pylab.plot_date(dates3,oxy_pc,label='Oxyg. utilization(%)')
+  # ~ pylab.xlabel('Date')
+  # ~ pylab.ylabel('Mumbai hospital utilization percentage (7-day MA)')
+  # ~ title='Mumbai hospital utilization'
+  # ~ pylab.title(title);pylab.legend()
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai ICU beds (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,icu_used,color=color,label='ICU beds')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Mumbai Vent. beds (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates3,vent_used,color=color,label='Vent beds')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai ICU use vs ventilator use'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai ICU beds (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,icu_used,color=color,label='ICU beds')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:green'
+  # ~ ax2.set_ylabel('Mumbai Oxyg. beds (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates3,oxy_used,color=color,label='Oxygen beds')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai Oxygen use vs ICU use'
+  # ~ pylab.title(title);
+
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai actives (7-day MA)',color=color)
+  # ~ ax.plot_date(dates2,actives,color=color,label='Active Cases')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Mumbai Daily deaths (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates,deaths,color=color,label='Daily deaths')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai active cases vs daily deaths'
+  # ~ pylab.title(title);
+
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai ICU percent used (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,icu_pc,color=color,label='ICU utilization(%)')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Mumbai Daily deaths (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates,deaths,color=color,label='Daily deaths')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai ICU utilization vs daily deaths'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai ICU percent used (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,icu_pc,color=color,label='ICU utilization(%)')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Mumbai Daily Deaths (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates,deaths,color=color,label='Daily Deaths (7-day MA)')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai ICU percent use vs Deaths'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai vent percent used (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,vent_pc,color=color,label='vent utilization(%)')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Mumbai Daily Deaths (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates,deaths,color=color,label='Daily Deaths (7-day MA)')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai Ventilator percent use vs Deaths'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai vent percent used (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,vent_pc,color=color,label='vent utilization(%)')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:orange'
+  # ~ ax2.set_ylabel('Mumbai Active cases (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates2,actives,color=color,label='Active Cases')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai Ventilator utilization vs Active Cases'
+  # ~ pylab.title(title);
+
+
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai ICU beds used (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,icu_used,color=color,label='Mumbai ICU beds used')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Mumbai Daily deaths (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates,deaths,color=color,label='Daily deaths')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai ICU beds vs daily deaths'
+  # ~ pylab.title(title);
+
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai vent beds used (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,vent_used,color=color,label='Mumbai vent beds used')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Mumbai Daily deaths (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates,deaths,color=color,label='daily deaths')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai vent beds vs daily deaths'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai oxy beds used (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,oxy_used,color=color,label='Mumbai oxy beds used')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:red'
+  # ~ ax2.set_ylabel('Mumbai Daily deaths (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates,deaths,color=color,label='Daily deaths')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai oxy beds vs daily deaths'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai ICU bed capacity (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,icu_cap,color=color,label='Mumbai ICU beds capacity')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:orange'
+  # ~ ax2.set_ylabel('Mumbai actives (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates2,actives,color=color,label='Active cases')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai ICU beds vs actives'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai Oxygen bed utilization (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,oxy_used,color=color,label='Oxygen beds Used')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:orange'
+  # ~ ax2.set_ylabel('Mumbai Oxygen bed capacity (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates3,oxy_cap,color=color,label='Oxygen beds capacity')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai Oxygen beds used vs Oxygen Beds capacity'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai ICU bed utilization (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,icu_used,color=color,label='ICU beds Used')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:orange'
+  # ~ ax2.set_ylabel('Mumbai ICU bed capacity (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates3,icu_cap,color=color,label='ICU beds capacity')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai ICUs used vs ICUs capacity'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai vent bed utilization (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,vent_used,color=color,label='vent beds Used')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:orange'
+  # ~ ax2.set_ylabel('Mumbai vent bed capacity (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates3,vent_cap,color=color,label='vent beds capacity')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai Ventilators used vs Ventilators capacity'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai ICU beds used (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,icu_used,color=color,label='Mumbai ICU beds used')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:orange'
+  # ~ ax2.set_ylabel('Mumbai actives (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates2,actives,color=color,label='Active cases')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai ICU beds vs actives'
+  # ~ pylab.title(title);
+
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai vent beds used (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,vent_used,color=color,label='Mumbai vent beds used')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:orange'
+  # ~ ax2.set_ylabel('Mumbai actives (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates2,actives,color=color,label='Active cases')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai vent beds vs actives'
+  # ~ pylab.title(title);
+  
+  # ~ sp,ax=pylab.subplots()
+  # ~ color = 'tab:blue'
+  # ~ ax.set_xlabel('Date')
+  # ~ ax.set_ylabel('Mumbai oxy beds used (7-day MA)',color=color)
+  # ~ ax.plot_date(dates3,oxy_used,color=color,label='Mumbai oxy beds used')
+  # ~ ax.tick_params(axis='y', labelcolor=color)
+  # ~ ax.legend(loc='lower left');
+  # ~ ax2=ax.twinx()
+  # ~ color = 'tab:orange'
+  # ~ ax2.set_ylabel('Mumbai actives (7-day MA)',color=color)
+  # ~ ax2.plot_date(dates2,actives,color=color,label='Active cases')
+  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  # ~ ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+  # ~ title='Mumbai oxy beds vs actives'
+  # ~ pylab.title(title);
+  
+
+  
+  
 def karnataka_read_csv():
   import csv;info=[]
   r=csv.reader(open('karnataka_fatalities_details_jul16_sep10.csv'))
@@ -2507,10 +3010,10 @@ def get_positivity(state='Karnataka',do_moving_average=True,plot=False):
   cases_cum=get_cases(state=state,case_type='confirmed',return_full_series=True,verbose=False)
   d=[i[0] for i in cases_cum][1:]
   c=numpy.diff([i[1] for i in cases_cum])
-  window_size=5
+  window_size=7
   if do_moving_average:
     c=moving_average(c,window_size=window_size)
-    d=d[window_size-1:]
+    # ~ d=d[window_size-1:]
   cases=zip(d,c)
   tests=get_tests(state=state)
   if do_moving_average:
@@ -2637,28 +3140,108 @@ def analysis(state='Uttar Pradesh'):
   deaths=get_cases(state=state,case_type='confirmed',return_full_series=True,verbose=False)
   deaths=[i for i in deaths if i[0]>=datetime.datetime(2020,6,1,0,0)]
   dates=pylab.date2num([i[0] for i in deaths][1:]);c=moving_average(numpy.diff([i[1] for i in deaths]))
+
+  p=get_positivity(state=state)
+  dates3=pylab.date2num([i[0] for i in p]);p=[i[1] for i in p]
+  if state=='Delhi':
+    for j in range(len(p)):
+      if p[j]>15: p[j]=2
   
   sp,ax=pylab.subplots()
 
   color = 'tab:blue'
   ax.set_xlabel('Date')
-  ax.set_ylabel('UP new daily cases (7-day MA)',color=color)
-  ax.plot_date(dates,c,color=color,label='UP new daily cases (7-day MA)')
+  ax.set_ylabel(state+' new daily cases (7-day MA)',color=color)
+  ax.plot_date(dates,c,color=color,label=state+' new daily cases (7-day MA)')
+  ax.tick_params(axis='y', labelcolor=color)
+  ax.legend(loc='lower left');
+
+  ax2=ax.twinx()
+  color = 'tab:red'
+  ax2.set_ylabel(state+' Daily deaths (7-day MA)',color=color)
+  ax2.plot_date(dates2,d,color=color,label=state+' daily deaths (7-day MA)')
+  ax2.tick_params(axis='y', labelcolor=color)
+  ax2.legend(loc='lower right');
+  sp.tight_layout()
+
+  title=state+' daily cases vs daily deaths'
+  pylab.title(title);
+
+  
+  sp,ax=pylab.subplots()
+
+  color = 'tab:blue'
+  ax.set_xlabel('Date')
+  ax.set_ylabel(state+' new daily cases (7-day MA)',color=color)
+  ax.plot_date(dates,c,color=color,label=state+' new daily cases (7-day MA)')
+  ax.tick_params(axis='y', labelcolor=color)
+  ax.legend(loc='lower left');
+
+  ax2=ax.twinx()
+  color = 'tab:green'
+  ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
+  ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
+  ax2.tick_params(axis='y', labelcolor=color)
+  ax2.legend(loc='lower right');
+  sp.tight_layout()
+
+  title=state+' daily cases vs TPR'
+  pylab.title(title);  
+
+  pylab.show()
+  
+def analysis_undercounting_karnataka(district='Bengaluru Urban',verbose=True):
+  icu=karnataka_parse_icu_clipping()
+  dates,ic=zip(*[(i.date,i.icu) for i in icu if i.district==district.replace(' ','')])
+  
+
+  dates2,d=zip(*get_cases_district(state='Karnataka',district=district,case_type='deaths_delta'))
+  if verbose: print 'got %s daily deaths' %(district)
+  dates3,a=zip(*get_cases_district(state='Karnataka',district=district,case_type='active'))
+
+  ic=moving_average(ic);d=moving_average(d);a=moving_average(a)
+
+  sp,ax=pylab.subplots()
+
+  color = 'tab:blue'
+  ax.set_xlabel('Date')
+  ax.set_ylabel(district+'ICU usage (7-day MA)',color=color)
+  ax.plot_date(pylab.date2num(dates),ic,color=color,label=district+' ICU usage (7-day MA)')
   ax.tick_params(axis='y', labelcolor=color)
   ax.legend(loc='upper left');
 
   ax2=ax.twinx()
   color = 'tab:red'
-  ax2.set_ylabel('UP Daily deaths (7-day MA)',color=color)
-  ax2.plot_date(dates2,d,color=color,label='UP daily deaths (7-day MA)')
+  ax2.set_ylabel('Daily deaths (7-day MA)',color=color)
+  ax2.plot_date(pylab.date2num(dates2),d,color=color,label=district+' daily deaths (7-day MA)')
   ax2.tick_params(axis='y', labelcolor=color)
   ax2.legend(loc='lower right');
   # ~ sp.tight_layout()
 
-  title='UP daily cases vs daily deaths'
-  pylab.title(title);  
+  title=district+' ICU use vs daily deaths'
+  pylab.title(title);
 
-  pylab.show()
+  
+  sp,ax=pylab.subplots()
+
+  color = 'tab:blue'
+  ax.set_xlabel('Date')
+  ax.set_ylabel(district+'ICU usage (7-day MA)',color=color)
+  ax.plot_date(pylab.date2num(dates),ic,color=color,label=district+' ICU usage (7-day MA)')
+  ax.tick_params(axis='y', labelcolor=color)
+  ax.legend(loc='upper left');
+
+  ax2=ax.twinx()
+  color = 'tab:orange'
+  ax2.set_ylabel('Active cases (7-day MA)',color=color)
+  ax2.plot_date(pylab.date2num(dates3),a,color=color,label=district+' active cases (7-day MA)')
+  ax2.tick_params(axis='y', labelcolor=color)
+  ax2.legend(loc='lower right');
+  # ~ sp.tight_layout()
+
+  title=district+' ICU use vs active cases'
+  pylab.title(title);
+  
   
 def analysis_undercounting(state='Haryana',atype='ventilator'):
   if atype in ['ventilator','ventilators']:
