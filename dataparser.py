@@ -1083,6 +1083,21 @@ def helper_list_value_occurences(l=[],normed=False,sort=False): #make frequency 
   z=zip(values,freq)
   if sort: z.sort()
   return z
+
+def wb_parse_bulletin(bulletin='WB_DHFW_Bulletin_16th_SEPTEMBER_REPORT_FINAL.pdf'):
+  cmd='pdftotext -layout "'+bulletin+'" tmp.txt';os.system(cmd)
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+
+  tot_covid_beds=int([i for i in b if 'armark' in i][0].split()[-1].replace(',',''))
+  icu=int([i for i in b if 'ICU' in i][0].split()[-1].replace(',',''))
+  vent=int([i for i in b if 'entilat' in i][0].split()[-1].replace(',',''))
+  occupancy_pc=float([i for i in b if 'ccupa' in i][0].split()[-1].replace('%',''))
+  occupied_beds=int(0.01*occupancy_pc*tot_covid_beds)
+
+  gov_quan=int([i for i in b if 'in Govt. Qua' in i][0].split()[-1].replace(',',''))
+  home_quan=int([i for i in b if 'in Home Qua' in i][0].split()[-1].replace(',',''))
+
+  return (occupied_beds,tot_covid_beds,icu,vent,home_quan+gov_quan)
   
 def moving_average(input_array=[],window_size=7,index_to_do_ma=1):
   x=input_array
