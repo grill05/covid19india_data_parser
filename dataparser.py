@@ -634,11 +634,11 @@ def parse_chennai_beds(print_district='Chennai'):
   # ~ bed_availabilities=[]
   # ~ for date in bed_availability:
     # ~ ba=generic_bed_availability(bed_availability[date],date)
-  print '-----------\n'+print_district+':\nDATE\tICU\tVent.\tOxygen'
+  print '-----------\n'+print_district+':\nDATE\t\tICU\t\tVent.\t\tOxygen'
   x=bed_availability;xk=x.keys();xk.sort()
-  for i in x:
+  for i in xk:
     date=i.strftime('%d-%m')
-    info='%s\t%s\t%s\t%s' %(date,x[i][print_district]['icu'][1],x[i][print_district]['ventilator'][1],x[i][print_district]['oxygen'][1])
+    info='%s\t\t%s/%s\t\t%s/%s\t\t%s/%s' %(date,x[i][print_district]['icu'][1],x[i][print_district]['icu'][0],x[i][print_district]['ventilator'][1],x[i][print_district]['ventilator'][0],x[i][print_district]['oxygen'][1],x[i][print_district]['oxygen'][0])
     print info
   return bed_availability
       
@@ -3248,7 +3248,7 @@ def analysis_undercounting(state='Haryana',atype='ventilator'):
     y=get_people_on_ventilators(state)
   elif atype in ['icu','icus']:
     y=get_people_in_icus(state)
-  dates=pylab.date2num([datetime.datetime.strptime(i[0],'%d/%m/%Y') for i in y]);v=[i[2] for i in y]
+  dates=pylab.date2num([datetime.datetime.strptime(i[0],'%d/%m/%Y') for i in y]);v=moving_average([i[2] for i in y])
   # ~ pylab.plot_date(dates,y,label=state+' patients on ventilator')
 
   deaths=get_cases(state=state,case_type='deaths',return_full_series=True,verbose=False)
@@ -3259,8 +3259,8 @@ def analysis_undercounting(state='Haryana',atype='ventilator'):
 
   color = 'tab:blue'
   ax.set_xlabel('Date')
-  ax.set_ylabel(atype+' used',color=color)
-  ax.plot_date(dates,v,color=color,label=state+' '+atype+' patients')
+  ax.set_ylabel(atype+' used (7-day MA)',color=color)
+  ax.plot_date(dates,v,color=color,label=state+' '+atype+' patients (7-day MA)')
   ax.tick_params(axis='y', labelcolor=color)
   ax.legend(loc='upper left');
 
