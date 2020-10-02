@@ -1097,7 +1097,9 @@ def wb_parse_bulletin(bulletin='WB_DHFW_Bulletin_16th_SEPTEMBER_REPORT_FINAL.pdf
   gov_quan=int([i for i in b if 'in Govt. Qua' in i][0].split()[-1].replace(',',''))
   home_quan=int([i for i in b if 'in Home Qua' in i][0].split()[-1].replace(',',''))
 
-  return (occupied_beds,tot_covid_beds,icu,vent,home_quan+gov_quan)
+  date=[i for i in b if 'ulletin' in i.lower()][0].split('\xe2\x80\x93')[-1].strip()
+
+  return (date,occupied_beds,tot_covid_beds,icu,vent,home_quan+gov_quan)
   
 def moving_average(input_array=[],window_size=7,index_to_do_ma=1):
   x=input_array
