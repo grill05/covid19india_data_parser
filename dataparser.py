@@ -2592,7 +2592,7 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
   
   
 def karnataka_parse_icu_usage(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),dump_only=True):
-  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and i.strip().split()[0].isdigit()]
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and i.strip().split()[0].isdigit() and len(i.strip())>5]
   all_icu_obj=[];tot=0
   a=open('allicu.txt','a')
   bd=bulletin_date.strftime('%d-%m-%Y')
