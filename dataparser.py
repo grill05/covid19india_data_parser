@@ -2607,7 +2607,7 @@ def karnataka_parse_icu_usage(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),
         break
       j+=1
     
-    
+    if icu_usage.strip()=='00' : icu_usage=0
     if not icu_usage: #no "split" entry was digit
       print 'error in getting icu usage with line: %s and bulletin_date ' %(i)+str(bulletin_date)
     
