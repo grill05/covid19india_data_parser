@@ -2611,7 +2611,10 @@ def karnataka_parse_icu_usage(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),
     if not icu_usage: #no "split" entry was digit
       print 'error in getting icu usage with line: %s and bulletin_date ' %(i)+str(bulletin_date)
     
-    assert(icu_usage.isdigit())
+    try:assert(icu_usage.isdigit())
+    except:
+        print 'got wrong icu usage: ',icu_usage
+        return
     icu_usage=int(icu_usage)
     tot+=icu_usage
     district_name=''.join(i.split()[1:j])
