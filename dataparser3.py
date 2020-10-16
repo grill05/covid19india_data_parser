@@ -496,28 +496,29 @@ def karnataka_analysis(district='Bengaluru Urban'):
   ic=[i[1] for i in ic]
 
   
-  # ~ sp,ax=pylab.subplots()
+  sp,ax=pylab.subplots()
 
-  # ~ color = 'tab:blue'
-  # ~ ax.set_xlabel('Date')
-  # ~ ax.set_ylabel('ICU beds',color=color)
-  # ~ ax.plot_date(dates2,ic,color=color,label=district+' ICU beds')
-  # ~ ax.tick_params(axis='y', labelcolor=color)  
+  color = 'tab:blue'
+  ax.set_xlabel('Date')
+  ax.set_ylabel('ICU beds',color=color)
+  ax.plot_date(dates2,ic,color=color,label=district+' ICU beds')
+  ax.tick_params(axis='y', labelcolor=color)  
 
-  # ~ ax2=ax.twinx()
-  # ~ color = 'tab:red'
-  # ~ ax2.set_ylabel('Daily deaths (7-day MA)',color=color)
-  # ~ ax2.plot_date(dates,d,color=color,label=district+' daily deaths')
-  # ~ ax2.tick_params(axis='y', labelcolor=color)
+  ax2=ax.twinx()
+  color = 'tab:red'
+  ax2.set_ylabel('Daily deaths (7-day MA)',color=color)
+  ax2.plot_date(dates,d,color=color,label=district+' daily deaths')
+  ax2.tick_params(axis='y', labelcolor=color)
 
-  # ~ sp.tight_layout()
+  sp.tight_layout()
 
-  # ~ title='ICU use vs daily deaths'
-  # ~ pylab.title(title);
-  # ~ ax2.legend(loc='upper right');
-  # ~ ax.legend(loc='upper left');
-  # ~ pylab.legend();
-  # ~ pylab.show()
+  title='ICU use vs daily deaths'
+  pylab.title(title);
+  ax2.legend(loc='upper right');
+  ax.legend(loc='upper left');
+  pylab.legend();
+#  pylab.show()
+  pylab.savefig(TMPDIR+'karnataka_'+district+'_icu_)vs_daily_deaths.jpg');pylab.close()
   
   sp,ax=pylab.subplots()
 
@@ -540,7 +541,8 @@ def karnataka_analysis(district='Bengaluru Urban'):
   ax.legend(loc='lower right');
   ax2.legend(loc='lower left');
   pylab.legend();
-  pylab.show()
+  #pylab.show()
+  pylab.savefig(TMPDIR+'karnataka_'+district+'_icu_)vs_actives.jpg');pylab.close()
 
 def parse_bbmp_beds():
   base='bed_status/bbmp/'  
@@ -867,7 +869,7 @@ def delhi_analysis(do):
   return (hos_used,deaths)
   
 def update_data_files():
-  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/data.json','https://api.covid19india.org/state_test_data.json']
+  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/data.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/data-all.json']
   for i in urls:
     filename=os.path.split(i)[1]
     if os.path.exists(filename):
