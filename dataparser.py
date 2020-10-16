@@ -866,7 +866,7 @@ def delhi_analysis(do):
   return (hos_used,deaths)
   
 def update_data_files():
-  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/data.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/data-all.json']
+  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/data.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/v4/data-all.json']
   for i in urls:
     filename=os.path.split(i)[1]
     if os.path.exists(filename):
