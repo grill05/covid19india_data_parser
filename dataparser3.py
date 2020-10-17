@@ -8,6 +8,8 @@
 
 import os,sys,copy
 import json,datetime,numpy,requests,colorama,pylab
+import matplotlib.dates as mdates
+import numpy as np
 datetime_doa_marker=datetime.datetime(2020, 1, 1, 0, 0)
 
 TMPDIR='/storage/emulated/0/code/covid19india_data_parser/ims/tmp/'
@@ -467,7 +469,7 @@ def cartogram(window_size=3,ctype=''):
     print(('DATE: '+str_date))
     x=cartogram_date(str_date,window_size=window_size,verbose=False,ctype=ctype)
   
-def karnataka_analysis(district='Bengaluru Urban'):
+def karnataka_analysis(district='Bengaluru Urban',xlim=''):
   #hos_capacity='';hos_used='';dcc_capacity='';dcc_used='';dchc_capacity='';dchc_used='';
   # ~ hos_util=0;dcc_util=0;dchc_util=0
   # ~ total='';rtpcr='';rapid='';
@@ -477,6 +479,18 @@ def karnataka_analysis(district='Bengaluru Urban'):
   y=''
   if district=='Total':
     y=get_cases(state='Karnataka',case_type='deaths',return_full_series=True,verbose=False)
+    y2=get_cases(state='Karnataka',case_type='active',return_full_series=True,verbose=False)
+  elif district=='RoK':
+    y=get_cases(state='Karnataka',case_type='deaths',return_full_series=True,verbose=False)
+    y2=get_cases(state='Karnataka',case_type='active',return_full_series=True,verbose=False)
+    y0=get_cases_district(state='Karnataka',district='Bengaluru Urban',case_type='deaths_delta')
+    y20=get_cases_district(state='Karnataka',district='Bengaluru Urban',case_type='active')
+    icu=karnataka_parse_icu_clipping();
+    ic=[(i.date,i.icu) for i in icu if i.district=='Total']
+    ic0=ic
+    ic2=[(i.date,i.icu) for i in icu if i.district=='BengaluruUrban']
+    print(len(ic),len(ic2))
+
   else:
     y=get_cases_district(state='Karnataka',district=district,case_type='deaths_delta')
     y2=get_cases_district(state='Karnataka',district=district,case_type='active')
@@ -485,23 +499,44 @@ def karnataka_analysis(district='Bengaluru Urban'):
 
   if district=='Total':
     d=moving_average(numpy.diff([i[1] for i in y]))
-    dates=pylab.date2num([i[0] for i in y][5:])
+    #dates=pylab.date2num([i[0] for i in y][5:])
+    dates=pylab.date2num([i[0] for i in y][1:])
+    a=[i[1] for i in y2]
+    dates3=pylab.date2num([i[0] for i in y2])
+  elif district=='RoK':
+    d=moving_average(numpy.diff([i[1] for i in y]))
+    d1=moving_average([i[1] for i in y0])
+    d=d[-1*len(d1):]
+    d=np.array(d)-np.array(d1)
+    #dates=pylab.date2num([i[0] for i in y][5:])
+    dates=pylab.date2num([i[0] for i in y0])
+    a=[i[1] for i in y2]
+    a1=[i[1] for i in y20]
+    a=a[-1*len(a1):]
+    a=np.array(a)-np.array(a1)
+    dates3=pylab.date2num([i[0] for i in y20])
+    ic=[(i[0],i[1]-j[1]) for i,j in zip(ic0,ic2)]
+
+
   else:
     d=moving_average([i[1] for i in y])
-    dates=pylab.date2num([i[0] for i in y][4:])
+    #dates=pylab.date2num([i[0] for i in y][4:])
+    dates=pylab.date2num([i[0] for i in y])
     a=[i[1] for i in y2]
     dates3=pylab.date2num([i[0] for i in y2])
     
   dates2=pylab.date2num([i[0] for i in ic])
   ic=[i[1] for i in ic]
 
-  
-  sp,ax=pylab.subplots()
 
+  print('plotting icu vs deaths') 
+  sp,ax=pylab.subplots()
+  #pylab.clf()
   color = 'tab:blue'
   ax.set_xlabel('Date')
   ax.set_ylabel('ICU beds',color=color)
   ax.plot_date(dates2,ic,color=color,label=district+' ICU beds')
+  if xlim: ax.set_xlim(xlim)
   ax.tick_params(axis='y', labelcolor=color)  
 
   ax2=ax.twinx()
@@ -512,16 +547,17 @@ def karnataka_analysis(district='Bengaluru Urban'):
 
   sp.tight_layout()
 
-  title='ICU use vs daily deaths'
+  title=district+' ICU use vs daily deaths'
   pylab.title(title);
-  ax2.legend(loc='upper right');
-  ax.legend(loc='upper left');
-  pylab.legend();
+#  ax2.legend(loc='upper right');
+#  ax.legend(loc='upper left');
+#  pylab.legend();
 #  pylab.show()
-  pylab.savefig(TMPDIR+'karnataka_'+district+'_icu_)vs_daily_deaths.jpg');pylab.close()
+  pylab.savefig(TMPDIR+'karnataka_'+district+'_icu_vs_daily_deaths.jpg');pylab.close()
   
+  print('plotting icu vs actives') 
   sp,ax=pylab.subplots()
-
+  #pylab.clf()
   color = 'tab:blue'
   ax.set_xlabel('Date')
   ax.set_ylabel('ICU beds',color=color)
@@ -529,20 +565,23 @@ def karnataka_analysis(district='Bengaluru Urban'):
   ax.tick_params(axis='y', labelcolor=color)  
 
   ax2=ax.twinx()
-  color = 'tab:red'
+  color = 'tab:orange'
   ax2.set_ylabel('Active Cases',color=color)
   ax2.plot_date(dates3,a,color=color,label=district+' active cases')
   ax2.tick_params(axis='y', labelcolor=color)
 
   sp.tight_layout()
 
-  title='ICU use vs active cases'
+  title=district+' ICU use vs active cases'
   pylab.title(title);  
-  ax.legend(loc='lower right');
-  ax2.legend(loc='lower left');
-  pylab.legend();
+#  ax2.legend(loc='lower right');
+#  ax.legend(loc='lower left');
+#  pylab.legend();
   #pylab.show()
-  pylab.savefig(TMPDIR+'karnataka_'+district+'_icu_)vs_actives.jpg');pylab.close()
+  pylab.savefig(TMPDIR+'karnataka_'+district+'_icu_vs_actives.jpg');pylab.close()
+  if district=='RoK':
+      return (dates2,ic,ic0,ic2,dates,d)
+
 
 def parse_bbmp_beds():
   base='bed_status/bbmp/'  
@@ -646,31 +685,18 @@ def parse_chennai_beds(print_district='Chennai'):
   return bed_availability
       
     
-def delhi_analysis(do):
+def delhi_analysis(do='',plot_days=''):
   #hos_capacity='';hos_used='';dcc_capacity='';dcc_used='';dchc_capacity='';dchc_used='';
   # ~ hos_util=0;dcc_util=0;dchc_util=0
   # ~ total='';rtpcr='';rapid='';
   # ~ cz='';amb='';date=''
   # ~ import pylab
+  if not do: do=delhi_parse_json()
   dates=[i.date for i in do]
+
   hos_used=[i.hos_used for i in do]
   dhc_used=[i.dchc_used for i in do]  
   dcc_used=[i.dcc_used for i in do]
-
-  # ~ data.append((datetime.datetime(2020, 9, 23, 0, 0), 6998))
-  # ~ data.append((datetime.datetime(2020, 9, 24, 0, 0), 7026))
-  # ~ data.append((datetime.datetime(2020, 9, 25, 0, 0), 6990)) 
-  # ~ data.append((datetime.datetime(2020, 9, 26, 0, 0), 6840))
-  # ~ data.append((datetime.datetime(2020, 9, 27, 0, 0), 6758))
-  # ~ data.append((datetime.datetime(2020, 9, 28, 0, 0), 6659))
-  dates.append(datetime.datetime(2020, 9, 23, 0, 0));hos_used.append(6998)
-  dates.append(datetime.datetime(2020, 9, 24, 0, 0));hos_used.append(7026)
-  dates.append(datetime.datetime(2020, 9, 25, 0, 0));hos_used.append(6990)
-  dates.append(datetime.datetime(2020, 9, 26, 0, 0));hos_used.append(6840)
-  dates.append(datetime.datetime(2020, 9, 27, 0, 0));hos_used.append(6758)
-  dates.append(datetime.datetime(2020, 9, 28, 0, 0));hos_used.append(6659)
-  dates.append(datetime.datetime(2020, 9, 29, 0, 0));hos_used.append(6515)
-  dates.append(datetime.datetime(2020, 9, 30, 0, 0));hos_used.append(6283)
 
   dates=pylab.date2num(dates)
   
@@ -696,9 +722,14 @@ def delhi_analysis(do):
   dates_skip=5; #have anomaly of sudden addition in mid-June
   deaths=deaths[-1*len(dates):]
    
-  
+  if len(actives)!=len(hos_used): actives=actives[-1*len(hos_used):]  
 
   hp=100*(numpy.float64(hos_used)/numpy.float64(actives))
+
+  if plot_days:
+      actives=actives[-1*plot_days:]
+      hos_used=hos_used[-1*plot_days:]
+      dates=dates[-1*plot_days:]
   # ~ dhp=100*(numpy.float64(dhc_used)/numpy.float64(actives))
   # ~ ccp=100*(numpy.float64(dcc_used)/numpy.float64(actives))
   
@@ -749,23 +780,34 @@ def delhi_analysis(do):
   sp,ax=pylab.subplots()
 
   color = 'tab:blue'
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax.xaxis.set_major_locator(locator)
+  ax.xaxis.set_major_formatter(formatter) 
+
   ax.set_xlabel('Date')
   ax.set_ylabel('Hospital beds used',color=color)
   ax.plot_date(dates,hos_used,color=color,label='Hospital Beds')
   ax.tick_params(axis='y', labelcolor=color)  
-  ax.legend(loc='lower left');
+#  ax.legend(loc='lower left');
   
   ax2=ax.twinx()
   color = 'tab:orange'
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax2.xaxis.set_major_locator(locator)
+  ax2.xaxis.set_major_formatter(formatter) 
+
   ax2.set_ylabel('Active Cases',color=color)
   ax2.plot_date(dates,actives,color=color,label='Active Cases')
   ax2.tick_params(axis='y', labelcolor=color)
-  ax2.legend(loc='lower right');
+#  ax2.legend(loc='lower right');
   
   sp.tight_layout()
 
   title='Hospital-beds-used vs Active-Cases in Delhi'
   pylab.title(title);
+  pylab.savefig(TMPDIR+'Delhi hos used vs actives.jpg');pylab.close()
   
 
   # ~ sp,ax=pylab.subplots()
@@ -898,7 +940,7 @@ class delhi_status():
   def info(self):
     info=''
     if self.date: info='On date: %s\n' %(datetime.datetime.strftime(self.date,'%d/%m/%Y'))
-    info+='\tHospital: %d/%d (%.1f percent)\n' %(self.hos_capacity,self.hos_used,self.hos_util)
+    info+='\tHospital: %d/%d (%.1f percent)\n' %(self.hos_used,self.hos_capacity,self.hos_util)
     info+='\tDCHC: %d/%d (%.1f percent)\n'  %(self.dchc_capacity,self.dchc_used,self.dchc_util)
     info+='\tDCCC: %d/%d (%.1f percent)\n'%(self.dcc_capacity,self.dcc_used,self.dcc_util)
     info+='Tests:\n\tTotal: %d\n' %(self.total)
@@ -3026,7 +3068,60 @@ def get_tests(state='Karnataka',date='',return_full_series=True,verbose=False):
       # ~ print '%s: %d tests,  %.1f percent (%d tests) were antigen' %(date,tests_on_day,percent_antigen,antigen_on_day)
   return all_tests
 
-def get_positivity(state='Karnataka',do_moving_average=True,plot=False):
+def get_positivity_district(state='Karnataka',district='Bengaluru Urban',plot=False):
+    if district=='RoK':
+        cases=get_cases_district(state=state,district='Bengaluru Urban',case_type='confirmed_delta')
+        tests=get_cases_district(state=state,district='Bengaluru Urban',case_type='tested_delta')
+        cases0=get_cases('Karnataka',case_type='confirmed',return_full_series=True)
+        c=list(np.diff([i[1] for i in cases0]))
+        cases0=list(zip([i[0] for i in cases0][1:],c))
+
+        tests0=get_tests('Karnataka')
+        cases=cases[-100:];cases0=cases0[-100:]
+        tests=tests[-100:];tests0=tests0[-100:]
+        cases=[(i[0],i[1]-j[1]) for i,j in zip(cases0,cases)]
+        tests=[(i[0],i[1]-j[1]) for i,j in zip(tests0,tests)]
+
+    else:
+        cases=get_cases_district(state=state,district=district,case_type='confirmed_delta')
+        tests=get_cases_district(state=state,district=district,case_type='tested_delta')
+
+    cases=cases[-100:];tests=tests[-100:]
+    dates=[i[0] for i in cases]
+    c=[i[1] for i in cases];    t=[i[1] for i in tests]
+    c=moving_average(c);t=moving_average(t)
+    c=c[-90:];t=t[-90:];dates=dates[-90:]
+    p=list(100*(np.array(c)/np.array(t)))
+    if plot:
+        import matplotlib.dates as mdates
+        sp,ax=pylab.subplots()
+        locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+        formatter = mdates.ConciseDateFormatter(locator)
+        ax.xaxis.set_major_locator(locator)
+        ax.xaxis.set_major_formatter(formatter) 
+        color='tab:green'
+        dates=pylab.date2num(dates)
+        ax.plot_date(dates[-70:],p[-70:],color=color,label=district+' TPR (7-day MA)')
+        xlabel='dates';ylabel='TPR (7-day MA)'
+        ax.tick_params(axis='y', labelcolor=color)
+        ax.set_xlabel(xlabel,color=color);ax.set_ylabel(ylabel,color=color);
+
+        ax2=ax.twinx()
+        color='tab:blue'
+        ax2.tick_params(axis='y', labelcolor=color)
+        ax2.plot_date(dates[-70:],t[-70:],color=color,label=district+' daily tests (7-day MA)')
+        xlabel='dates';ylabel='daily tests (7-day MA)'
+        ax2.tick_params(axis='y', labelcolor=color)
+        ax2.set_xlabel(xlabel,color=color);ax2.set_ylabel(ylabel,color=color);
+
+        pylab.title(district+' TPR vs daily tests')
+        sp.tight_layout()
+
+        pylab.savefig(TMPDIR+district+' TPR vs daily tests.jpg');pylab.close()
+    return dates,p,c,t
+
+
+def get_positivity(state='Karnataka',do_moving_average=True,plot=False,plot_days=''):
   cases_cum=get_cases(state=state,case_type='confirmed',return_full_series=True,verbose=False)
   d=[i[0] for i in cases_cum][1:]
   c=numpy.diff([i[1] for i in cases_cum])
@@ -3060,16 +3155,46 @@ def get_positivity(state='Karnataka',do_moving_average=True,plot=False):
   p=[i for i in p if i[1]<=60 and i[1]>0]
   if plot:
     # ~ import pylab
+    ax=pylab.axes()
+    import matplotlib.dates as mdates
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter) 
+
     dates=pylab.date2num([i[0] for i in p])
     p2=[i[1] for i in p]
-    pylab.plot_date(dates,p2,label=state)
+    if plot_days:
+        ax.plot_date(dates[-1*plot_days:],p2[-1*plot_days:],label=state)
+    else:
+        ax.plot_date(dates,p2,label=state)
     xlabel='Date';ylabel='Positivity in '+state;title=state+' TPR'
     if do_moving_average: ylabel+=' (7-day MA)'
     pylab.xlabel(xlabel);pylab.ylabel(ylabel);pylab.title(title);pylab.legend()
-    pylab.savefig(TMPDIR+'/'+state+'_tpr.jpg',dpi=100)
-    return (p,pylab.gca(),pylab.gcf())
+    pylab.savefig(TMPDIR+'/'+state+'_tpr.jpg',dpi=100);pylab.close()
   return p
 
+def delhi_parse_json():
+    #create delhi_status() class list from json file
+    x=[i for i in json.load(open('state_test_data.json'))['states_tested_data'] if i['state']=='Delhi']
+    x=[i for i in x if i['antigentests'] and i['rtpcrtests'] and i['totaltested'] and i['bedsoccupiednormalisolation'] and i['numisolationbeds']]
+    antigen0=int(x[0]['antigentests'])
+    pcr0=int(x[0]['rtpcrtests'])
+    tests0=int(x[0]['totaltested'])
+    dss=[]
+    for i in x[1:]:
+        date=datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')
+        hos_cap=int(i['numisolationbeds'])
+        hos_used=int(i['bedsoccupiednormalisolation'])
+        antigen=int(i['antigentests'])-antigen0
+        pcr=int(i['rtpcrtests'])-pcr0
+        tests=int(i['totaltested'])-tests0
+        antigen0=int(i['antigentests'])
+        pcr0=int(i['rtpcrtests'])
+        tests0=int(i['totaltested'])
+        ds=delhi_status(date,hos_cap,hos_used,0,0,0,0,tests,pcr,antigen,0,0)
+        dss.append(ds)
+    return dss
 #finds pecent on icus on all dates for which data is available for that state
 #"state" must be fullname
 # as of sep 5, data on icu usage is available for (state_name: number_of_days_of_data_available
@@ -3154,7 +3279,7 @@ def get_people_on_ventilators(state='Telangana',verbose=False):
       print(('%s : %.3f (%d on ventilator)' %(i[0],i[1],i[2])))
   return all_percent_ventilator
 
-def analysis(state='Uttar Pradesh'):
+def analysis(state='Uttar Pradesh',extra=False,plot_days=''):
   deaths=get_cases(state=state,case_type='deaths',return_full_series=True,verbose=False)
   deaths=[i for i in deaths if i[0]>=datetime.datetime(2020,6,1,0,0)]
   dates2=pylab.date2num([i[0] for i in deaths][1:]);d=moving_average(numpy.diff([i[1] for i in deaths]))
@@ -3164,26 +3289,45 @@ def analysis(state='Uttar Pradesh'):
   dates=pylab.date2num([i[0] for i in deaths][1:]);c=moving_average(numpy.diff([i[1] for i in deaths]))
 
   p=get_positivity(state=state)
+  t=get_tests(state=state)
+  dates4=pylab.date2num([i[0] for i in t]);t=moving_average([i[1] for i in t])
   dates3=pylab.date2num([i[0] for i in p]);p=[i[1] for i in p]
   if state=='Delhi':
     for j in range(len(p)):
       if p[j]>15: p[j]=2
   
+  if plot_days:
+      c=c[-1*plot_days:]
+      t=t[-1*plot_days:]
+      d=d[-1*plot_days:]
+      p=p[-1*plot_days:]
+      dates=dates[-1*plot_days:]
+      dates2=dates[-1*plot_days:]
+      dates3=dates[-1*plot_days:]
+      dates4=dates[-1*plot_days:]
   sp,ax=pylab.subplots()
+    
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax.xaxis.set_major_locator(locator)
+  ax.xaxis.set_major_formatter(formatter) 
 
   color = 'tab:blue'
   ax.set_xlabel('Date')
   ax.set_ylabel(state+' new daily cases (7-day MA)',color=color)
   ax.plot_date(dates,c,color=color,label=state+' new daily cases (7-day MA)')
   ax.tick_params(axis='y', labelcolor=color)
-  ax.legend(loc='lower left');
+#  ax.legend(loc='lower left');
 
   ax2=ax.twinx()
   color = 'tab:red'
+  ax2.xaxis.set_major_locator(locator)
+  ax2.xaxis.set_major_formatter(formatter) 
+
   ax2.set_ylabel(state+' Daily deaths (7-day MA)',color=color)
   ax2.plot_date(dates2,d,color=color,label=state+' daily deaths (7-day MA)')
   ax2.tick_params(axis='y', labelcolor=color)
-  ax2.legend(loc='lower right');
+#  ax2.legend(loc='lower right');
   sp.tight_layout()
 
   title=state+' daily cases vs daily deaths'
@@ -3200,14 +3344,14 @@ def analysis(state='Uttar Pradesh'):
   ax.set_ylabel(state+' new daily cases (7-day MA)',color=color)
   ax.plot_date(dates,c,color=color,label=state+' new daily cases (7-day MA)')
   ax.tick_params(axis='y', labelcolor=color)
-  ax.legend(loc='lower left');
+#  ax.legend(loc='lower left');
 
   ax2=ax.twinx()
   color = 'tab:green'
   ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
   ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
   ax2.tick_params(axis='y', labelcolor=color)
-  ax2.legend(loc='lower right');
+#  ax2.legend(loc='lower right');
   sp.tight_layout()
 
   title=state+' daily cases vs TPR'
@@ -3216,7 +3360,70 @@ def analysis(state='Uttar Pradesh'):
   pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',bbox_inches='tight')
   pylab.close()
 
-  #pylab.show()
+  sp,ax=pylab.subplots()
+
+  color = 'tab:blue'
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax.xaxis.set_major_locator(locator)
+  ax.xaxis.set_major_formatter(formatter) 
+
+  ax.set_xlabel('Date')
+  ax.set_ylabel(state+' daily tests(7-day MA)',color=color)
+  ax.plot_date(dates4,t,color=color,label=state+' daily tests (7-day MA)')
+  ax.tick_params(axis='y', labelcolor=color)
+#  ax.legend(loc='lower left');
+
+  ax2=ax.twinx()
+  color = 'tab:green'
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax2.xaxis.set_major_locator(locator)
+  ax2.xaxis.set_major_formatter(formatter) 
+
+  ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
+  ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
+  ax2.tick_params(axis='y', labelcolor=color)
+#  ax2.legend(loc='lower right');
+  sp.tight_layout()
+
+  title=state+' daily tests vs TPR'
+  pylab.title(title);  
+  #pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',dpi=150)
+  pylab.savefig(TMPDIR+state+' daily tests vs TPR.jpg',bbox_inches='tight')
+  pylab.close()
+  if extra:
+      yy=get_antigen_tests(state)
+      ap=moving_average([i[-1] for i in yy])
+      ad=[datetime.datetime.strptime(i[0],'%d/%m/%Y') for i in yy]
+      ad=pylab.date2num(ad)
+      if plot_days:
+          ap=ap[-1*plot_days:]
+          ad=ad[-1*plot_days:]
+      
+      sp,ax=pylab.subplots()
+    
+      color = 'tab:grey'
+      ax.set_xlabel('Date')
+      ax.set_ylabel(state+' percent rapid antigen in daily tests (7-day MA)',color=color)
+      ax.plot_date(ad,ap,color=color,label=state+' percent rapid antigen (7-day MA)')
+      ax.tick_params(axis='y', labelcolor=color)
+#      ax.legend(loc='lower left');
+    
+      ax2=ax.twinx()
+      color = 'tab:green'
+      ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
+      ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
+      ax2.tick_params(axis='y', labelcolor=color)
+#      ax2.legend(loc='lower right');
+      sp.tight_layout()
+    
+      title=state+' percent rapid antigen tests vs TPR'
+      pylab.title(title);  
+      #pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',dpi=150)
+      pylab.savefig(TMPDIR+state+' percent antigen vs TPR.jpg',bbox_inches='tight')
+      pylab.close()
+
   
 def webp():
     x=[i for i in os.listdir('.') if i.endswith(('.jpg','.jpeg','.png'))];x.sort()
@@ -3245,14 +3452,14 @@ def analysis_undercounting_karnataka(district='Bengaluru Urban',verbose=True):
   ax.set_ylabel(district+'ICU usage (7-day MA)',color=color)
   ax.plot_date(pylab.date2num(dates),ic,color=color,label=district+' ICU usage (7-day MA)')
   ax.tick_params(axis='y', labelcolor=color)
-  ax.legend(loc='upper left');
+#  ax.legend(loc='upper left');
 
   ax2=ax.twinx()
   color = 'tab:red'
   ax2.set_ylabel('Daily deaths (7-day MA)',color=color)
   ax2.plot_date(pylab.date2num(dates2),d,color=color,label=district+' daily deaths (7-day MA)')
   ax2.tick_params(axis='y', labelcolor=color)
-  ax2.legend(loc='lower right');
+#  ax2.legend(loc='lower right');
   # ~ sp.tight_layout()
 
   title=district+' ICU use vs daily deaths'
@@ -3266,14 +3473,14 @@ def analysis_undercounting_karnataka(district='Bengaluru Urban',verbose=True):
   ax.set_ylabel(district+'ICU usage (7-day MA)',color=color)
   ax.plot_date(pylab.date2num(dates),ic,color=color,label=district+' ICU usage (7-day MA)')
   ax.tick_params(axis='y', labelcolor=color)
-  ax.legend(loc='upper left');
+#  ax.legend(loc='upper left');
 
   ax2=ax.twinx()
   color = 'tab:orange'
   ax2.set_ylabel('Active cases (7-day MA)',color=color)
   ax2.plot_date(pylab.date2num(dates3),a,color=color,label=district+' active cases (7-day MA)')
   ax2.tick_params(axis='y', labelcolor=color)
-  ax2.legend(loc='lower right');
+#  ax2.legend(loc='lower right');
   # ~ sp.tight_layout()
 
   title=district+' ICU use vs active cases'
@@ -3299,14 +3506,14 @@ def analysis_undercounting(state='Haryana',atype='ventilator'):
   ax.set_ylabel(atype+' used (7-day MA)',color=color)
   ax.plot_date(dates,v,color=color,label=state+' '+atype+' patients (7-day MA)')
   ax.tick_params(axis='y', labelcolor=color)
-  ax.legend(loc='upper left');
+#  ax.legend(loc='upper left');
 
   ax2=ax.twinx()
   color = 'tab:red'
   ax2.set_ylabel('Daily deaths (7-day MA)',color=color)
   ax2.plot_date(dates2,d,color=color,label=state+' daily deaths (7-day MA)')
   ax2.tick_params(axis='y', labelcolor=color)
-  ax2.legend(loc='lower right');
+#  ax2.legend(loc='lower right');
   # ~ sp.tight_layout()
 
   title=atype+' vs daily deaths in '+state

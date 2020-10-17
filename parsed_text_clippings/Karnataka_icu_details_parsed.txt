@@ -1609,6 +1609,7 @@ Udupi : 4
 UttaraKannada : 13
 Vijayapura : 1
 Yadagiri : 8
+Total : 768
 ##BULLETIN_DATE 08-06-2020
 BengaluruUrban : 7
 Kalaburagi : 4
