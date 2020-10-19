@@ -135,6 +135,48 @@ def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/
   del x
   return returned
   
+def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',color2='red',plot_days=''):
+    if plot_days:
+        dates=dates[-1*plot_days:]
+        dates2=dates2[-1*plot_days:]
+        data=data[-1*plot_days:]
+        data2=data2[-1*plot_days:]
+
+    sp,ax=pylab.subplots()
+
+    color = color1
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter) 
+
+    ax.set_xlabel('Date')
+    ax.set_ylabel(label1,color=color)
+    ax.plot_date(dates,data,color=color,label=label1)
+    ax.tick_params(axis='y', labelcolor=color)
+    ax.legend(loc='lower left',fontsize=6)
+
+    ax2=ax.twinx()
+    color = color2
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax2.xaxis.set_major_locator(locator)
+    ax2.xaxis.set_major_formatter(formatter) 
+
+    ax2.set_ylabel(label2,color=color)
+    ax2.plot_date(dates2,data2,color=color,label=label2)
+    ax2.tick_params(axis='y', labelcolor=color)
+    ax2.legend(loc='lower right',fontsize=6)
+    
+    title=''
+    if state: title+=state+' '
+    title+=label1.replace('(7-day MA)','')+' vs '+label2.replace('(7-day MA)','')
+    pylab.title(title);  
+    pylab.savefig(TMPDIR+title+'.jpg',dpi=100)
+    pylab.close()
+
+
+
 def get_national_data(case_type='active',verbose=False):
   pass
 def get_beds(state='West Bengal',type=''):
@@ -168,100 +210,10 @@ def wb_analysis(plot=False):
     dates2=pylab.date2num(dates)
 
     #util vs cap
-    sp,ax=pylab.subplots()
+    plot2(dates2,moving_average(bed_util),dates2,moving_average(bed_cap),label1='hospital beds used (7-day MA)',label2='hospital bed capacity (7-day MA)',state='West Bengal')
+    plot2(dates2,moving_average(bed_util),dates2,moving_average(ppe),label1='hospital beds used (7-day MA)',label2='PPE (7-day MA)',color2='maroon',state='West Bengal')
+    plot2(dates2,moving_average(bed_util),dates2,moving_average(n95),label1='hospital beds used (7-day MA)',label2='N95 masks (7-day MA)',color2='grey',state='West Bengal')
 
-    color = 'tab:blue'
-    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
-    ax.xaxis.set_major_locator(locator)
-    ax.xaxis.set_major_formatter(formatter) 
-
-    ax.set_xlabel('Date')
-    ax.set_ylabel('hospital beds used (7-day MA)',color=color)
-    ax.plot_date(dates2,moving_average(bed_util),color=color,label='hospital beds used')
-    ax.tick_params(axis='y', labelcolor=color)
-    ax.legend(loc='lower left',fontsize=6)
-
-    ax2=ax.twinx()
-    color = 'tab:red'
-    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
-    ax2.xaxis.set_major_locator(locator)
-    ax2.xaxis.set_major_formatter(formatter) 
-
-    ax2.set_ylabel('hospital bed capacity (7-day MA)',color=color)
-    ax2.plot_date(dates2,moving_average(bed_cap),color=color,label='hospital bed capacity')
-    ax2.tick_params(axis='y', labelcolor=color)
-    ax2.legend(loc='lower right',fontsize=6)
-
-    title='Hospital bed utilization vs capacity in West Bengal'
-    pylab.title(title);  
-    pylab.savefig(TMPDIR+'bed util vs cap.jpg',dpi=100)
-    pylab.close()
-
-    # util vs ppe
-    sp,ax=pylab.subplots()
-
-    color = 'tab:blue'
-    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
-    ax.xaxis.set_major_locator(locator)
-    ax.xaxis.set_major_formatter(formatter) 
-
-    ax.set_xlabel('Date')
-    ax.set_ylabel('hospital beds used (7-day MA)',color=color)
-    ax.plot_date(dates2,moving_average(bed_util),color=color,label='hospital beds used')
-    ax.tick_params(axis='y', labelcolor=color)
-    ax.legend(loc='lower left',fontsize=6)
-
-    ax2=ax.twinx()
-    color = 'maroon'
-    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
-    ax2.xaxis.set_major_locator(locator)
-    ax2.xaxis.set_major_formatter(formatter) 
-
-    ax2.set_ylabel('PPE (7-day MA)',color=color)
-    ax2.plot_date(dates2,moving_average(ppe),color=color,label='PPE')
-    ax2.tick_params(axis='y', labelcolor=color)
-    ax2.legend(loc='lower right',fontsize=6)
-
-    title='Hospital bed utilization vs PPE\'s used in West Bengal'
-    pylab.title(title);  
-    pylab.savefig(TMPDIR+'bed util vs ppe.jpg',dpi=100)
-    pylab.close()
-
-    #beds vs n95
-    sp,ax=pylab.subplots()
-
-    color = 'tab:blue'
-    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
-    ax.xaxis.set_major_locator(locator)
-    ax.xaxis.set_major_formatter(formatter) 
-
-    ax.set_xlabel('Date')
-    ax.set_ylabel('hospital beds used (7-day MA)',color=color)
-    ax.plot_date(dates2,moving_average(bed_util),color=color,label='hospital beds used')
-    ax.tick_params(axis='y', labelcolor=color)
-    ax.legend(loc='lower left',fontsize=6)
-
-    ax2=ax.twinx()
-    color = 'orange'
-    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
-    ax2.xaxis.set_major_locator(locator)
-    ax2.xaxis.set_major_formatter(formatter) 
-
-    ax2.set_ylabel('N95 masks used (7-day MA)',color=color)
-    ax2.plot_date(dates2,moving_average(n95),color=color,label='N95 masks used')
-    ax2.tick_params(axis='y', labelcolor=color)
-    ax2.legend(loc='lower right',fontsize=6)
-
-    title='Hospital bed utilization vs N95 masks in West Bengal'
-    pylab.title(title);  
-    pylab.savefig(TMPDIR+'bed util vs n95.jpg',dpi=100)
-    pylab.close()
 
     return (dates,icu_cap,vent_cap,bed_cap,bed_util,ppe,n95)
 
@@ -909,38 +861,9 @@ def delhi_analysis(do='',plot_days=''):
   # ~ pylab.legend();
   # ~ pylab.show()
 
-  sp,ax=pylab.subplots()
+  plot2(dates,hos_used,dates,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
 
-  color = 'tab:blue'
-  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
-  ax.xaxis.set_major_locator(locator)
-  ax.xaxis.set_major_formatter(formatter) 
-
-  ax.set_xlabel('Date')
-  ax.set_ylabel('Hospital beds used',color=color)
-  ax.plot_date(dates,hos_used,color=color,label='Hospital Beds')
-  ax.tick_params(axis='y', labelcolor=color)  
-#  ax.legend(loc='lower left');
-  
-  ax2=ax.twinx()
-  color = 'tab:orange'
-  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
-  ax2.xaxis.set_major_locator(locator)
-  ax2.xaxis.set_major_formatter(formatter) 
-
-  ax2.set_ylabel('Active Cases',color=color)
-  ax2.plot_date(dates,actives,color=color,label='Active Cases')
-  ax2.tick_params(axis='y', labelcolor=color)
-#  ax2.legend(loc='lower right');
-  
-  sp.tight_layout()
-
-  title='Hospital-beds-used vs Active-Cases in Delhi'
-  pylab.title(title);
-  pylab.savefig(TMPDIR+'Delhi hos used vs actives.jpg');pylab.close()
-  
+ 
 
   # ~ sp,ax=pylab.subplots()
 
@@ -1871,7 +1794,8 @@ def helper_plot_linear_fit(x,y,label='',color=''):
   if not color:    color='g'
   if not label:    label='Best linear fit'
   
-  pylab.plot_date(x,poly1d_fn(x),color,label=label)
+  #pylab.plot_date(x,poly1d_fn(x),color,label=label)
+  pylab.plot(x,poly1d_fn(x),color,label=label)
 
 def helper_plot_exponential_fit(x,y,label='',color=''):
   # ~ import pylab  
@@ -1940,15 +1864,20 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
     y=[]
     for i in x:
       dt=datetime.datetime.strptime(i[7],'%Y-%m-%d')
+#      try:
       recr=int(i[8])
       groc_phar=int(i[9])
+#      except:
+#          print('error parsing '+str(i))
+#          continue
       parks=int(i[10])
       trans=int(i[11])
       wrksp=int(i[12])
       resi=int(i[13])
-      y.append((dt,recr,groc_phar,parks,trans,wrksp,resi))
+      avg=(recr+groc_phar+parks+trans+wrksp+resi)/6.
+      y.append((dt,recr,groc_phar,parks,trans,wrksp,resi,avg))
 
-    dates,recr,groc,parks,trans,wrksp,resi=zip(*y)
+    dates,recr,groc,parks,trans,wrksp,resi,avg=zip(*y)
 #    print(len(resi),len(parks))
 #    print(recr)
 
@@ -1959,28 +1888,52 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
         trans=moving_average(trans)
         wrksp=moving_average(wrksp)
         resi=moving_average(resi)
-    y=list(zip(dates,recr,groc,parks,trans,wrksp,resi))
+        avg=moving_average(avg)
+    y=list(zip(dates,recr,groc,parks,trans,wrksp,resi,avg))
 
     if plot:
-        dates=pylab.date2num(dates)
-        ax=pylab.axes()
-        locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-        formatter = mdates.ConciseDateFormatter(locator)
-        ax.xaxis.set_major_locator(locator)
-        ax.xaxis.set_major_formatter(formatter) 
-        ax.plot_date(dates,recr,label='Retail')
-        ax.plot_date(dates,groc,label='Grocery')
-        ax.plot_date(dates,parks,label='Parks')
-        ax.plot_date(dates,trans,label='Transport')
-        ax.plot_date(dates,wrksp,label='Workplace')
-        ax.plot_date(dates,resi,label='Residence')
-        ax.set_xlabel('dates');ax.set_ylabel('Percent Change in mobility from baseline');
-        ax.legend(fontsize=6)
-        loc=state
-        if district: loc=district+' district of '+state
-        ax.set_title('Mobility trends in '+loc)
+        if district: #compare with avg of district vs state
+            dates2,x1,x2,x3,x4,x5,x6,state_avg=zip(*get_mobility(state=state,district=''))
+            dates2=pylab.date2num(dates2);dates=pylab.date2num(dates)
+            ax=pylab.axes()
+            locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+            formatter = mdates.ConciseDateFormatter(locator)
+            ax.xaxis.set_major_locator(locator)
+            ax.xaxis.set_major_formatter(formatter) 
+            ax.plot_date(dates,avg,label=district+' avg. change from baseline')
+            ax.plot_date(dates2,state_avg,label=state+' avg. change from baseline')
+            ax.set_xlabel('dates');ax.set_ylabel('Percent Change in mobility from baseline in '+district+' vs whole '+state);
+            ax.legend(fontsize=6)
+            ax.set_title('Mobility trends in '+district+' vs '+state)
 
-        pylab.savefig(TMPDIR+loc+' mobility trends.jpg');pylab.close()
+            pylab.savefig(TMPDIR+district+' vs '+state+' mobility trends.jpg');pylab.close()
+
+        else:
+            dates=pylab.date2num(dates)
+            ax=pylab.axes()
+            locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+            formatter = mdates.ConciseDateFormatter(locator)
+            ax.xaxis.set_major_locator(locator)
+            ax.xaxis.set_major_formatter(formatter) 
+            ax.plot_date(dates,recr,label='Retail')
+            ax.plot_date(dates,groc,label='Grocery')
+            ax.plot_date(dates,parks,label='Parks')
+            ax.plot_date(dates,trans,label='Transport')
+            ax.plot_date(dates,wrksp,label='Workplace')
+            ax.plot_date(dates,resi,label='Residence')
+            ax.set_xlabel('dates');ax.set_ylabel('Percent Change in mobility from baseline');
+            ax.legend(fontsize=6)
+            loc=state
+            if district: loc=district+' district of '+state
+            if not loc: loc='India'
+            ax.set_title('Mobility trends in '+loc)
+
+            pylab.savefig(TMPDIR+loc+' mobility trends.jpg');pylab.close()
+            #avg vs pos
+            if loc!='India':
+                dates5,pos=zip(*get_positivity(state))
+                plot2(dates,avg,pylab.date2num(dates5),pos,label1='Average change in mobility (7-day MA)',label2='TPR (7-day MA)',color2='green',state=state)
+
 
  
     return y
