@@ -713,7 +713,8 @@ def chloropleth_data():
 def chloropleth(data_dict={},date=''):
   from  matplotlib.colors import LinearSegmentedColormap
   from descartes import PolygonPatch;import matplotlib.pyplot as plt;import geojson
-  cmap=LinearSegmentedColormap.from_list('rg',["r", "y", "g"], N=256) 
+  #cmap=LinearSegmentedColormap.from_list('rg',["r", "y", "g"], N=256) 
+  cmap=LinearSegmentedColormap.from_list('',["g", "y", "r"], N=256) 
   json_data=geojson.load(open('india_telengana.geojson'))
 
   fig=plt.figure();
@@ -726,11 +727,11 @@ def chloropleth(data_dict={},date=''):
     name=feature.properties['NAME_1']
     if name in data_dict:
         data_value=data_dict[name]
-#        color=cmap(data_value)
-        if data_value<0: #green
-            color=[0,np.abs(data_value),0]
-        else: #red
-            color=[np.abs(data_value),0,0]
+        color=cmap(data_value)
+#        if data_value<0: #green
+#            color=[0,np.abs(data_value),0]
+#        else: #red
+#            color=[np.abs(data_value),0,0]
     else:
         print('Feature with name %s was not in data_dict' %(name))
         continue
