@@ -6,7 +6,7 @@
 # ~ for moving average with window 'N'
 # ~ np.convolve(x, np.ones((N,))/N, mode='valid')
 
-import os,sys,copy
+import os,sys,copy,tqdm,csv
 import json,datetime,numpy,requests,colorama,pylab
 import matplotlib.dates as mdates
 import numpy as np
@@ -44,6 +44,130 @@ karnataka_districts_map={'bagal':'bagalkote','balla':'ballari','chikkam':'chikka
   'koda':'kodagu','kola':'kolara','kopp':'koppala','mand':'mandya','mysu':'mysuru','raich':'raichuru',
   'raman':'ramanagara','shiva':'shivamogga','tuma':'tumakuru','udup':'udupi','uttar':'uttarakannada',
   'vija':'vijayapura','yadag':'yadagiri'};
+
+def parse_census(state='Tamil Nadu',metric='mean age'):
+  if state=='Delhi':
+    state='NCT of Delhi'
+  r=csv.reader(open('census.csv'))
+  info=[]
+  for i in r: info.append(i)
+  data=[i for i in info if i[0]==state]
+#  print(len(data))
+  if metric=='mean age':
+    data=data[1:-3]#exclude last 2 rows and initial one
+    agedict={}
+    for i in data:
+      age=int(i[1])
+      num_persons=int(i[2])
+      agedict[age]=num_persons
+    tot_persons=sum(list(agedict.values()))
+    mean_age=0
+    for i in agedict.keys():
+      frac=float(agedict[i])/tot_persons
+      mean_age+=frac*i
+    return (mean_age,agedict,info,data)
+  elif metric=='urbanization':
+      data=data[0]
+#      print(data[2],data[5])
+      tot=int(data[2])
+      urb=int(data[-3])
+      return (100*float(urb)/tot,urb,tot,data)
+  elif metric=='male':
+      data=data[0]
+#      print(data[2],data[5])
+      tot=int(data[2])
+      male=int(data[3])
+      return (100*float(male)/tot,male,tot,data)
+
+def get_mortality_rate(state='Tamil Nadu',return_full_series=False,plot=False):
+  if not return_full_series:
+    d=get_cases(state=state,case_type='deaths')
+    c=get_cases(state=state,case_type='confirmed')
+    return 100*(float(d)/c)
+  else:
+    d=get_cases(state=state,case_type='deaths',return_full_series=True)
+    c=get_cases(state=state,case_type='confirmed',return_full_series=True)
+    d=[i for i in d if i[1]>0]
+    c=c[-1*len(d):]
+    dates,d=zip(*d)
+    dates2,c=zip(*c)
+    m=100*(np.float64(d)/np.array(c))
+    x=list(zip(dates,m))
+    x=[i for i in x if i[0]>=datetime.datetime(2020,5,1,0,0)]
+    dates,m=zip(*x)
+    if plot:
+      ax=pylab.axes()
+      locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+      formatter = mdates.ConciseDateFormatter(locator)
+      ax.xaxis.set_major_locator(locator)
+      ax.xaxis.set_major_formatter(formatter) 
+
+      ax.plot_date(pylab.date2num(dates),m,label='state')
+      pylab.xlabel('Date');pylab.ylabel('Mortality Rate');pylab.title(state+' mortality rate over time')
+      pylab.savefig(TMPDIR+state+' mortality rate over time.jpg');pylab.close()
+    return x
+
+
+def mortality_analysis():
+  states=['Bihar','Tamil Nadu','Karnataka','Uttar Pradesh','Punjab','Assam','Odisha','Madhya Pradesh','Gujarat','Andhra Pradesh','Madhya Pradesh','Maharashtra']
+  #states=['Kerala','Bihar','Tamil Nadu','Karnataka','Uttar Pradesh','Delhi','Punjab','Assam','Odisha','Madhya Pradesh','Gujarat','Andhra Pradesh','Madhya Pradesh','Maharashtra']
+  #states=['Kerala','Bihar','Tamil Nadu','Uttar Pradesh','Madhya Pradesh','Gujarat','Maharashtra']
+  info=[]
+  for state in states:
+    mortality_rate=get_mortality_rate(state=state)
+    urbanization=parse_census(state=state,metric='urbanization')[0]
+    males=parse_census(state=state,metric='male')[0]
+    mean_age=parse_census(state=state,metric='mean age')[0]
+    date_first_100=get_cases(state=state,case_type='first100deaths')
+    info.append((state,mortality_rate,urbanization,males,mean_age,date_first_100))
+ 
+  print('gathered data')
+  states,mortality_rates,urbanizations,maless,mean_ages,dates_first_100=zip(*info)
+  #plot
+  for i in info:
+    state,mortality_rate,urbanization,males,mean_age,d1=i
+    #print(mortality_rate,mean_age)
+    pylab.scatter(mean_age,mortality_rate,label=state)
+    ylabel='Mortality Rate (oct 14)';xlabel='Mean age (2011 census)';title='Mortality Rate vs Mean age for Indian states'
+    pylab.xlabel(xlabel);pylab.ylabel(ylabel);pylab.title(title);pylab.legend(fontsize=6)
+  helper_plot_linear_fit(mean_ages,mortality_rates)
+  pylab.savefig(TMPDIR+'mortality rate vs mean age.jpg');pylab.close()
+  for i in info:
+    state,mortality_rate,urbanization,males,mean_age,d1=i
+    #print(mortality_rate,urbanization)
+    pylab.scatter(urbanization,mortality_rate,label=state)
+    ylabel='Mortality Rate (oct 14)';xlabel='Urban population percentagee (2011 census)';title='Mortality Rate vs urban population percentage  for Indian states'
+    pylab.xlabel(xlabel);pylab.ylabel(ylabel);pylab.title(title);pylab.legend(fontsize=6)
+  helper_plot_linear_fit(urbanizations,mortality_rates)
+  pylab.savefig(TMPDIR+'mortality rate vs urbanization.jpg');pylab.close()
+  for i in info:
+    state,mortality_rate,urbanization,males,mean_age,d1=i
+    #print(mortality_rate,males)
+    pylab.scatter(males,mortality_rate,label=state)
+    ylabel='Mortality Rate (oct 14)';xlabel='Male population percentagee (2011 census)';title='Mortality Rate vs Male population percentage  for Indian states'
+    pylab.xlabel(xlabel);pylab.ylabel(ylabel);pylab.title(title);pylab.legend(fontsize=6)
+  helper_plot_linear_fit(maless,mortality_rates)
+  pylab.savefig(TMPDIR+'mortality rate vs males.jpg');pylab.close()
+
+  ax=pylab.axes()
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax.xaxis.set_major_locator(locator)
+  ax.xaxis.set_major_formatter(formatter) 
+
+  for i in info:
+    state,mortality_rate,urbanization,males,mean_age,d1=i
+    #print(mortality_rate,males)
+    ax.plot_date(pylab.date2num(d1),mortality_rate,'.',label=state)
+    ylabel='Mortality Rate (oct 14)';xlabel='Date of firrt 300 deaths';title='Mortality Rate vs Date of 1st 300 deaths for Indian states'
+    pylab.xlabel(xlabel);pylab.ylabel(ylabel);pylab.title(title);pylab.legend(fontsize=6)
+  helper_plot_linear_fit(pylab.date2num(dates_first_100),mortality_rates,xtype='date')
+  pylab.savefig(TMPDIR+'mortality rate vs first 300.jpg');pylab.close()
+  return info
+
+
+
+    
 
 def get_testing_delta():
   x=json.load(open('data-all.json'))
@@ -219,11 +343,13 @@ def wb_analysis(plot=False):
 
 
 
-def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full_series=False,verbose=False):
+def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full_series=False,verbose=False):
   x=json.load(open('states_daily.json'))['states_daily']
 
   target_datetime=datetime.datetime.strptime(date,'%d/%m/%Y')
   state_code=state_name_to_code[state]
+  if case_type=='first100deaths':
+    return_full_series=True
 
   #get all confirmed cases till date
   confirmed=0;recovered=0;deaths=0;active=0;
@@ -267,8 +393,13 @@ def get_cases(state='Telangana',date='01/09/2020',case_type='active',return_full
     x=[]
     for date in recovered_series: x.append((date,recovered_series[date]))
     recovered_series=x;recovered_series.sort()
-    
-  if case_type=='active':
+  if case_type=='first100deaths':
+    for i in deaths_series:
+      date=i[0]
+      if i[1]>=300: break
+    if verbose: print('%s passed its 1st 300 deaths on %s' %(state,datetime.datetime.strftime(date,'%d-%m')))
+    return date
+  elif case_type=='active':
     if verbose: print(('Active cases in %s on %s were %d' %(state,date,active)))
     if return_full_series:  return active_series
     else:                   return active
@@ -541,8 +672,77 @@ def cartogram_date(date='09_20_2020',window_size=3,plot_base=False,verbose=True,
   
   return (plt,ax,patch)
 
-def chloropleth():
-    pass
+def chloropleth_data():
+    data=[]
+    states=list(state_name_to_code.keys());states.sort()
+    for state in tqdm.tqdm(states):
+        x=get_cases(state,case_type='confirmed',return_full_series=True)
+        dates,confirmed=zip(*x)
+        confirmed_delta=moving_average(np.diff(confirmed));dates=dates[1:]
+        x=confirmed_delta
+        for i in range(8,len(x)):#weekly change
+            last=x[i-7]
+            if last==0: continue
+            percent_change=100*(float(x[i]-x[i-7])/x[i-7])
+            sstate=state.replace('Odisha','Orissa').replace('Uttarakhand','Uttaranchal').replace(' Islands','')
+            data.append((sstate,dates[i],percent_change))
+    d2={}
+    for i in data:
+        st,d,p=i
+        if d in d2:
+            d2[d][st]=p
+        else:
+            d2[d]={st:p}
+    #normalize d2
+    for date in d2:
+        ddict=d2[date]
+        states,values=zip(*list(ddict.items()))
+        vmax=np.max(values)
+        vmin=np.abs(np.min(values))
+        values2=[]
+        for v in values:
+            if v>0: values2.append(v/vmax)
+            if v<0: values2.append(v/vmin)
+        values=values2
+        ddict2={}
+        for i,j in zip(states,values2):
+            ddict2[i]=j
+        d2[date]=ddict2
+    return data,d2
+
+def chloropleth(data_dict={},date=''):
+  from  matplotlib.colors import LinearSegmentedColormap
+  from descartes import PolygonPatch;import matplotlib.pyplot as plt;import geojson
+  cmap=LinearSegmentedColormap.from_list('rg',["r", "y", "g"], N=256) 
+  json_data=geojson.load(open('india_telengana.geojson'))
+
+  fig=plt.figure();
+  ax=fig.gca();
+  #colors=plt.cm.hsv(numpy.linspace(0, 1, len(json_data['features'])))
+  
+  #for feature,color in zip(json_data['features'],colors):
+  for feature in json_data['features']:
+    poly=feature['geometry']
+    name=feature.properties['NAME_1']
+    if name in data_dict:
+        data_value=data_dict[name]
+#        color=cmap(data_value)
+        if data_value<0: #green
+            color=[0,np.abs(data_value),0]
+        else: #red
+            color=[np.abs(data_value),0,0]
+    else:
+        print('Feature with name %s was not in data_dict' %(name))
+        continue
+    patch=PolygonPatch(poly,fc=color,ec=color,alpha=0.5,zorder=2)
+    ax.add_patch(patch);
+    ax.axis('scaled');
+  plt.axis('off')
+  orig_date=date.strftime('%b-%d')
+  plt.title(orig_date)
+  plt.savefig(TMPDIR+orig_date+'.png',bbox_layout='tight')
+  print('saved to %s.png' %(orig_date))
+
 def cartogram(window_size=3,ctype=''):
   # ~ d1=datetime.date(2020,5,1);d2=datetime.date(2020,9,23);delta=d2-d1
   d1=datetime.date(2020,8,1);d2=datetime.date(2020,9,28);delta=d2-d1
@@ -1783,7 +1983,7 @@ def helper_correlate_signals(x,y,plot=False):
   print(('best lag between signals: '+str(lag)))
   return corr
   
-def helper_plot_linear_fit(x,y,label='',color=''):
+def helper_plot_linear_fit(x,y,label='',color='',xtype=''):
   # ~ import pylab
   xr=numpy.arange(len(x))
   # ~ coef=numpy.polyfit(xr,y,1)
@@ -1794,8 +1994,10 @@ def helper_plot_linear_fit(x,y,label='',color=''):
   if not color:    color='g'
   if not label:    label='Best linear fit'
   
-  #pylab.plot_date(x,poly1d_fn(x),color,label=label)
-  pylab.plot(x,poly1d_fn(x),color,label=label)
+  if xtype:
+    pylab.plot_date(x,poly1d_fn(x),color,label=label)
+  else:
+    pylab.plot(x,poly1d_fn(x),color,label=label)
 
 def helper_plot_exponential_fit(x,y,label='',color=''):
   # ~ import pylab  
