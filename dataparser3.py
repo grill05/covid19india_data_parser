@@ -1984,7 +1984,7 @@ def helper_correlate_signals(x,y,plot=False):
   print(('best lag between signals: '+str(lag)))
   return corr
   
-def helper_plot_linear_fit(x,y,label='',color='',xtype=''):
+def helper_plot_linear_fit(x,y,label='',color='',xtype='date'):
   # ~ import pylab
   xr=numpy.arange(len(x))
   # ~ coef=numpy.polyfit(xr,y,1)
@@ -2502,16 +2502,16 @@ def karnataka_read_csv():
     fatality=generic_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date)
     fatalities.append(fatality)
   return fatalities
-def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=True,ma_size=3,state='Tamil Nadu'):
-  d1=datetime.date(2020,6,1);d2=datetime.date(2020,9,11);delta=d2-d1
+def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=True,ma_size=3,state='Tamil Nadu',plot=False):
+  d1=datetime.date(2020,6,1);d2=datetime.date(2020,10,22);delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   datetimes=[datetime.datetime.combine(i,datetime.time(0, 0)) for i in datetimes]
 
-  mean_values=[];capital='bengaluru'
+  mean_values=[];capital='bengaluru';outside=''
   
   ma_delta=datetime.timedelta(days=ma_size)
-  if state=='Tamil Nadu':capital='chennai'
-  elif state=='Kerala':capital='Thiruvananthapuram'
+  if state=='Tamil Nadu':capital='chennai';outside='RoTN'
+  elif state=='Kerala':capital='Thiruvananthapuram';outside='RoKL'
 
   for dd in datetimes:
     d='';d1='';d2=''
@@ -2584,6 +2584,49 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
       if d2: m2=numpy.mean(d2)
       if d: m=numpy.mean(d)
       mean_values.append((dd,m,m1,m2))
+  if plot:
+    mean_values=mean_values[:-5]
+    if filter_type=='death_reporting': mean_values=mean_values[:-5]
+    dates,m,m1,m2=zip(*mean_values)
+    xlabel='';ylabel='';title=''
+    if date_type=='':      xlabel='Date of death'
+    elif date_type=='admission':      xlabel='Date of admission'
+    elif date_type=='reporting':      xlabel='Date of reporting'
+    ax=pylab.axes()
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter) 
+
+    if filter_type=='':      label='Mean age'
+    if filter_type=='gender':      label='Percentage of Males in daily deaths'
+    if filter_type=='comorb':      label='Percentage of deaths iwth NO comorbidities among daily deaths'
+    if filter_type=='admission_death':      label='Admission-Death interval'
+    if filter_type=='death_reporting':      label='Death-Reporting interval'
+    #mean age vs time
+    ax.plot_date(pylab.date2num(dates),m,label=label);
+    title=label+' for '+state+' (over time)'
+    pylab.xlabel(xlabel);pylab.ylabel(label);pylab.title(title);
+    helper_plot_linear_fit(pylab.date2num(dates),m);
+    ax.legend(fontsize=7)
+
+    pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
+
+    ax=pylab.axes()
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter) 
+
+    #chn and rotn
+    ax.plot_date(pylab.date2num(dates),m1,label=label+'('+capital+')');
+    ax.plot_date(pylab.date2num(dates),m2,label=label+' ('+outside+')');
+    title=label+' for '+capital+' and '+outside+' (over time)'
+    pylab.xlabel(xlabel);pylab.ylabel(label);pylab.title(title);
+    ax.legend(fontsize=7)
+    pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
+
+
   return mean_values
 
 def kerala_parse_deaths(bulletin='',format_type='new'):  
