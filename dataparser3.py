@@ -3593,14 +3593,14 @@ def delhi_parse_json():
  # ~ u'Telangana': 55}
 def get_people_in_icus(state='Telangana',verbose=False):
   x=json.load(open('state_test_data.json'))
-  all_icu_data=[i for i in x['states_tested_data'] if i['peopleinicu'] and i['state']==state]
+  all_icu_data=[i for i in x['states_tested_data'] if 'peopleonicubeds' in i and  i['peopleonicubeds'] and i['state']==state]
   if not all_icu_data:
     print(('State: %s does not have any data on ICU usage (as per covid19indiadotorg API)' %(state)))
     return 
 
   all_percent_icu=[]
   for entry in all_icu_data:
-    icu_usage=int(entry['peopleinicu'])
+    icu_usage=int(entry['peopleonicubeds'])
     date_of_entry=entry['updatedon']
     actives_on_this_date=get_cases(state,date_of_entry,case_type='active')
     percent_icu=100*(float(icu_usage)/actives_on_this_date)
@@ -3645,14 +3645,14 @@ def state_demographics(state='Punjab'):
  # ~ u'Telangana': 11}
 def get_people_on_ventilators(state='Telangana',verbose=False):
   x=json.load(open('state_test_data.json'))
-  all_ventilator_data=[i for i in x['states_tested_data'] if i['peopleonventilators'] and i['state']==state]
+  all_ventilator_data=[i for i in x['states_tested_data'] if i['peopleonventilator'] and i['state']==state]
   if not all_ventilator_data:
     print(('State: %s does not have any data on ventilator usage (as per covid19indiadotorg API)' %(state)))
     return 
 
   all_percent_ventilator=[]
   for entry in all_ventilator_data:
-    ventilator_usage=int(entry['peopleonventilators'])
+    ventilator_usage=int(entry['peopleonventilator'])
     date_of_entry=entry['updatedon']
     actives_on_this_date=get_cases(state,date_of_entry,case_type='active')
     percent_ventilator=100*(float(ventilator_usage)/actives_on_this_date)
@@ -3723,6 +3723,10 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days=''):
 
   
   sp,ax=pylab.subplots()
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax.xaxis.set_major_locator(locator)
+  ax.xaxis.set_major_formatter(formatter) 
 
   color = 'tab:blue'
   ax.set_xlabel('Date')
@@ -3732,6 +3736,11 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days=''):
   ax.legend(loc='lower left',fontsize=5);
 
   ax2=ax.twinx()
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax2.xaxis.set_major_locator(locator)
+  ax2.xaxis.set_major_formatter(formatter) 
+
   color = 'tab:green'
   ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
   ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
@@ -3789,7 +3798,11 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days=''):
           ad=ad[-1*plot_days:]
       
       sp,ax=pylab.subplots()
-    
+      locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+      formatter = mdates.ConciseDateFormatter(locator)
+      ax.xaxis.set_major_locator(locator)
+      ax.xaxis.set_major_formatter(formatter) 
+
       color = 'tab:grey'
       ax.set_xlabel('Date')
       ax.set_ylabel(state+' percent rapid antigen in daily tests (7-day MA)',color=color)
@@ -3798,6 +3811,11 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days=''):
       ax.legend(loc='lower left',fontsize=5);
     
       ax2=ax.twinx()
+      locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+      formatter = mdates.ConciseDateFormatter(locator)
+      ax2.xaxis.set_major_locator(locator)
+      ax2.xaxis.set_major_formatter(formatter) 
+
       color = 'tab:green'
       ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
       ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
