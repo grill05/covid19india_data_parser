@@ -310,22 +310,22 @@ def get_beds(state='West Bengal',type=''):
 
     for i in x:
         dates.append(datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y'))
-        bed_cap.append(int(i['numisolationbeds']))
+        bed_cap.append(int(i['totalnumbedsnormalisolation']))
         u=int(bed_cap[-1]*0.01*float(i['bedsoccupiednormalisolation'].replace('%','')))
         bed_util.append(u)
     return list(zip(dates,bed_cap,bed_util)) 
 
-def wb_analysis(plot=False):
+def wb_analysis(plot=False,plot_days=''):
     x=json.load(open('state_test_data.json'))
-    x=[i for i in x['states_tested_data'] if i['state']=='West Bengal' if i['bedsoccupiednormalisolation'] and i['numicubeds'] and i['numisolationbeds'] and i['numventilators']]
+    x=[i for i in x['states_tested_data'] if i['state']=='West Bengal' if i['bedsoccupiednormalisolation'] and i['totalnumicubeds'] and i['totalnumbedsnormalisolation'] and i['totalnumventilators']]
     dates=[];bed_cap=[];bed_util=[];icu_cap=[];vent_cap=[]
     ppe=[];n95=[]
 
     for i in x:
         dates.append(datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y'))
-        icu_cap.append(int(i['numicubeds']))
-        vent_cap.append(int(i['numventilators']))
-        bed_cap.append(int(i['numisolationbeds']))
+        icu_cap.append(int(i['totalnumicubeds']))
+        vent_cap.append(int(i['totalnumventilators']))
+        bed_cap.append(int(i['totalnumbedsnormalisolation']))
         u=int(bed_cap[-1]*0.01*float(i['bedsoccupiednormalisolation'].replace('%','')))
         bed_util.append(u)
         ppe.append(int(i['totalppe']))
@@ -333,10 +333,27 @@ def wb_analysis(plot=False):
   
     dates2=pylab.date2num(dates)
 
+    dates3,actives=zip(*get_cases('West Bengal',case_type='active',return_full_series=True))
+    dates4,deaths=zip(*get_cases('West Bengal',case_type='deaths',return_full_series=True))
+    deaths=moving_average(np.diff(deaths));dates4=dates4[1:];
+    actives=moving_average(actives)
+
+    if plot_days:
+        deaths=deaths[-1*plot_days:]
+        actives=actives[-1*plot_days:]
+        bed_util=bed_util[-1*plot_days:]
+        bed_cap=bed_cap[-1*plot_days:]
+        n95=n95[-1*plot_days:]
+        ppe=ppe[-1*plot_days:]
+        dates2=dates2[-1*plot_days:]
+        dates3=dates3[-1*plot_days:]
+        dates4=dates4[-1*plot_days:]
     #util vs cap
     plot2(dates2,moving_average(bed_util),dates2,moving_average(bed_cap),label1='hospital beds used (7-day MA)',label2='hospital bed capacity (7-day MA)',state='West Bengal')
     plot2(dates2,moving_average(bed_util),dates2,moving_average(ppe),label1='hospital beds used (7-day MA)',label2='PPE (7-day MA)',color2='maroon',state='West Bengal')
     plot2(dates2,moving_average(bed_util),dates2,moving_average(n95),label1='hospital beds used (7-day MA)',label2='N95 masks (7-day MA)',color2='grey',state='West Bengal')
+    plot2(dates2,moving_average(bed_util),dates3,actives,label1='hospital beds used (7-day MA)',label2='Active cases (7-day MA)',color2='orange',state='West Bengal')
+    plot2(dates2,moving_average(bed_util),dates4,deaths,label1='hospital beds used (7-day MA)',label2='Daily Deaths (7-day MA)',color2='red',state='West Bengal')
 
 
     return (dates,icu_cap,vent_cap,bed_cap,bed_util,ppe,n95)
@@ -995,7 +1012,7 @@ def delhi_analysis(do='',plot_days=''):
   actives=get_cases(state='Delhi',case_type='active',return_full_series=True,verbose=True)
   deaths=get_cases(state='Delhi',case_type='deaths',return_full_series=True,verbose=True)
   #tmp
-  deaths.append((datetime.datetime(2020,9,29,0,0),5272));actives.append((datetime.datetime(2020,9,29,0,0),27123));
+#  deaths.append((datetime.datetime(2020,9,29,0,0),5272));actives.append((datetime.datetime(2020,9,29,0,0),27123));
   dates2=pylab.date2num([i[0] for i in actives])
 
   # ~ actives=[i[1] for i in actives if i[0]>=datetime.datetime(2020, 6, 18, 0, 0) and i[0]<=datetime.datetime(2020, 9, 22, 0, 0)]
@@ -1014,7 +1031,14 @@ def delhi_analysis(do='',plot_days=''):
   if plot_days:
       actives=actives[-1*plot_days:]
       hos_used=hos_used[-1*plot_days:]
+      deaths=deaths[-1*plot_days:]
       dates=dates[-1*plot_days:]
+  hos_used=moving_average(hos_used)
+  actives=moving_average(actives)
+  deaths=moving_average(deaths)
+  plot2(dates,hos_used,dates,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
+  plot2(dates,hos_used,dates,deaths,label1='Hospital beds used',label2='Daily Deaths',color2='red',state='Delhi')
+  return (dates,deaths)
   # ~ dhp=100*(numpy.float64(dhc_used)/numpy.float64(actives))
   # ~ ccp=100*(numpy.float64(dcc_used)/numpy.float64(actives))
   
@@ -1062,7 +1086,6 @@ def delhi_analysis(do='',plot_days=''):
   # ~ pylab.legend();
   # ~ pylab.show()
 
-  plot2(dates,hos_used,dates,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
 
  
 
@@ -3404,7 +3427,7 @@ def karnataka_parser(return_specific=''):
  # ~ u'Sikkim': 13}
 def get_antigen_tests(state='Karnataka',verbose=False):
   x=json.load(open('state_test_data.json'))
-  x=[i for i in x['states_tested_data'] if 'antigentests' in i and i['antigentests'] and i['state']==state]
+  x=[i for i in x['states_tested_data'] if 'ratrapidantigentest' in i and i['ratrapidantigentest'] and i['state']==state]
 
   antigen_on_day=0;tests_on_day=0;percent_antigen=0
   all_antigen=[]
@@ -3415,7 +3438,7 @@ def get_antigen_tests(state='Karnataka',verbose=False):
     datetime_i=datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')
     
     tests_on_day=int(i['totaltested'])-int(x[idx-1]['totaltested'])
-    antigen_on_day=int(i['antigentests'])-int(x[idx-1]['antigentests'])
+    antigen_on_day=int(i['ratrapidantigentest'])-int(x[idx-1]['ratrapidantigentest'])
     percent_antigen=100*(float(antigen_on_day)/tests_on_day)
     all_antigen.append((date,tests_on_day,antigen_on_day,percent_antigen))
   
@@ -3562,20 +3585,20 @@ def get_positivity(state='Karnataka',do_moving_average=True,plot=False,plot_days
 def delhi_parse_json():
     #create delhi_status() class list from json file
     x=[i for i in json.load(open('state_test_data.json'))['states_tested_data'] if i['state']=='Delhi']
-    x=[i for i in x if i['antigentests'] and i['rtpcrtests'] and i['totaltested'] and i['bedsoccupiednormalisolation'] and i['numisolationbeds']]
-    antigen0=int(x[0]['antigentests'])
-    pcr0=int(x[0]['rtpcrtests'])
+    x=[i for i in x if i['ratrapidantigentest'] and i['rt-pcrtestincludestruenatcbnaatcrispr'] and i['totaltested'] and i['bedsoccupiednormalisolation'] and i['totalnumbedsnormalisolation']]
+    antigen0=int(x[0]['ratrapidantigentest'])
+    pcr0=int(x[0]['rt-pcrtestincludestruenatcbnaatcrispr'])
     tests0=int(x[0]['totaltested'])
     dss=[]
     for i in x[1:]:
         date=datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')
-        hos_cap=int(i['numisolationbeds'])
+        hos_cap=int(i['totalnumbedsnormalisolation'])
         hos_used=int(i['bedsoccupiednormalisolation'])
-        antigen=int(i['antigentests'])-antigen0
-        pcr=int(i['rtpcrtests'])-pcr0
+        antigen=int(i['ratrapidantigentest'])-antigen0
+        pcr=int(i['rt-pcrtestincludestruenatcbnaatcrispr'])-pcr0
         tests=int(i['totaltested'])-tests0
-        antigen0=int(i['antigentests'])
-        pcr0=int(i['rtpcrtests'])
+        antigen0=int(i['ratrapidantigentest'])
+        pcr0=int(i['rt-pcrtestincludestruenatcbnaatcrispr'])
         tests0=int(i['totaltested'])
         ds=delhi_status(date,hos_cap,hos_used,0,0,0,0,tests,pcr,antigen,0,0)
         dss.append(ds)
