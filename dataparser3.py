@@ -3491,7 +3491,8 @@ def get_positivity_district(state='Karnataka',district='Bengaluru Urban',plot=Fa
         tests=[(i[0],i[1]-j[1]) for i,j in zip(tests0,tests)]
 
     else:
-        cases=get_cases_district(state=state,district=district,case_type='confirmed_delta')
+        try: cases=get_cases_district(state=state,district=district,case_type='confirmed_delta')
+        except: return
         tests=get_cases_district(state=state,district=district,case_type='tested_delta')
 
     cases=cases[-100:];tests=tests[-100:]
