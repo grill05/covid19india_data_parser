@@ -602,8 +602,8 @@ def delhi_parser():
     except:
       print(('could not parse delhi_bulletin: '+pdf))
   #manually add data for malformed bulletin days (aug 29,30 and sep 9)
-  do.append(delhi_status(datetime.datetime(2020,8,29,0,0),14143, 3966, 10143, 821, 594, 275, 22004,6597,15407,803,1371))
-  do.append(delhi_status(datetime.datetime(2020,8,30,0,0),14145, 4030, 10143, 876, 599, 336, 20437,6881,13556,820,1319))
+  #do.append(delhi_status(datetime.datetime(2020,8,29,0,0),14143, 3966, 10143, 821, 594, 275, 22004,6597,15407,803,1371))
+  #do.append(delhi_status(datetime.datetime(2020,8,30,0,0),14145, 4030, 10143, 876, 599, 336, 20437,6881,13556,820,1319))
   # ~ do.append(delhi_status(datetime.datetime(2020,6,9,0,0),8872, 4680, 285, 187, 6038, 1414, 54517,0,0,0,0))
   do.sort(key= lambda y: y.date)
   return do
