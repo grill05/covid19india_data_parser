@@ -591,7 +591,7 @@ def delhi_parser():
   do=[]
   for pdf in pdfs:
     try:
-      print('parsing'+pdf)
+      #print('parsing'+pdf)
       do.append(delhi_bulletin_parser(pdf))
       if pdf=='09_08_2020.pdf':
         ds=delhi_bulletin_parser(pdf)
@@ -1018,7 +1018,8 @@ def delhi_analysis(do='',plot_days=''):
   dates2=pylab.date2num([i[0] for i in actives])
 
   # ~ actives=[i[1] for i in actives if i[0]>=datetime.datetime(2020, 6, 18, 0, 0) and i[0]<=datetime.datetime(2020, 9, 22, 0, 0)]
-  actives=[i[1] for i in actives if i[0]>=datetime.datetime(2020, 6, 18, 0, 0) ]
+  #actives=[i[1] for i in actives if i[0]>=datetime.datetime(2020, 6, 18, 0, 0) ]
+  actives=[i[1] for i in actives]
   
   # ~ deaths=numpy.diff([i[1] for i in deaths if i[0]<=datetime.datetime(2020, 9, 22, 0, 0)])#have more
   deaths=numpy.diff([i[1] for i in deaths ])
@@ -3563,7 +3564,8 @@ def get_positivity(state='Karnataka',do_moving_average=True,plot=False,plot_days
     if date in cd:
       if td[date]: pd[date]=100*float(cd[date])/td[date]
   p=list(pd.items());p.sort()
-  p=[i for i in p if i[1]<=60 and i[1]>0]
+  #p=[i for i in p if i[1]<=60 and i[1]>0]
+  p=[i for i in p if  i[1]>0]
   if plot:
     # ~ import pylab
     ax=pylab.axes()
@@ -3703,9 +3705,9 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days=''):
   t=get_tests(state=state)
   dates4=pylab.date2num([i[0] for i in t]);t=moving_average([i[1] for i in t])
   dates3=pylab.date2num([i[0] for i in p]);p=[i[1] for i in p]
-  if state=='Delhi':
-    for j in range(len(p)):
-      if p[j]>15: p[j]=2
+#  if state=='Delhi':
+#    for j in range(len(p)):
+#      if p[j]>15: p[j]=2
   
   if plot_days:
       c=c[-1*plot_days:]
