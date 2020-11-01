@@ -337,6 +337,8 @@ def wb_analysis(plot=False,plot_days=''):
     dates4,deaths=zip(*get_cases('West Bengal',case_type='deaths',return_full_series=True))
     deaths=moving_average(np.diff(deaths));dates4=dates4[1:];
     actives=moving_average(actives)
+    ppe=np.diff(ppe)
+    n95=np.diff(n95)
 
     if plot_days:
         deaths=deaths[-1*plot_days:]
@@ -350,8 +352,8 @@ def wb_analysis(plot=False,plot_days=''):
         dates4=dates4[-1*plot_days:]
     #util vs cap
     plot2(dates2,moving_average(bed_util),dates2,moving_average(bed_cap),label1='hospital beds used (7-day MA)',label2='hospital bed capacity (7-day MA)',state='West Bengal')
-    plot2(dates2,moving_average(bed_util),dates2,moving_average(ppe),label1='hospital beds used (7-day MA)',label2='PPE (7-day MA)',color2='maroon',state='West Bengal')
-    plot2(dates2,moving_average(bed_util),dates2,moving_average(n95),label1='hospital beds used (7-day MA)',label2='N95 masks (7-day MA)',color2='grey',state='West Bengal')
+    plot2(dates2,moving_average(bed_util),dates2,moving_average(ppe),label1='hospital beds used (7-day MA)',label2='daily PPE (7-day MA)',color2='maroon',state='West Bengal')
+    plot2(dates2,moving_average(bed_util),dates2,moving_average(n95),label1='hospital beds used (7-day MA)',label2='daily N95 masks (7-day MA)',color2='grey',state='West Bengal')
     plot2(dates2,moving_average(bed_util),dates3,actives,label1='hospital beds used (7-day MA)',label2='Active cases (7-day MA)',color2='orange',state='West Bengal')
     plot2(dates2,moving_average(bed_util),dates4,deaths,label1='hospital beds used (7-day MA)',label2='Daily Deaths (7-day MA)',color2='red',state='West Bengal')
 
@@ -491,7 +493,20 @@ def helper_download_delhi_bulletin(link,debug=False):
 
 
 
+def delhi_parse_csv():
+    import csv,datetime
+    r=csv.reader(open('csv_dumps/Delhi_Jun18_Oct27.csv'))
+    info=[];skip=True
+    for i in r: 
+        #if skip: skip=False;continue
+        x=i
+        y=datetime.datetime(2020,int(x[0].split('-')[1]),int(x[0].split('-')[2]),0,0)
+        x[0]=y
+        a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12=x
+        info.append(delhi_status(a1,int(a2),int(a3),int(a4),int(a5),int(a6),int(a7),int(a8),int(a9),int(a10),int(a11),int(a12)))
 
+    return info
+    
 def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
   cmd='pdftotext -layout "'+bulletin+'" tmp.txt';os.system(cmd)
   b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
@@ -1001,6 +1016,7 @@ def delhi_analysis(do='',plot_days=''):
   hos_used=[i.hos_used for i in do]
   dhc_used=[i.dchc_used for i in do]  
   dcc_used=[i.dcc_used for i in do]
+  hos_cap=[i.hos_capacity for i in do]
 
   dates=pylab.date2num(dates)
   
@@ -1013,34 +1029,31 @@ def delhi_analysis(do='',plot_days=''):
 
   actives=get_cases(state='Delhi',case_type='active',return_full_series=True,verbose=True)
   deaths=get_cases(state='Delhi',case_type='deaths',return_full_series=True,verbose=True)
-  #tmp
-#  deaths.append((datetime.datetime(2020,9,29,0,0),5272));actives.append((datetime.datetime(2020,9,29,0,0),27123));
-  dates2=pylab.date2num([i[0] for i in actives])
-
-  # ~ actives=[i[1] for i in actives if i[0]>=datetime.datetime(2020, 6, 18, 0, 0) and i[0]<=datetime.datetime(2020, 9, 22, 0, 0)]
-  #actives=[i[1] for i in actives if i[0]>=datetime.datetime(2020, 6, 18, 0, 0) ]
+  dates2=[i[0] for i in actives]
+  dates3=[i[0] for i in deaths]
   actives=[i[1] for i in actives]
-  
-  # ~ deaths=numpy.diff([i[1] for i in deaths if i[0]<=datetime.datetime(2020, 9, 22, 0, 0)])#have more
-  deaths=numpy.diff([i[1] for i in deaths ])
-  deaths=moving_average(deaths)
-  dates_skip=5; #have anomaly of sudden addition in mid-June
+  deaths=moving_average(numpy.diff([i[1] for i in deaths ]))
   deaths=deaths[-1*len(dates):]
    
   if len(actives)!=len(hos_used): actives=actives[-1*len(hos_used):]  
 
   hp=100*(numpy.float64(hos_used)/numpy.float64(actives))
+  hc=100*(numpy.float64(hos_used)/numpy.float64(hos_cap))
 
   if plot_days:
       actives=actives[-1*plot_days:]
       hos_used=hos_used[-1*plot_days:]
       deaths=deaths[-1*plot_days:]
       dates=dates[-1*plot_days:]
+      dates2=dates2[-1*plot_days:]
+      dates3=dates3[-1*plot_days:]
   hos_used=moving_average(hos_used)
   actives=moving_average(actives)
   deaths=moving_average(deaths)
-  plot2(dates,hos_used,dates,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
-  plot2(dates,hos_used,dates,deaths,label1='Hospital beds used',label2='Daily Deaths',color2='red',state='Delhi')
+  plot2(dates,hos_used,dates2,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
+  plot2(dates,hos_used,dates3,deaths,label1='Hospital beds used',label2='Daily Deaths',color2='red',state='Delhi')
+  #plot2(dates,hp,dates,actives,label1='Hospitalization percentage (of actives)',label2='Active Cases',color1='blue',color2='orange',state='Delhi')
+  plot2(dates,hc,dates,hos_cap,label1='Hospitalization percentage (of actives)',label2='Hospital (DCH) capacity',color1='blue',color2='orange',state='Delhi')
   return (dates,deaths)
   # ~ dhp=100*(numpy.float64(dhc_used)/numpy.float64(actives))
   # ~ ccp=100*(numpy.float64(dcc_used)/numpy.float64(actives))
@@ -2085,7 +2098,7 @@ class mumbaihosp():
     info+='\tOxyg.: %d/%d used\n' %(self.oxy_used,self.oxy_cap)
     print(info)
 
-def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=False):
+def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=False,plot_days=''):
     import csv;info=[]
     r=csv.reader(open('2020_India_mobility_report.csv'))
     for i in r: info.append(i);
@@ -2121,6 +2134,8 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
     y=list(zip(dates,recr,groc,parks,trans,wrksp,resi,avg))
 
     if plot:
+        if plot_days:
+            pass
         if district: #compare with avg of district vs state
             dates2,x1,x2,x3,x4,x5,x6,state_avg=zip(*get_mobility(state=state,district=''))
             dates2=pylab.date2num(dates2);dates=pylab.date2num(dates)
@@ -2139,6 +2154,15 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
 
         else:
             dates=pylab.date2num(dates)
+            if plot_days:
+                dates=dates[-1*plot_days:]
+                recr=recr[-1*plot_days:]
+                trans=trans[-1*plot_days:]
+                wrksp=wrksp[-1*plot_days:]
+                groc=groc[-1*plot_days:]
+                resi=resi[-1*plot_days:]
+                parks=parks[-1*plot_days:]
+                avg=avg[-1*plot_days:]
             ax=pylab.axes()
             locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
             formatter = mdates.ConciseDateFormatter(locator)
@@ -2161,6 +2185,9 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
             #avg vs pos
             if loc!='India':
                 dates5,pos=zip(*get_positivity(state))
+                if plot_days:
+                    dates5=dates5[-1*plot_days:]
+                    pos=pos[-1*plot_days:]
                 plot2(dates,avg,pylab.date2num(dates5),pos,label1='Average change in mobility (7-day MA)',label2='TPR (7-day MA)',color2='green',state=state)
 
 
