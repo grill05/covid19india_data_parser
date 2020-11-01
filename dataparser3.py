@@ -221,9 +221,9 @@ def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/
     if district in state_data:
       district_data=state_data[district]
       if not ('total' in district_data and 'delta' in district_data): continue
-      tested=0;tested_delta=0;deaths_delta=0;deaths=0
+      tested=0;tested_delta=0;deaths_delta=0;deaths=0;recovered=0
       confirmed=district_data['total']['confirmed']
-      recovered=district_data['total']['recovered']
+      if 'recovered' in district_data['total']: recovered=district_data['total']['recovered']
       if 'deceased' in district_data['total']:  deaths=district_data['total']['deceased']
       if 'tested' in district_data['total']: tested=district_data['total']['tested']
       
@@ -508,9 +508,9 @@ def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
       date_string=date_string.replace(')','').replace('(','').replace(',',' ').replace('2020',' ').strip()
   except:
     print(('error getting date for bulletin: '+bulletin+' with string: '+date_string))
-  # ~ print date_string
+  print(date_string)
   if len(date_string.split())==1: #all jumbled        
-    for mm in ['june','july','august','september']: date_string=date_string.replace(mm,'')
+    for mm in ['june','july','august','september','october']: date_string=date_string.replace(mm,'')
     day=date_string
     month_string=date_string.split()[0].strip().lower()
     # ~ print date_string,month_string
@@ -524,6 +524,7 @@ def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
   
   month=9
   if 'august' in month_string: month=8
+  elif 'october' in month_string: month=10
   elif 'july' in month_string: month=7
   elif 'june' in month_string: month=6
 
@@ -590,6 +591,7 @@ def delhi_parser():
   do=[]
   for pdf in pdfs:
     try:
+      print('parsing'+pdf)
       do.append(delhi_bulletin_parser(pdf))
       if pdf=='09_08_2020.pdf':
         ds=delhi_bulletin_parser(pdf)
