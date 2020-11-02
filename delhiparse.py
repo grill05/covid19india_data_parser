@@ -5,7 +5,7 @@ def parse(vent=False):
     website='https://delhifightscorona.in/data/non-covid-icu-beds/'
     if vent: website='https://delhifightscorona.in/data/ventilators/'
     cmd='wget "'+website+'" -O tmp.htm';os.system(cmd)
-    soup=bs4.BeautifulSoup('tmp.htm')
+    soup=bs4.BeautifulSoup(open('tmp.htm'))
     x=soup('div',attrs={'class':'callout'})
     total=int(x[0]('h1')[0].text)
     occupied=int(x[1]('h1')[0].text)
