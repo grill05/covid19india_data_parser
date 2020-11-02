@@ -108,6 +108,30 @@ def get_mortality_rate(state='Tamil Nadu',return_full_series=False,plot=False):
     return x
 
 
+def get_symptomatic(state='Telangana',asymp=False,plot=False):
+    x=json.load(open('state_test_data.json'))
+    field="cumuilativenumberofsymptomaticcases"
+    if asymp: field="cumuilativenumberofasymptomaticcases"
+    d,c=zip(*[(i['updatedon'],i[field]) for i in x['states_tested_data'] if i[field] and i['state']==state])
+    d=list(d);c=list(c)
+    inc=list(np.diff(np.int_(c)))
+    c2=c[:1];c2.extend(inc)
+    if plot:
+        d=d[1:];c2=c2[1:]
+        d=[datetime.datetime.strptime(i,'%d/%m/%Y') for i in d]
+        c3=moving_average(c2)
+        if state=='Telangana':
+            d2,yy,ic=zip(*get_people_in_icus(state))
+            d2=[datetime.datetime.strptime(i,'%d/%m/%Y') for i in d2]
+            ic=moving_average(ic)
+        mylabel='Symptomatic Cases (7-day MA)'
+        if asymp: mylabel='Asymptomatic cases (7-day MA)'
+        plot2(d,c3,d2,ic,label1=mylabel,label2='Patients in ICUs',state=state)
+
+
+
+    return d,c,c2
+
 def mortality_analysis():
   states=['Bihar','Tamil Nadu','Karnataka','Uttar Pradesh','Punjab','Assam','Odisha','Madhya Pradesh','Gujarat','Andhra Pradesh','Madhya Pradesh','Maharashtra']
   #states=['Kerala','Bihar','Tamil Nadu','Karnataka','Uttar Pradesh','Delhi','Punjab','Assam','Odisha','Madhya Pradesh','Gujarat','Andhra Pradesh','Madhya Pradesh','Maharashtra']
