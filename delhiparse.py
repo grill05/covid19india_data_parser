@@ -2,6 +2,7 @@
 import os,sys,bs4
 
 def parse(vent=False):
+    if os.path.exists('tmp.htm'):os.remove('tmp.htm')
     website='https://delhifightscorona.in/data/non-covid-icu-beds/'
     if vent: website='https://delhifightscorona.in/data/ventilators/'
     cmd='wget "'+website+'" -O tmp.htm';os.system(cmd)
