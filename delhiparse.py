@@ -5,7 +5,7 @@ def parse(vent=False):
     if os.path.exists('tmp.htm'):os.remove('tmp.htm')
     website='https://delhifightscorona.in/data/non-covid-icu-beds/'
     if vent: website='https://delhifightscorona.in/data/ventilators/'
-    cmd='wget "'+website+'" -O tmp.htm';y=os.popen(cmd).read()
+    cmd='wget "'+website+'" -O tmp.htm';y=os.popen3(cmd)[1].read()
     soup=bs4.BeautifulSoup(open('tmp.htm'))
     x=soup('div',attrs={'class':'callout'})
     total=int(x[0]('h1')[0].text)
