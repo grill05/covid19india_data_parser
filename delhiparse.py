@@ -12,7 +12,9 @@ def parse(vent=False):
     occupied=int(x[1]('h1')[0].text)
     vacant=int(x[2]('h1')[0].text)
     date=datetime.datetime.now().strftime('%d-%m')
-    print('In Delhi, on date: %s, non-covid icu beds:\ntotal: %d\noccupied: %d\nvacant: %d' %(date,total,occupied,vacant))
+    btype='non-covid icu'
+    if vent: btype='ventilators' 
+    print('In Delhi, on date: %s, %s beds:\ntotal: %d\noccupied: %d\nvacant: %d' %(date,btype,total,occupied,vacant))
     os.remove('tmp.htm')
 if __name__=='__main__':
     parse()
