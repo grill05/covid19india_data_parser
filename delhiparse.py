@@ -14,8 +14,14 @@ def parse(vent=False):
     date=datetime.datetime.now().strftime('%d-%m-%Y')
     btype='non-covid icu'
     if vent: btype='ventilators' 
-    print('In Delhi, on date: %s, %s beds:\ntotal: %d\noccupied: %d\nvacant: %d' %(date,btype,total,occupied,vacant))
+    info='In Delhi, on date: %s, %s beds:\ntotal: %d\noccupied: %d\nvacant: %d' %(date,btype,total,occupied,vacant)
+    print(info)
+    if 'dump' in sys.argv: 
+        a=open('delhidata.txt','a')
+        a.write(info+'\n')
+        a.close()
     os.remove('tmp.htm')
+
 if __name__=='__main__':
     parse()
     parse(vent=True)
