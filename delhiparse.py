@@ -13,7 +13,7 @@ def parse(vent=False):
     vacant=int(x[2]('h1')[0].text)
     date=datetime.datetime.now().strftime('%d-%m-%Y')
     if 'dump' in sys.argv:
-        date=datetime.datetime.now().strftime('%d-%m-%Y at %H-%M')
+        date=datetime.datetime.now().strftime('%d-%m-%Y at %H:%M')
     btype='non-covid icu'
     if vent: btype='ventilators' 
     info='In Delhi, on date: %s, %s beds:\ntotal: %d\noccupied: %d\nvacant: %d' %(date,btype,total,occupied,vacant)
