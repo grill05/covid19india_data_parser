@@ -45,6 +45,24 @@ karnataka_districts_map={'bagal':'bagalkote','balla':'ballari','chikkam':'chikka
   'raman':'ramanagara','shiva':'shivamogga','tuma':'tumakuru','udup':'udupi','uttar':'uttarakannada',
   'vija':'vijayapura','yadag':'yadagiri'};
 
+def parse_census_district(state='Karnataka',district='Bengaluru Urban',metric='urban'):
+    import csv;r=csv.reader(open('india-districts-census-2011.csv'));info=[]
+    for i in r :info.append(i)
+    info=[i for i in info if i[1]==state.upper()]
+    info=[i for i in info if i[2]==district]
+    if not info:
+        print('data for district: %s not found in census file' %(district))
+        return
+    info=info[0]
+    if metric in ['urban','urbanization']:
+        ruralh=info[37]
+        urbanh=info[38]
+        toth=info[39]
+        urbanization=100*(float(urbanh)/int(toth))
+        return urbanization
+
+    return info
+
 def parse_census(state='Tamil Nadu',metric='mean age'):
   if state=='Delhi':
     state='NCT of Delhi'
@@ -79,20 +97,62 @@ def parse_census(state='Tamil Nadu',metric='mean age'):
       male=int(data[3])
       return (100*float(male)/tot,male,tot,data)
 
-def get_mortality_rate(state='Tamil Nadu',return_full_series=False,plot=False):
+def get_cases_global(country='India',case_type='confirmed',do_moving_average=True):
+    import csv
+    fname='time_series_covid19_confirmed_global.csv'
+    if case_type.startswith('deaths'): fname=fname.replace('confirmed','deaths')
+    elif case_type.startswith('recovered'): fname=fname.replace('confirmed','recovered')
+    r=csv.reader(open(fname))
+    info=[]
+    for i in r: info.append(i)
+    dates=info[0][4:]
+    dates=[datetime.datetime.strptime(d+'20','%m/%d/%Y') for d in dates]
+    cdata=[i for i in info if i[1]==country]
+    if not cdata: print('info for %s not found!' %(country));return
+    cdata=np.int_(cdata[0][4:])
+    if '_delta' in case_type:
+        cdata=np.diff(cdata)
+        cdata=np.append(np.array([0]),cdata)
+    if do_moving_average:
+      cdata=moving_average(cdata)
+
+    return (dates,cdata)
+
+def get_population(state='Karnataka',district='Bengaluru Urban'):
+    x=json.load(open('data-all.json'))
+    dates=x.keys();dates=list(dates);dates.sort()
+    last=x[dates[-1]]
+    if not district:
+        pop=last[state_name_to_code[state].upper()]['meta']['population']
+    else:
+        pop=last[state_name_to_code[state].upper()]['districts'][district]['meta']['population']
+    pop=int(pop)
+    return pop
+def get_mortality_rate(state='Tamil Nadu',district='',return_full_series=False,do_dpm=False,plot=False):
   if not return_full_series:
     d=get_cases(state=state,case_type='deaths')
     c=get_cases(state=state,case_type='confirmed')
     return 100*(float(d)/c)
   else:
-    d=get_cases(state=state,case_type='deaths',return_full_series=True)
-    c=get_cases(state=state,case_type='confirmed',return_full_series=True)
+    if district:
+        d=get_cases_district(state=state,district=district,case_type='deaths',return_full_series=True)
+        c=get_cases_district(state=state,district=district,case_type='confirmed',return_full_series=True)
+
+    else:
+        d=get_cases(state=state,case_type='deaths',return_full_series=True)
+        c=get_cases(state=state,case_type='confirmed',return_full_series=True)
+    if do_dpm:
+        pop=float(get_population(state,district))/1e6
+
     d=[i for i in d if i[1]>0]
     c=c[-1*len(d):]
     dates,d=zip(*d)
     dates2,c=zip(*c)
     m=100*(np.float64(d)/np.array(c))
+    dpm=(np.float64(d)/pop)
     x=list(zip(dates,m))
+
+    if do_dpm: x=list(zip(dates,dpm))
     x=[i for i in x if i[0]>=datetime.datetime(2020,5,1,0,0)]
     dates,m=zip(*x)
     if plot:
@@ -102,9 +162,12 @@ def get_mortality_rate(state='Tamil Nadu',return_full_series=False,plot=False):
       ax.xaxis.set_major_locator(locator)
       ax.xaxis.set_major_formatter(formatter) 
 
+      title=state
+      if district: title+=' '+district+' district'
+      title+=' mortality rate '
       ax.plot_date(pylab.date2num(dates),m,label='state')
-      pylab.xlabel('Date');pylab.ylabel('Mortality Rate');pylab.title(state+' mortality rate over time')
-      pylab.savefig(TMPDIR+state+' mortality rate over time.jpg');pylab.close()
+      pylab.xlabel('Date');pylab.ylabel('Mortality Rate');pylab.title(title)
+      pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
     return x
 
 
@@ -232,6 +295,9 @@ def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/
   dates=[datetime.datetime.strptime(i,'%Y-%m-%d') for i in d];
   state_code=state_name_to_code[state].upper()
   returned=[]
+
+  first30=False
+  if case_type=='first30deaths' : first30=True;case_type='deaths' 
   
   for date in d:
     dt=datetime.datetime.strptime(date,'%Y-%m-%d')
@@ -281,8 +347,33 @@ def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/
       continue
       # ~ return
   del x
+  if first30:
+    date=''
+    for i in returned:
+      if i[1]>=30: return i[0]
   return returned
-  
+def plotex(dates,data,label='',color='blue',plot_days=''):
+  if plot_days:
+    dates=dates[-1*plot_days:]
+    data=data[-1*plot_days:]
+  if type(dates[0])==datetime.datetime: dates=pylab.date2num(dates)
+  ax=pylab.axes()
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax.xaxis.set_major_locator(locator)
+  ax.xaxis.set_major_formatter(formatter) 
+
+  ax.set_xlabel('Date');ax.set_ylabel(label)
+  ax.plot_date(dates,data,color=color,label=label)
+  ax.tick_params(axis='y', labelcolor=color)
+  #ax.legend(loc='lower left',fontsize=6)
+  ax.legend(fontsize=7)
+  title=label+' over time'
+  pylab.title(title);  
+  pylab.savefig(TMPDIR+title+'.jpg',dpi=100)
+  pylab.close()
+
+
 def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',color2='red',plot_days=''):
     if plot_days:
         dates=dates[-1*plot_days:]
@@ -290,6 +381,8 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
         data=data[-1*plot_days:]
         data2=data2[-1*plot_days:]
 
+    if type(dates[0])==datetime.datetime: dates=pylab.date2num(dates)
+    if type(dates2[0])==datetime.datetime: dates2=pylab.date2num(dates2)
     sp,ax=pylab.subplots()
 
     color = color1
@@ -439,7 +532,7 @@ def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full
   if case_type=='first100deaths':
     for i in deaths_series:
       date=i[0]
-      if i[1]>=300: break
+      if i[1]>=30: break
     if verbose: print('%s passed its 1st 300 deaths on %s' %(state,datetime.datetime.strftime(date,'%d-%m')))
     return date
   elif case_type=='active':
