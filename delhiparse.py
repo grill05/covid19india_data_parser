@@ -21,6 +21,7 @@ def parse(vent=False):
     if 'dump' in sys.argv: 
         a=open('delhidata.txt','a')
         a.write(info+'\n');a.flush()
+        print('Updated ./delhidata.txt !')
         a.close()
     os.remove('tmp.htm')
 
