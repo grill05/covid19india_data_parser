@@ -642,7 +642,7 @@ def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
     print(('error getting date for bulletin: '+bulletin+' with string: '+date_string))
   print(date_string)
   if len(date_string.split())==1: #all jumbled        
-    for mm in ['june','july','august','september','october']: date_string=date_string.replace(mm,'')
+    for mm in ['june','july','august','september','october','november']: date_string=date_string.replace(mm,'')
     day=date_string
     month_string=date_string.split()[0].strip().lower()
     # ~ print date_string,month_string
@@ -657,6 +657,7 @@ def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
   month=9
   if 'august' in month_string: month=8
   elif 'october' in month_string: month=10
+  elif 'november' in month_string: month=11
   elif 'july' in month_string: month=7
   elif 'june' in month_string: month=6
 
@@ -1170,7 +1171,7 @@ def delhi_analysis(do='',plot_days=''):
   plot2(dates,hos_used,dates2,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
   plot2(dates,hos_used,dates3,deaths,label1='Hospital beds used',label2='Daily Deaths',color2='red',state='Delhi')
   #plot2(dates,hp,dates,actives,label1='Hospitalization percentage (of actives)',label2='Active Cases',color1='blue',color2='orange',state='Delhi')
-  plot2(dates,hc,dates,hos_cap,label1='Hospitalization percentage (of actives)',label2='Hospital (DCH) capacity',color1='blue',color2='orange',state='Delhi')
+  #plot2(dates,hc,dates,hos_cap,label1='Hospitalization percentage (of actives)',label2='Hospital (DCH) capacity',color1='blue',color2='orange',state='Delhi')
   return (dates,deaths)
   # ~ dhp=100*(numpy.float64(dhc_used)/numpy.float64(actives))
   # ~ ccp=100*(numpy.float64(dcc_used)/numpy.float64(actives))

@@ -20,7 +20,7 @@ def parse(vent=False):
     print(info)
     if 'dump' in sys.argv: 
         a=open('delhidata.txt','a')
-        a.write(info+'\n')
+        a.write(info+'\n');a.flush()
         a.close()
     os.remove('tmp.htm')
 
