@@ -2283,7 +2283,7 @@ class mumbaihosp():
 
 def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=False,plot_days=''):
     import csv;info=[]
-    r=csv.reader(open('2020_India_mobility_report.csv'))
+    r=csv.reader(open('2020_IN_Region_Mobility_Report.csv'))
     for i in r: info.append(i);
     x=[i for i in info if i[2]==state and i[3]==district]
     y=[]
