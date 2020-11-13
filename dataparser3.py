@@ -352,7 +352,7 @@ def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/
     for i in returned:
       if i[1]>=30: return i[0]
   return returned
-def plotex(dates,data,dates2='',data2='',label='',label2='',color='blue',color2='red',state='',linear_fit=False,plot_days=''):
+def plotex(dates,data,dates2='',data2='',label='',label2='',color='blue',color2='red',state='',linear_fit=False,plot_days='',extrapolate=''):
   if plot_days:
     dates=dates[-1*plot_days:]
     data=data[-1*plot_days:]
@@ -371,7 +371,8 @@ def plotex(dates,data,dates2='',data2='',label='',label2='',color='blue',color2=
   if dates2.any():
       ax.plot_date(dates2,data2,color=color2,label=label2)
   if linear_fit:
-      helper_plot_linear_fit(dates,data)
+      if extrapolate: helper_plot_linear_fit(dates,data,extrapolate=extrapolate)
+      else:      helper_plot_linear_fit(dates,data)
   #ax.legend(loc='lower left',fontsize=6)
   ax.legend(fontsize=7)
   title=label
@@ -618,7 +619,7 @@ def helper_download_delhi_bulletin(link,debug=False):
   os.system('cp -v tmp.pdf "'+bulletin_date_string+'.pdf"')
 
 
-def delhi_parse_vent(datatype='ventilator',plot=False):
+def delhi_parse_vent(datatype='ventilator',plot=False,extrapolate=''):
     b=[i.strip() for i in open('parsed_text_clippings/delhidata.txt').readlines() if i.strip()]
     info=[];chunk=[]
     for i in b:
@@ -653,7 +654,8 @@ def delhi_parse_vent(datatype='ventilator',plot=False):
             info2.append((date,total,occupied))
     if plot:
         dates,total,occupied=zip(*info2)
-        plotex(dates,occupied,np.array(dates),total,label='Occupied '+datatype,label2='Capacity of '+datatype,state='Delhi',linear_fit=True)
+        plotex(dates,occupied,np.array(dates),total,label='Occupied '+datatype,label2='Capacity of '+datatype,state='Delhi',linear_fit=True,extrapolate=extrapolate)
+        #plotex(dates,occupied,np.array(dates),total,label='Occupied '+datatype,label2='Capacity of '+datatype,state='Delhi',linear_fit=True,extrapolate='')
     return info2
 
 def delhi_parse_csv():
@@ -2206,10 +2208,11 @@ def helper_correlate_signals(x,y,plot=False):
   print(('best lag between signals: '+str(lag)))
   return corr
   
-def helper_plot_linear_fit(x,y,label='',color='',xtype='date'):
+def helper_plot_linear_fit(x,y,label='',color='',xtype='date',extrapolate=''):
   # ~ import pylab
-  xr=numpy.arange(len(x))
-  # ~ coef=numpy.polyfit(xr,y,1)
+  if extrapolate: extrapolate=int(extrapolate)
+#  xr=numpy.arange(len(x))
+#  coef=numpy.polyfit(xr,y,1)
   coef=numpy.polyfit(x,y,1)
   poly1d_fn=numpy.poly1d(coef)
   # ~ pylab.plot(x,y, 'yo', x, poly1d_fn(x), '--k',label='Best linear fit')
@@ -2217,6 +2220,13 @@ def helper_plot_linear_fit(x,y,label='',color='',xtype='date'):
   if not color:    color='g'
   if not label:    label='Best linear fit'
   
+  if extrapolate: 
+#      xr=np.arange(len(x)+int(extrapolate))
+      if xtype:
+          x2=[pylab.date2num(pylab.num2date(x[-1])+datetime.timedelta(days=i)) for i in range(1,extrapolate+1)]
+          x=np.append(x,x2)
+
+
   if xtype:
     pylab.plot_date(x,poly1d_fn(x),color,label=label)
   else:
