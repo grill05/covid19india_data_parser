@@ -2344,6 +2344,10 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
             ax.set_title('Mobility trends in '+district+' vs '+state)
 
             pylab.savefig(TMPDIR+district+' vs '+state+' mobility trends.jpg');pylab.close()
+            for state in ['Bihar','Uttar Pradesh','Rajsthan']:
+                print('saving mobility vs tpr')
+                dx,ppd,xx1,xx2=get_positivity_district(state=state,district=district,plot=False)
+                plot2(dates,avg,dx,ppd,label1='Average Mobility change in '+district+','+state+' from baseline',label2='TPR in district',color2='green')
 
         else:
             dates=pylab.date2num(dates)
