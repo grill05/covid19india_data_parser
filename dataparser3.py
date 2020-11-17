@@ -128,7 +128,7 @@ def get_population(state='Karnataka',district='Bengaluru Urban'):
         pop=last[state_name_to_code[state].upper()]['districts'][district]['meta']['population']
     pop=int(pop)
     return pop
-def get_mortality_rate(state='Tamil Nadu',district='',return_full_series=False,do_dpm=False,plot=False):
+def get_mortality_rate(state='Tamil Nadu',district='',return_full_series=False,do_dpm=False,plot=False,plot_days=''):
   if not return_full_series:
     d=get_cases(state=state,case_type='deaths')
     c=get_cases(state=state,case_type='confirmed')
@@ -149,13 +149,17 @@ def get_mortality_rate(state='Tamil Nadu',district='',return_full_series=False,d
     dates,d=zip(*d)
     dates2,c=zip(*c)
     m=100*(np.float64(d)/np.array(c))
-    dpm=(np.float64(d)/pop)
+    if do_dpm: dpm=(np.float64(d)/pop)
     x=list(zip(dates,m))
 
     if do_dpm: x=list(zip(dates,dpm))
     x=[i for i in x if i[0]>=datetime.datetime(2020,5,1,0,0)]
     dates,m=zip(*x)
     if plot:
+      if plot_days:
+          dates=dates[-1*plot_days:]
+          m=m[-1*plot_days:]
+
       ax=pylab.axes()
       locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
       formatter = mdates.ConciseDateFormatter(locator)
@@ -430,8 +434,9 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
 
 def get_national_data(case_type='active',verbose=False):
   pass
-def get_beds(state='West Bengal',type=''):
-    x=json.load(open('state_test_data.json'))
+def get_beds(state='West Bengal'):
+  x=json.load(open('state_test_data.json'))
+  if state in ['West Bengal']:
     x=[i for i in x['states_tested_data'] if i['state']==state and  i['bedsoccupiednormalisolation']]
     dates=[];bed_util=[];bed_cap=[]
 
@@ -441,6 +446,12 @@ def get_beds(state='West Bengal',type=''):
         u=int(bed_cap[-1]*0.01*float(i['bedsoccupiednormalisolation'].replace('%','')))
         bed_util.append(u)
     return list(zip(dates,bed_cap,bed_util)) 
+  elif state in ['Uttar Pradesh']:
+    x2=[(i['updatedon'],0,i['casesoutsidehomeisolationi.einstitutionalisolationhospitaletc.']) for i in x['states_tested_data'] if i['casesoutsidehomeisolationi.einstitutionalisolationhospitaletc.'] and i['state']==state]
+    y=[(datetime.datetime.strptime(i[0],'%d/%m/%Y'),i[1],int(i[2])) for i in x2]
+    return y
+
+
 
 def wb_analysis(plot=False,plot_days=''):
     x=json.load(open('state_test_data.json'))
