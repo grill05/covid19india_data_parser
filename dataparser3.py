@@ -3932,7 +3932,7 @@ def state_demographics(state='Punjab'):
  # ~ u'Telangana': 11}
 def get_people_on_ventilators(state='Telangana',verbose=False):
   x=json.load(open('state_test_data.json'))
-  all_ventilator_data=[i for i in x['states_tested_data'] if i['peopleonventilator'] and i['state']==state]
+  all_ventilator_data=[i for i in x['states_tested_data'] if i['state']==state and i['peopleonventilator']]
   if not all_ventilator_data:
     print(('State: %s does not have any data on ventilator usage (as per covid19indiadotorg API)' %(state)))
     return 
