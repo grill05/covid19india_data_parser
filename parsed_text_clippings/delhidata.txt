@@ -214,3 +214,11 @@ In Delhi, on date: 22-11-2020 at 18:02, ventilators beds:
 total: 1397
 occupied: 1264
 vacant: 133
+In Delhi, on date: 23-11-2020 at 03:56, non-covid icu beds:
+total: 1460
+occupied: 1144
+vacant: 316
+In Delhi, on date: 23-11-2020 at 03:56, ventilators beds:
+total: 1396
+occupied: 1270
+vacant: 126
