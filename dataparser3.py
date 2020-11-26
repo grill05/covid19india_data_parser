@@ -1243,7 +1243,7 @@ def delhi_analysis(do='',plot_days=''):
       dates=dates[-1*plot_days:]
       dates2=dates2[-1*plot_days:]
       dates3=dates3[-1*plot_days:]
-  hos_used=moving_average(hos_used)
+  hos_used=moving_average(hos_used,3)
   actives=moving_average(actives)
   deaths=moving_average(deaths)
   plot2(dates,hos_used,dates2,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
