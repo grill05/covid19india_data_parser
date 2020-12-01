@@ -376,7 +376,7 @@ def plotex(dates,data,dates2='',data2='',label='',label2='',color='blue',color2=
       ax.plot_date(dates2,data2,color=color2,label=label2)
   if linear_fit:
       if extrapolate: helper_plot_linear_fit(dates,data,extrapolate=extrapolate)
-      else:      helper_plot_linear_fit(dates,data)
+      else: pass;#     helper_plot_linear_fit(dates,data)
   #ax.legend(loc='lower left',fontsize=6)
   ax.legend(fontsize=7)
   title=label
