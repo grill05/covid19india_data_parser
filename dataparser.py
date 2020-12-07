@@ -357,18 +357,10 @@ def delhi_parser():
   pdfs=[i for i in os.listdir('.') if i.endswith('.pdf')];pdfs.sort()
   do=[]
   for pdf in pdfs:
-    try:
-      do.append(delhi_bulletin_parser(pdf))
-      if pdf=='09_08_2020.pdf':
-        ds=delhi_bulletin_parser(pdf)
-        ds.date=datetime.datetime(2020,9,9,0,0)
-        do.append(ds); #duplicate to avoid error
-      elif pdf=='07_29_2020.pdf':
-        ds=delhi_bulletin_parser(pdf)
-        ds.date=datetime.datetime(2020,7,30,0,0)
-        do.append(ds); #duplicate to avoid error
-    except:
-      print 'could not parse delhi_bulletin: '+pdf
+    #try:
+    do.append(delhi_bulletin_parser(pdf))
+    #except:
+    #  print 'could not parse delhi_bulletin: '+pdf
   #manually add data for malformed bulletin days (aug 29,30 and sep 9)
   do.append(delhi_status(datetime.datetime(2020,8,29,0,0),14143, 3966, 10143, 821, 594, 275, 22004,6597,15407,803,1371))
   do.append(delhi_status(datetime.datetime(2020,8,30,0,0),14145, 4030, 10143, 876, 599, 336, 20437,6881,13556,820,1319))
