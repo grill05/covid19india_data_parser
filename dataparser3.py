@@ -514,10 +514,10 @@ def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full
 
   if return_full_series:
     confirmed_series={};recovered_series={};deaths_series={};active_series={};
-    target_datetime=datetime.datetime.strptime(x[-1]['date'].replace('-20','-2020'),'%d-%b-%Y');#choose last date available
+    target_datetime=datetime.datetime.strptime(x[-1]['dateymd'],'%Y-%m-%d');#choose last date available
     
   for i in x:
-    datetime_i=datetime.datetime.strptime(i['date'].replace('-20','-2020'),'%d-%b-%Y')
+    datetime_i=datetime.datetime.strptime(i['dateymd'],'%Y-%m-%d')
     if datetime_i<target_datetime:
       if   i['status']=='Deceased':  deaths+=int(i[state_code]);deaths_prev+=int(i[state_code])
       elif i['status']=='Recovered': recovered+=int(i[state_code]);recovered_prev+=int(i[state_code]);
@@ -591,9 +591,9 @@ def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full
 
 
 #cache this to avoid repeated file reads
-global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
-global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
-global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
+#global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+#global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
+#global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
   
 def highlight(text):
   highlight_begin=colorama.Back.BLACK+colorama.Fore.WHITE+colorama.Style.BRIGHT
