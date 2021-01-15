@@ -71,7 +71,16 @@ def parse_census(state='Tamil Nadu',metric='mean age'):
   for i in r: info.append(i)
   data=[i for i in info if i[0]==state]
 #  print(len(data))
-  if metric=='mean age':
+  if metric=='agedict':
+    data=data[1:-3]#exclude last 2 rows and initial one
+    agedict={}
+    for i in data:
+      age=int(i[1])
+      num_persons=int(i[2])
+      agedict[age]=num_persons
+    return agedict
+
+  elif metric in ['mean age','tot_persons']:
     data=data[1:-3]#exclude last 2 rows and initial one
     agedict={}
     for i in data:
@@ -79,6 +88,7 @@ def parse_census(state='Tamil Nadu',metric='mean age'):
       num_persons=int(i[2])
       agedict[age]=num_persons
     tot_persons=sum(list(agedict.values()))
+    if metric=='tot_persons': return tot_persons
     mean_age=0
     for i in agedict.keys():
       frac=float(agedict[i])/tot_persons
@@ -668,7 +678,18 @@ def delhi_parse_vent(datatype='ventilator',plot=False,extrapolate=''):
         plotex(dates,occupied,np.array(dates),total,label='Occupied '+datatype,label2='Capacity of '+datatype,state='Delhi',linear_fit=True,extrapolate=extrapolate)
         #plotex(dates,occupied,np.array(dates),total,label='Occupied '+datatype,label2='Capacity of '+datatype,state='Delhi',linear_fit=True,extrapolate='')
     return info2
-
+def mhpolice_parse_csv():
+    import csv,datetime
+    r=csv.reader(open('csv_dumps/MH_Police_infections.csv'))
+    info=[];skip=True
+    for i in r: 
+        #if skip: skip=False;continue
+        x=i
+        y=datetime.datetime(int(x[0].split('-')[0]),int(x[0].split('-')[1]),int(x[0].split('-')[2]),0,0)
+        infections=int(x[1]);deaths=int(x[2])
+        info.append((y,infections,deaths))
+    return info
+ 
 def delhi_parse_csv():
     import csv,datetime
     r=csv.reader(open('csv_dumps/Delhi_Jun18_Oct27.csv'))
@@ -2748,7 +2769,7 @@ def mumbai_analysis():
   
 def karnataka_read_csv():
   import csv;info=[]
-  r=csv.reader(open('karnataka_fatalities_details_jul16_sep10.csv'))
+  r=csv.reader(open('csv_dumps/karnataka_fatalities_details_jul16_sep10.csv'))
   for i in r: info.append(i);
   info=info[1:];fatalities=[]
   for row in info[2:]:
@@ -3951,7 +3972,7 @@ def get_people_on_ventilators(state='Telangana',verbose=False):
       print(('%s : %.3f (%d on ventilator)' %(i[0],i[1],i[2])))
   return all_percent_ventilator
 
-def analysis(state='Uttar Pradesh',extra=False,plot_days=''):
+def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
   deaths=get_cases(state=state,case_type='deaths',return_full_series=True,verbose=False)
   deaths=[i for i in deaths if i[0]>=datetime.datetime(2020,6,1,0,0)]
   dates2=pylab.date2num([i[0] for i in deaths][1:]);d=moving_average(numpy.diff([i[1] for i in deaths]))
@@ -4008,73 +4029,73 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days=''):
   pylab.savefig(TMPDIR+state+' daily cases vs daily deaths.jpg',bbox_inches='tight')
   pylab.close()
 
-  
-  sp,ax=pylab.subplots()
-  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
-  ax.xaxis.set_major_locator(locator)
-  ax.xaxis.set_major_formatter(formatter) 
+  if doboth:
+    sp,ax=pylab.subplots()
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter) 
 
-  color = 'tab:blue'
-  ax.set_xlabel('Date')
-  ax.set_ylabel(state+' new daily cases (7-day MA)',color=color)
-  ax.plot_date(dates,c,color=color,label=state+' new daily cases (7-day MA)')
-  ax.tick_params(axis='y', labelcolor=color)
-  ax.legend(loc='lower left',fontsize=5);
+    color = 'tab:blue'
+    ax.set_xlabel('Date')
+    ax.set_ylabel(state+' new daily cases (7-day MA)',color=color)
+    ax.plot_date(dates,c,color=color,label=state+' new daily cases (7-day MA)')
+    ax.tick_params(axis='y', labelcolor=color)
+    ax.legend(loc='lower left',fontsize=5);
 
-  ax2=ax.twinx()
-  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
-  ax2.xaxis.set_major_locator(locator)
-  ax2.xaxis.set_major_formatter(formatter) 
+    ax2=ax.twinx()
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax2.xaxis.set_major_locator(locator)
+    ax2.xaxis.set_major_formatter(formatter) 
 
-  color = 'tab:green'
-  ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
-  ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
-  ax2.tick_params(axis='y', labelcolor=color)
-  ax2.legend(loc='lower right',fontsize=5);
-  sp.tight_layout()
+    color = 'tab:green'
+    ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
+    ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
+    ax2.tick_params(axis='y', labelcolor=color)
+    ax2.legend(loc='lower right',fontsize=5);
+    sp.tight_layout()
 
-  title=state+' daily cases vs TPR'
-  pylab.title(title);  
-  #pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',dpi=150)
+    title=state+' daily cases vs TPR'
+    pylab.title(title);  
+    #pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',dpi=150)
 
-  pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',bbox_inches='tight')
-  pylab.close()
+    pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',bbox_inches='tight')
+    pylab.close()
 
-  sp,ax=pylab.subplots()
+    sp,ax=pylab.subplots()
 
-  color = 'black'
-  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
-  ax.xaxis.set_major_locator(locator)
-  ax.xaxis.set_major_formatter(formatter) 
+    color = 'black'
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter) 
 
-  ax.set_xlabel('Date')
-  ax.set_ylabel(state+' daily tests(7-day MA)',color=color)
-  ax.plot_date(dates4,t,color=color,label=state+' daily tests (7-day MA)')
-  ax.tick_params(axis='y', labelcolor=color)
-  ax.legend(loc='lower left',fontsize=5);
+    ax.set_xlabel('Date')
+    ax.set_ylabel(state+' daily tests(7-day MA)',color=color)
+    ax.plot_date(dates4,t,color=color,label=state+' daily tests (7-day MA)')
+    ax.tick_params(axis='y', labelcolor=color)
+    ax.legend(loc='lower left',fontsize=5);
 
-  ax2=ax.twinx()
-  color = 'tab:green'
-  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
-  ax2.xaxis.set_major_locator(locator)
-  ax2.xaxis.set_major_formatter(formatter) 
+    ax2=ax.twinx()
+    color = 'tab:green'
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax2.xaxis.set_major_locator(locator)
+    ax2.xaxis.set_major_formatter(formatter) 
 
-  ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
-  ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
-  ax2.tick_params(axis='y', labelcolor=color)
-  ax2.legend(loc='lower right',fontsize=5);
-  sp.tight_layout()
+    ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
+    ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
+    ax2.tick_params(axis='y', labelcolor=color)
+    ax2.legend(loc='lower right',fontsize=5);
+    sp.tight_layout()
 
-  title=state+' daily tests vs TPR'
-  pylab.title(title);  
-  #pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',dpi=150)
+    title=state+' daily tests vs TPR'
+    pylab.title(title);  
+    #pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',dpi=150)
 
-  pylab.savefig(TMPDIR+state+' daily tests vs TPR.jpg',bbox_inches='tight')
-  pylab.close()
+    pylab.savefig(TMPDIR+state+' daily tests vs TPR.jpg',bbox_inches='tight')
+    pylab.close()
   if extra:
       yy=get_antigen_tests(state)
       ap=moving_average([i[-1] for i in yy])
