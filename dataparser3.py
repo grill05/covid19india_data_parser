@@ -62,6 +62,80 @@ def parse_census_district(state='Karnataka',district='Bengaluru Urban',metric='u
         return urbanization
 
     return info
+def vaccination_state(state='Delhi'):
+  r=csv.reader(open('statewise_tested_numbers_data.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info=info[1:]
+  info2=[]
+  for i in info:
+    if len(i)<16: continue
+    cstate=i[1];date=i[0]
+    date=datetime.datetime.strptime(date,'%d/%m/%Y')
+    cumdoses=i[10];cumsess=i[11];cumaefi=i[12]
+    cumcs=i[13];cumcx=i[14]
+    if cumdoses or cumsess or cumaefi or cumcs or cumcx:
+      if state:
+        if cstate!=state: continue
+        info2.append((date,cumdoses,cumsess,cumaefi,cumcs,cumcx))
+      else:
+        info2.append((date,cstate,cumdoses,cumsess,cumaefi,cumcs,cumcx))
+
+  info=[];
+  
+  dt,d,s=info2[0][0],info2[0][1],info2[0][2]
+  if d: d=int(d)
+  if s: s=int(s)
+  info.append((dt,d,s))
+
+  for j in range(len(info2[1:])):
+    pd=int(info2[j][1]);ps=info2[j][2]
+    if not ps: ps=0
+    else: ps=int(ps)
+
+    cd=int(info2[j+1][1]);cs=info2[j+1][2]
+    if cs: cs=int(cs)
+    else: cs=0
+
+    dd=cd-pd;ds=cs-ps;dps=0
+    if dd and ds: dps=float(dd)/ds
+    
+    info.append((info2[j+1][0],dd,ds,dps))
+ 
+
+  if not state:  return info2
+  else: return info,info2
+
+
+def vaccination_national():
+  r=csv.reader(open('tested_numbers_icmr_data.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info2=[]
+  info0=info[1:]
+  for i in info[1:]:
+    date=i[1];#date=date.replace('/1/','/01/')
+    cumdoses=i[10]
+    dailydoses=i[11]
+    dailysessions=i[12]
+    if cumdoses or dailysessions:
+      date=datetime.datetime.strptime(date,'%d/%m/%Y')
+      info2.append((date,cumdoses,dailysessions))
+  info=[]
+  info.append((info2[0][0],int(info2[0][1]),int(info2[0][2]),float(info2[0][1])/int(info2[0][2])))
+  for j in range(len(info2[1:])):
+    dailydoses=int(info2[j+1][1])-int(info2[j][1])
+    sess=info2[j+1][2];sessonday=0
+    dosespersession=0
+    if not sess: sess=0
+    else: 
+      sess=int(sess)
+      sessonday=sess-int(info2[j][2])
+      dosespersession=float(dailydoses)/sessonday
+    info.append((info2[j+1][0],dailydoses,sessonday,dosespersession))
+
+  #return info,info2,info0
+  return info
 
 def parse_census(state='Tamil Nadu',metric='mean age'):
   if state=='Delhi':
@@ -3684,7 +3758,7 @@ def karnataka_parser(return_specific=''):
  # ~ u'Mizoram': 16,
  # ~ u'Nagaland': 13,
  # ~ u'Sikkim': 13}
-def get_antigen_tests(state='Karnataka',verbose=False):
+def get_antigen_tests(state='Karnataka',verbose=False,do_moving_average=False):
   x=json.load(open('state_test_data.json'))
   x=[i for i in x['states_tested_data'] if 'ratrapidantigentest' in i and i['ratrapidantigentest'] and i['state']==state]
 
@@ -3706,6 +3780,10 @@ def get_antigen_tests(state='Karnataka',verbose=False):
     for i in all_antigen:
       (date,tests_on_day,antigen_on_day,percent_antigen)=i
       print(('%s: %d tests,  %.1f percent (%d tests) were antigen' %(date,tests_on_day,percent_antigen,antigen_on_day)))
+  if do_moving_average:
+    dates,t,pa,ad=zip(*all_antigen)
+    t=moving_average(t);pa=moving_average(pa);ad=moving_average(ad)
+    all_antigen=list(zip(dates,t,pa,ad))
   return all_antigen
 def get_pcr_tests(state='Punjab'):
   r=csv.reader(open('pcr.csv'));info=[]
@@ -3734,7 +3812,7 @@ def get_pcr_tests(state='Punjab'):
   return l
 
 
-def get_tests(state='Karnataka',date='',return_full_series=True,verbose=False):
+def get_tests(state='Karnataka',date='',return_full_series=True,verbose=False,do_moving_average=False):
   x=json.load(open('state_test_data.json'))
   x=[i for i in x['states_tested_data'] if i['state']==state]
 
@@ -3759,6 +3837,10 @@ def get_tests(state='Karnataka',date='',return_full_series=True,verbose=False):
     # ~ for i in all_antigen:
       # ~ (date,tests_on_day,antigen_on_day,percent_antigen)=i
       # ~ print '%s: %d tests,  %.1f percent (%d tests) were antigen' %(date,tests_on_day,percent_antigen,antigen_on_day)
+  if do_moving_average:
+    dates,tests=zip(*all_tests)
+    tests=moving_average(tests)
+    all_tests=list(zip(dates,tests))
   return all_tests
 
 def get_positivity_district(state='Karnataka',district='Bengaluru Urban',plot=False,plot_days=''):
