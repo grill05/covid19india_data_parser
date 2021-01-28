@@ -86,7 +86,7 @@ def vaccination_state(state='Delhi'):
   dt,d,s=info2[0][0],info2[0][1],info2[0][2]
   if d: d=int(d)
   if s: s=int(s)
-  info.append((dt,d,s))
+  info.append((dt,d,s,float(d)/s))
 
   for j in range(len(info2[1:])):
     pd=int(info2[j][1]);ps=info2[j][2]
@@ -104,7 +104,8 @@ def vaccination_state(state='Delhi'):
  
 
   if not state:  return info2
-  else: return info,info2
+  #else: return info,info2
+  else: return info
 
 
 def vaccination_national():
