@@ -117,11 +117,10 @@ def vaccination_national():
   for i in info[1:]:
     date=i[1];#date=date.replace('/1/','/01/')
     cumdoses=i[10]
-    dailydoses=i[11]
-    dailysessions=i[12]
-    if cumdoses or dailysessions:
+    cumsessions=i[11]
+    if cumdoses or cumsessions:
       date=datetime.datetime.strptime(date,'%d/%m/%Y')
-      info2.append((date,cumdoses,dailysessions))
+      info2.append((date,cumdoses,cumsessions))
   info=[]
   info.append((info2[0][0],int(info2[0][1]),int(info2[0][2]),float(info2[0][1])/int(info2[0][2])))
   for j in range(len(info2[1:])):
