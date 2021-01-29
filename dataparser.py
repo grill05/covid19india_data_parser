@@ -42,6 +42,7 @@ karnataka_districts_map={'bagal':'bagalkote','balla':'ballari','chikkam':'chikka
   'raman':'ramanagara','shiva':'shivamogga','tuma':'tumakuru','udup':'udupi','uttar':'uttarakannada',
   'vija':'vijayapura','yadag':'yadagiri'};
 def vaccination_national():
+  import csv
   r=csv.reader(open('tested_numbers_icmr_data.csv'))
   info=[]
   for i in r: info.append(i)
