@@ -41,6 +41,35 @@ karnataka_districts_map={'bagal':'bagalkote','balla':'ballari','chikkam':'chikka
   'koda':'kodagu','kola':'kolara','kopp':'koppala','mand':'mandya','mysu':'mysuru','raich':'raichuru',
   'raman':'ramanagara','shiva':'shivamogga','tuma':'tumakuru','udup':'udupi','uttar':'uttarakannada',
   'vija':'vijayapura','yadag':'yadagiri'};
+def vaccination_national():
+  r=csv.reader(open('tested_numbers_icmr_data.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info2=[]
+  info0=info[1:]
+  for i in info[1:]:
+    date=i[1];#date=date.replace('/1/','/01/')
+    cumdoses=i[10]
+    dailydoses=i[11]
+    dailysessions=i[12]
+    if cumdoses or dailysessions:
+      date=datetime.datetime.strptime(date,'%d/%m/%Y')
+      info2.append((date,cumdoses,dailysessions))
+  info=[]
+  info.append((info2[0][0],int(info2[0][1]),int(info2[0][2]),float(info2[0][1])/int(info2[0][2])))
+  for j in range(len(info2[1:])):
+    dailydoses=int(info2[j+1][1])-int(info2[j][1])
+    sess=info2[j+1][2];sessonday=0
+    dosespersession=0
+    if not sess: sess=0
+    else: 
+      sess=int(sess)
+      sessonday=sess-int(info2[j][2])
+      dosespersession=float(dailydoses)/sessonday
+    info.append((info2[j+1][0],dailydoses,sessonday,dosespersession))
+
+  #return info,info2,info0
+  return info
 
 def get_testing_delta():
   x=json.load(open('data-all.json'))
