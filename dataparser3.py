@@ -62,26 +62,43 @@ def parse_census_district(state='Karnataka',district='Bengaluru Urban',metric='u
         return urbanization
 
     return info
-def vaccination_state(state='Delhi'):
+def vaccination_state(state='Delhi',check=False):
   r=csv.reader(open('statewise_tested_numbers_data.csv'))
   info=[]
   for i in r: info.append(i)
   info=info[1:]
   info2=[]
+
+  if check:
+    hasdoses=set();hasdosessess=set()
+    for i in info:
+      if len(i)<16: continue
+      cstate=i[1];date=i[0]
+      date=datetime.datetime.strptime(date,'%d/%m/%Y')
+      cumdoses=i[10];cumsess=i[11];cumaefi=i[12]
+      if cumdoses:
+        #print(i)
+        if cumsess: hasdosessess.add(cstate)
+        else: hasdoses.add(cstate)
+    print('States with only doses:\n\t%s\nStates with doses and sessions:\n\t%s' %(str(list(set(hasdoses))),str(list(set(hasdosessess)))) )
+    return 
+
   for i in info:
     if len(i)<16: continue
     cstate=i[1];date=i[0]
     date=datetime.datetime.strptime(date,'%d/%m/%Y')
     cumdoses=i[10];cumsess=i[11];cumaefi=i[12]
     cumcs=i[13];cumcx=i[14]
-    if cumdoses or cumsess or cumaefi or cumcs or cumcx:
+    if cumdoses or cumsess: # or cumaefi or cumcs or cumcx:
+      if not (int(cumdoses) or int(cumsess)): continue
       if state:
         if cstate!=state: continue
-        info2.append((date,cumdoses,cumsess,cumaefi,cumcs,cumcx))
+        info2.append((date,cumdoses,cumsess)) #,cumaefi,cumcs,cumcx))
       else:
-        info2.append((date,cstate,cumdoses,cumsess,cumaefi,cumcs,cumcx))
+        info2.append((date,cstate,cumdoses,cumsess)) #,cumaefi,cumcs,cumcx))
 
   info=[];
+  #print(info2)
   
   dt,d,s=info2[0][0],info2[0][1],info2[0][2]
   if d: d=int(d)
@@ -98,6 +115,7 @@ def vaccination_state(state='Delhi'):
     else: cs=0
 
     dd=cd-pd;ds=cs-ps;dps=0
+    if not (dd or ds): continue
     if dd and ds: dps=float(dd)/ds
     
     info.append((info2[j+1][0],dd,ds,dps))

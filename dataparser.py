@@ -889,7 +889,8 @@ def delhi_analysis(do):
   return (hos_used,deaths)
   
 def update_data_files(extra=False):
-  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/statewise_tested_numbers_data.csv','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv']
+  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/statewise_tested_numbers_data.csv','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv']
+  
   if extra: urls.extend(['https://api.covid19india.org/data.json','https://api.covid19india.org/v4/data-all.json'])
   for i in urls:
     filename=os.path.split(i)[1]
