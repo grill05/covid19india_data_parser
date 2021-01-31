@@ -62,7 +62,20 @@ def parse_census_district(state='Karnataka',district='Bengaluru Urban',metric='u
         return urbanization
 
     return info
-def vaccination_state(state='Delhi',check=False):
+def vaccination_state(state='Delhi',mohfw=False,check=False):
+  if mohfw:
+    r=csv.reader(open('vaccine_doses_statewise.csv'))
+    info=[]
+    for i in r: info.append(i)
+    dates=[datetime.datetime.strptime(i,'%d/%m/%Y') for i in info[0][1:]]
+    info=info[1:]
+    info=[i[1:] for i in info if i[0]==state]
+    if info:
+      info=[int(i) for i in info[0]]
+      return list(zip(dates,info))
+    else:
+      return
+
   r=csv.reader(open('statewise_tested_numbers_data.csv'))
   info=[]
   for i in r: info.append(i)
