@@ -1899,7 +1899,23 @@ def karnataka_map_patient_no_to_date(patient_no=1,case_series=''):
     pass
   return date
 
-
+def tamil_nadu_parse_csv():
+  r=csv.reader(open('csv_dumps/TN_fatalities_Jul1_Feb11.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info=info[1:]
+  y=[]
+  for i in info:
+    pn,district,age,gender,origin,dodetect,doa,dod,dor=i[:9]
+    comorb=' /'.join(i[9:])
+    doa=datetime.datetime.strptime(doa,'%Y-%m-%d')
+    dod=datetime.datetime.strptime(dod,'%Y-%m-%d')
+    dor=datetime.datetime.strptime(dor,'%Y-%m-%d')
+    f=generic_fatality(district,pn,age,gender,origin,comorb,doa,dod,dor,state='Tamil Nadu')
+    y.append(f)
+  return y
+    
+  
 def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin=False,dump_clippings=False):
   cmd='pdftotext  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
   # ~ b=[i for i in open('tmp.txt').readlines() if i]
@@ -3055,7 +3071,8 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
     elif date_type=='reporting':      xlabel='Date of reporting'
     ax=pylab.axes()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
+    # ~ formatter = mdates.ConciseDateFormatter(locator)
+    formatter = mdates.AutoDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
@@ -3075,7 +3092,8 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
 
     ax=pylab.axes()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
+    # ~ formatter = mdates.ConciseDateFormatter(locator)
+    formatter = mdates.AutoDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
