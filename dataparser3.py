@@ -2472,7 +2472,7 @@ def helper_plot_exponential_fit(x,y,label='',color=''):
   
   
 def helper_get_mean_timeseries(recoveries):
-  d1=datetime.date(2020,7,14);d2=datetime.date(2020,9,10);delta=d2-d1
+  d1=datetime.date(2020,7,14);d2=datetime.date(2021,2,11);delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   datetimes=[datetime.datetime.combine(i,datetime.time(0, 0)) for i in datetimes]
   # ~ return datetimes
@@ -2980,7 +2980,7 @@ def karnataka_read_csv():
     fatalities.append(fatality)
   return fatalities
 def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=True,ma_size=3,state='Tamil Nadu',plot=False):
-  d1=datetime.date(2020,6,1);d2=datetime.date(2020,10,22);delta=d2-d1
+  d1=datetime.date(2020,6,1);d2=datetime.date(2021,2,11);delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   datetimes=[datetime.datetime.combine(i,datetime.time(0, 0)) for i in datetimes]
 
@@ -2997,10 +2997,14 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
         d=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta)]
         d1=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta) and i.district==capital]
         d2=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta) and i.district!=capital]
+        
+         
       elif date_type=='reporting':
         d=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=(dd+ma_delta) and i.date_of_reporting>=(dd-ma_delta)]
         d1=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=(dd+ma_delta) and i.date_of_reporting>=(dd-ma_delta) and i.district==capital]
         d2=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=(dd+ma_delta) and i.date_of_reporting>=(dd-ma_delta) and i.district!=capital]
+        
+          
       elif date_type=='admission':
         d=[i for i in deaths if i.date_of_admission<=(dd+ma_delta) and i.date_of_admission>=(dd-ma_delta)]
         d1=[i for i in deaths if i.date_of_admission<=(dd+ma_delta) and i.date_of_admission>=(dd-ma_delta) and i.district==capital]
@@ -3033,7 +3037,7 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
       d1=[i.admission_death_interval for i in d1 if i.admission_death_interval>=0]
       d2=[i.admission_death_interval for i in d2 if i.admission_death_interval>=0]
     elif filter_type=='death_reporting': #find fraction of SARI/ILI in daily deaths on date
-      d=[i.death_reporting_interval for i in d if i.death_reporting_interval]
+      d=[i.death_reporting_interval for i in d if i.death_reporting_interval and i.death_reporting_interval>=0]
       d1=[i.death_reporting_interval for i in d1 if i.death_reporting_interval and i.death_reporting_interval>=0]
       d2=[i.death_reporting_interval for i in d2 if i.death_reporting_interval and i.death_reporting_interval>=0]
     elif filter_type=='raw_number': #find fraction of SARI/ILI in daily deaths on date
@@ -3063,7 +3067,9 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
       mean_values.append((dd,m,m1,m2))
   if plot:
     mean_values=mean_values[:-5]
-    if filter_type=='death_reporting': mean_values=mean_values[:-5]
+    if filter_type=='death_reporting': 
+      mean_values=mean_values[:-5]
+      mean_values=[i for i in mean_values if i[1]<4 and (i[0]>=datetime.datetime(2020,9,20,0,0) or i[0]<=datetime.datetime(2020,9,7,0,0)) ] #temp hack
     dates,m,m1,m2=zip(*mean_values)
     xlabel='';ylabel='';title=''
     if date_type=='':      xlabel='Date of death'
