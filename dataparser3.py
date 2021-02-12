@@ -13,6 +13,7 @@ import numpy as np
 datetime_doa_marker=datetime.datetime(2020, 1, 1, 0, 0)
 
 TMPDIR='/storage/emulated/0/code/covid19india_data_parser/ims/tmp/'
+if  'ani' in os.uname()[1] : TMPDIR='/home/ani/code/covid19india_data_parser/ims/'
 state_code_to_name={"an" : "Andaman and Nicobar Islands" ,"ap" : "Andhra Pradesh" ,
                     "ar" : "Arunachal Pradesh" ,"as" : "Assam" ,
                     "br" : "Bihar" ,"ch" : "Chandigarh" ,
@@ -147,23 +148,42 @@ def vaccination_national():
   info0=info[1:]
   for i in info[1:]:
     date=i[1];#date=date.replace('/1/','/01/')
-    cumdoses=i[10]
-    cumsessions=i[11]
+    cumdoses=i[12]
+    cumsessions=i[13]
+    cumhcw=i[6]
+    cumfront=i[7]
     if cumdoses or cumsessions:
       date=datetime.datetime.strptime(date,'%d/%m/%Y')
-      info2.append((date,cumdoses,cumsessions))
+      if not cumhcw: cumhcw=0
+      else: cumhcw=int(cumhcw)
+      if not cumfront: cumfront=0
+      else: cumfront=int(cumfront)
+      info2.append((date,cumdoses,cumsessions,cumhcw,cumfront))
   info=[]
-  info.append((info2[0][0],int(info2[0][1]),int(info2[0][2]),float(info2[0][1])/int(info2[0][2])))
+  info.append((info2[0][0],int(info2[0][1]),int(info2[0][2]),float(info2[0][1])/int(info2[0][2]),info2[0][3],info2[0][4]))
   for j in range(len(info2[1:])):
     dailydoses=int(info2[j+1][1])-int(info2[j][1])
     sess=info2[j+1][2];sessonday=0
+    hcw=0;front=0
+    cumhcw=info2[j+1][3];cumfront=info2[j+1][4]
+    if cumhcw: 
+      if info2[j][3]: hcw=cumhcw-info2[j][3]
+      else: hcw=cumhcw-info2[j-1][3]
+    if hcw<0: hcw=0
+    if cumfront: 
+      if info2[j][4]: front=cumfront-info2[j][4]
+      else: front=cumfront-info2[j-1][4]
+    if front<0: front=0
     dosespersession=0
     if not sess: sess=0
     else: 
       sess=int(sess)
       sessonday=sess-int(info2[j][2])
-      dosespersession=float(dailydoses)/sessonday
-    info.append((info2[j+1][0],dailydoses,sessonday,dosespersession))
+      try:
+        dosespersession=float(dailydoses)/sessonday
+      except ZeroDivisionError:
+        dosespersession=0
+    info.append((info2[j+1][0],dailydoses,sessonday,dosespersession,hcw,front))
 
   #return info,info2,info0
   return info
@@ -372,8 +392,47 @@ def mortality_analysis():
   return info
 
 
-
-    
+def get_tests_national(return_full_series=True):
+  r=csv.reader(open('tested_numbers_icmr_data.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info=info[1:];tests=[]
+  cnt=0
+  for i in info:
+    try:date=datetime.datetime.strptime(i[0].split()[0].strip(),'%d/%m/%Y');
+    except:
+      print('error getting date form %s' %(str(i)))
+      sys.exit(1)
+    if i[4]: cumtests=int(i[4])
+    else: cumtests=int(info[cnt-1][4])
+    tests.append((date,cumtests))
+    cnt+=1
+  dates,t=zip(*tests)
+  t2=zip(dates[1:],np.diff(t))
+  t=[tests[0]];  t.extend(t2)
+  return t
+def get_cases_national(return_full_series=True):
+  r=csv.reader(open('tested_numbers_icmr_data.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info=info[1:];tests=[]
+  cnt=0
+  for i in info:
+    try:date=datetime.datetime.strptime(i[1].strip(),'%d/%m/%Y');
+    except:
+      try:date=datetime.datetime.strptime(i[0].split()[0].strip(),'%d/%m/%Y');
+      except:
+        print('error getting date form %s' %(str(i)))
+        sys.exit(1)
+    if i[8]: cumtests=int(i[8].strip().replace(',',''))
+    else: print('recurd for %s\ni[8] %s' %(i,i[8]));cumtests=tests[cnt-1][1]
+    print(cumtests)
+    tests.append((date,cumtests))
+    cnt+=1
+  dates,t=zip(*tests)
+  t2=zip(dates[1:],np.diff(t))
+  t=[tests[0]];  t.extend(t2)
+  return t
 
 def get_testing_delta():
   x=json.load(open('data-all.json'))
@@ -471,7 +530,7 @@ def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/
     for i in returned:
       if i[1]>=30: return i[0]
   return returned
-def plotex(dates,data,dates2='',data2='',label='',label2='',color='blue',color2='red',state='',linear_fit=False,plot_days='',extrapolate=''):
+def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',color='blue',color2='red',state='',linear_fit=False,plot_days='',extrapolate=''):
   if plot_days:
     dates=dates[-1*plot_days:]
     data=data[-1*plot_days:]
@@ -479,7 +538,9 @@ def plotex(dates,data,dates2='',data2='',label='',label2='',color='blue',color2=
   if dates2.any() and type(dates2[0])==datetime.datetime: dates2=pylab.date2num(dates2)
   ax=pylab.axes()
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
+  # ~ formatter = mdates.ConciseDateFormatter(locator)
+  # ~ formatter = mdates.AutoDateFormatter(locator)
+  formatter = mdates.DateFormatter('%d-%m')
   ax.xaxis.set_major_locator(locator)
   ax.xaxis.set_major_formatter(formatter) 
 
@@ -516,7 +577,8 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
 
     color = color1
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
+    # ~ formatter = mdates.ConciseDateFormatter(locator)
+    formatter = mdates.AutoDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
@@ -529,7 +591,8 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
     ax2=ax.twinx()
     color = color2
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
+    # ~ formatter = mdates.ConciseDateFormatter(locator)
+    formatter = mdates.AutoDateFormatter(locator)
     ax2.xaxis.set_major_locator(locator)
     ax2.xaxis.set_major_formatter(formatter) 
 
@@ -1527,8 +1590,10 @@ def delhi_analysis(do='',plot_days=''):
   
   return (hos_used,deaths)
   
-def update_data_files():
-  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/data.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/data-all.json']
+def update_data_files(extra=False):
+  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/statewise_tested_numbers_data.csv','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv']
+  
+  if extra: urls.extend(['https://api.covid19india.org/data.json','https://api.covid19india.org/v4/data-all.json'])
   for i in urls:
     filename=os.path.split(i)[1]
     if os.path.exists(filename):
@@ -3926,6 +3991,9 @@ def get_positivity_district(state='Karnataka',district='Bengaluru Urban',plot=Fa
     return dates,p,c,t
 
 
+def get_positivity_national(do_moving_average=True,plot=False,plot_days=''):
+  pass
+  
 def get_positivity(state='Karnataka',do_moving_average=True,plot=False,plot_days=''):
   cases_cum=get_cases(state=state,case_type='confirmed',return_full_series=True,verbose=False)
   d=[i[0] for i in cases_cum][1:]
@@ -4114,7 +4182,8 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
   sp,ax=pylab.subplots()
     
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
+  # ~ formatter = mdates.ConciseDateFormatter(locator)
+  formatter = mdates.AutoDateFormatter(locator)
   ax.xaxis.set_major_locator(locator)
   ax.xaxis.set_major_formatter(formatter) 
 
@@ -4145,7 +4214,8 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
   if doboth:
     sp,ax=pylab.subplots()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
+    # ~ formatter = mdates.ConciseDateFormatter(locator)
+    formatter = mdates.AutoDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
@@ -4158,7 +4228,8 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
 
     ax2=ax.twinx()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
+    # ~ formatter = mdates.ConciseDateFormatter(locator)
+    formatter = mdates.AutoDateFormatter(locator)
     ax2.xaxis.set_major_locator(locator)
     ax2.xaxis.set_major_formatter(formatter) 
 
@@ -4180,7 +4251,8 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
 
     color = 'black'
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
+    # ~ formatter = mdates.ConciseDateFormatter(locator)
+    formatter = mdates.AutoDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
@@ -4193,7 +4265,8 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
     ax2=ax.twinx()
     color = 'tab:green'
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    formatter = mdates.ConciseDateFormatter(locator)
+    # ~ formatter = mdates.ConciseDateFormatter(locator)
+    formatter = mdates.AutoDateFormatter(locator)
     ax2.xaxis.set_major_locator(locator)
     ax2.xaxis.set_major_formatter(formatter) 
 
@@ -4220,7 +4293,8 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
       
       sp,ax=pylab.subplots()
       locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-      formatter = mdates.ConciseDateFormatter(locator)
+      # ~ formatter = mdates.ConciseDateFormatter(locator)
+      formatter = mdates.AutoDateFormatter(locator)
       ax.xaxis.set_major_locator(locator)
       ax.xaxis.set_major_formatter(formatter) 
 
@@ -4233,7 +4307,8 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
     
       ax2=ax.twinx()
       locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-      formatter = mdates.ConciseDateFormatter(locator)
+      # ~ formatter = mdates.ConciseDateFormatter(locator)
+      formatter = mdates.AutoDateFormatter(locator)
       ax2.xaxis.set_major_locator(locator)
       ax2.xaxis.set_major_formatter(formatter) 
 
@@ -4351,7 +4426,8 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
 
   color = 'tab:blue'
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
+  # ~ formatter = mdates.ConciseDateFormatter(locator)
+  formatter = mdates.AutoDateFormatter(locator)
   ax.xaxis.set_major_locator(locator)
   ax.xaxis.set_major_formatter(formatter) 
 
@@ -4365,7 +4441,8 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
   ax2=ax.twinx()
   color = 'tab:red'
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
+  # ~ formatter = mdates.ConciseDateFormatter(locator)
+  formatter = mdates.AutoDateFormatter(locator)
   ax2.xaxis.set_major_locator(locator)
   ax2.xaxis.set_major_formatter(formatter) 
 
@@ -4384,7 +4461,8 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
 
   color = 'tab:blue'
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
+  # ~ formatter = mdates.ConciseDateFormatter(locator)
+  formatter = mdates.AutoDateFormatter(locator)
   ax.xaxis.set_major_locator(locator)
   ax.xaxis.set_major_formatter(formatter) 
 
@@ -4397,7 +4475,8 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
   ax2=ax.twinx()
   color = 'tab:orange'
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  formatter = mdates.ConciseDateFormatter(locator)
+  # ~ formatter = mdates.ConciseDateFormatter(locator)
+  formatter = mdates.AutoDateFormatter(locator)
   ax2.xaxis.set_major_locator(locator)
   ax2.xaxis.set_major_formatter(formatter) 
 
