@@ -6,10 +6,16 @@
 # ~ for moving average with window 'N'
 # ~ np.convolve(x, np.ones((N,))/N, mode='valid')
 
-import os,sys,copy,tqdm,csv
-import json,datetime,numpy,requests,colorama,pylab
-import matplotlib.dates as mdates
-import numpy as np
+import os,sys,copy,tqdm,csv,lazy_import
+pylab=lazy_import.lazy_module('pylab')
+requests=lazy_import.lazy_module('requests')
+np=lazy_import.lazy_module('numpy')
+colorama=lazy_import.lazy_module('colorama')
+mdates=lazy_import.lazy_module('matplotlib.dates')
+
+import json,datetime
+# ~ import matplotlib.dates as mdates
+# ~ import numpy as np
 datetime_doa_marker=datetime.datetime(2020, 1, 1, 0, 0)
 
 TMPDIR='/storage/emulated/0/code/covid19india_data_parser/ims/tmp/'
