@@ -1902,7 +1902,8 @@ def karnataka_map_patient_no_to_date(patient_no=1,case_series=''):
 
 def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin=False,dump_clippings=False):
   cmd='pdftotext  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
-  b=[i for i in open('tmp.txt').readlines() if i]
+  # ~ b=[i for i in open('tmp.txt').readlines() if i]
+  b=[i for i in open('tmp.txt',encoding='utf-8',errors='ignore').readlines() if i]
   idx=0;page_count=1;page_range=[];got_start=False
   bulletin_date=''
   bd=[i for i in b if 'media bulletin' in i.lower()]
@@ -1931,7 +1932,8 @@ def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin
   cmd='pdftotext -nopgbrk  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
 
   #find clipping of death info
-  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+  # ~ b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+  b=[i.strip() for i in open('tmp.txt',encoding='utf-8',errors='ignore').readlines() if i.strip()]
   idx=0;indices=[];b_idx=0
   for i in b:    
     if 'Death Case No' in i:
