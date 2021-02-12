@@ -10,6 +10,7 @@ import os,sys,copy,tqdm,csv,lazy_import
 pylab=lazy_import.lazy_module('pylab')
 requests=lazy_import.lazy_module('requests')
 np=lazy_import.lazy_module('numpy')
+numpy=np
 colorama=lazy_import.lazy_module('colorama')
 mdates=lazy_import.lazy_module('matplotlib.dates')
 
