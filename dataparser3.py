@@ -1598,7 +1598,7 @@ def delhi_analysis(do='',plot_days=''):
   return (hos_used,deaths)
   
 def update_data_files(extra=False):
-  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/statewise_tested_numbers_data.csv','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv']
+  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv']
   
   if extra: urls.extend(['https://api.covid19india.org/data.json','https://api.covid19india.org/v4/data-all.json'])
   for i in urls:
@@ -2469,6 +2469,17 @@ def helper_plot_exponential_fit(x,y,label='',color=''):
   if not label:    label='Best Exponential fit'
   
   pylab.plot(x,numpy.exp(poly1d_fn(x)),color,label=label)
+  
+def helper_plot_loglog_fit(x,y,label='',color=''):
+  # ~ import pylab  
+  coef=numpy.polyfit(numpy.log(x),numpy.log(y),1)
+  poly1d_fn=numpy.poly1d(coef)
+  # ~ pylab.plot(x,y, 'yo', x, poly1d_fn(x), '--k',label='Best linear fit')
+  # ~ pylab.plot_date(x,poly1d_fn(xr), 'g',label='Best linear fit')
+  if not color:    color='r'
+  if not label:    label='Best Log-Log fit'
+  
+  pylab.plot(x,numpy.exp(poly1d_fn(np.log(x))),color,label=label)
   
   
 def helper_get_mean_timeseries(recoveries):
