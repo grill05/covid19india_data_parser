@@ -70,7 +70,7 @@ def parse_census_district(state='Karnataka',district='Bengaluru Urban',metric='u
         return urbanization
 
     return info
-def vaccination_state(state='Delhi',mohfw=False,check=False):
+def vaccination_state(state='Delhi',mohfw=True,check=False):
   if mohfw:
     r=csv.reader(open('vaccine_doses_statewise.csv'))
     info=[]
@@ -80,7 +80,9 @@ def vaccination_state(state='Delhi',mohfw=False,check=False):
     info=[i[1:] for i in info if i[0]==state]
     if info:
       info=[int(i) for i in info[0]]
-      return list(zip(dates,info))
+      info2=[info[0]]
+      info2.extend(np.diff(info))
+      return list(zip(dates,info2))
     else:
       return
 
@@ -156,9 +158,9 @@ def vaccination_national():
   for i in info[1:]:
     date=i[1];#date=date.replace('/1/','/01/')
     cumdoses=i[12]
-    cumsessions=i[13]
-    cumhcw=i[6]
-    cumfront=i[7]
+    cumsessions=i[16]
+    cumhcw=i[10]
+    cumfront=i[11]
     if cumdoses or cumsessions:
       date=datetime.datetime.strptime(date,'%d/%m/%Y')
       if not cumhcw: cumhcw=0
@@ -546,7 +548,7 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',
   ax=pylab.axes()
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
   # ~ formatter = mdates.ConciseDateFormatter(locator)
-  # ~ formatter = mdates.AutoDateFormatter(locator)
+  # ~ formatter = mdates.ConciseDateFormatter(locator)
   formatter = mdates.DateFormatter('%d-%m')
   ax.xaxis.set_major_locator(locator)
   ax.xaxis.set_major_formatter(formatter) 
@@ -585,7 +587,7 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
     color = color1
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
     # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.AutoDateFormatter(locator)
+    formatter = mdates.ConciseDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
@@ -599,7 +601,7 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
     color = color2
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
     # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.AutoDateFormatter(locator)
+    formatter = mdates.ConciseDateFormatter(locator)
     ax2.xaxis.set_major_locator(locator)
     ax2.xaxis.set_major_formatter(formatter) 
 
@@ -1083,14 +1085,19 @@ def chloropleth_data():
     data=[]
     states=list(state_name_to_code.keys());states.sort()
     for state in tqdm.tqdm(states):
-        x=get_cases(state,case_type='confirmed',return_full_series=True)
-        dates,confirmed=zip(*x)
-        confirmed_delta=moving_average(np.diff(confirmed));dates=dates[1:]
-        x=confirmed_delta
+        x=get_cases(state,case_type='active',return_full_series=True)
+        dates,active=zip(*x)
+        active=moving_average(active)
+        # ~ confirmed_delta=moving_average(np.diff(confirmed));dates=dates[1:]
+        # ~ x=confirmed_delta
+        x=active
         for i in range(8,len(x)):#weekly change
             last=x[i-7]
             if last==0: continue
-            percent_change=100*(float(x[i]-x[i-7])/x[i-7])
+            percent_change=(x[i]-x[i-7]) / float(x[i-7])
+            percent_change*=100
+            # ~ if state=='Andhra Pradesh' and dates[i]==datetime.datetime(2021, 2, 17, 0,0):
+              # ~ print(x[i],x[i-7],state,dates[i])
         #    sstate=state.replace('Odisha','Orissa').replace('Uttarakhand','Uttaranchal').replace(' Islands','')
             data.append((state,dates[i],percent_change))
     d2={}
@@ -1100,7 +1107,8 @@ def chloropleth_data():
             d2[d][st]=p
         else:
             d2[d]={st:p}
-    #normalize d2
+    d2_orig=d2.copy()
+    # ~ #normalize d2
     for date in d2:
         ddict=d2[date]
         states,values=zip(*list(ddict.items()))
@@ -1115,13 +1123,21 @@ def chloropleth_data():
         for i,j in zip(states,values2):
             ddict2[i]=j
         d2[date]=ddict2
-    return data,d2
+    return data,d2,d2_orig
 
 def chloropleth(data_dict={},date=''):
   from  matplotlib.colors import LinearSegmentedColormap
+  import matplotlib.colors as colors
+  import matplotlib.cm as cm
   from descartes import PolygonPatch;import matplotlib.pyplot as plt;import geojson
+  cdict={'red': ((0,0,0),(0.5,1,1),(1,0.8,0.8)),
+          'green': ((0,0.8,0.8),(0.5,1,1),(1,0,0)),
+          'blue' : ((0,0,0),(0.5,1,1),(1,0,0))
+  }
   #cmap=LinearSegmentedColormap.from_list('rg',["r", "y", "g"], N=256) 
-  cmap=LinearSegmentedColormap.from_list('',["g", "y", "r"], N=256) 
+  # ~ cmap=LinearSegmentedColormap.from_list('',["g", "y", "r"], N=256) 
+  # ~ cmap = colors.LinearSegmentedColormap('GnRd', cdict) 
+  cmap = cm.PiYG(np.arange(-1,1,0.01))
   jsonfile='india_state.json'
   #jsonfile='india_telengana.geojson'
   json_data=geojson.load(open(jsonfile))
@@ -1139,11 +1155,11 @@ def chloropleth(data_dict={},date=''):
       name=feature.properties['ST_NM']
     if name in data_dict:
         data_value=data_dict[name]
-        color=cmap(data_value)
-#        if data_value<0: #green
-#            color=[0,np.abs(data_value),0]
-#        else: #red
-#            color=[np.abs(data_value),0,0]
+        # ~ color=cmap(data_value)
+        if data_value<0: #green
+            color=[0,np.abs(data_value),0]
+        else: #red
+            color=[np.abs(data_value),0,0]
     else:
         print('Feature with name %s was not in data_dict' %(name))
         continue
@@ -2536,17 +2552,17 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
     x=[i for i in info if i[2]==state and i[3]==district]
     y=[]
     for i in x:
-      dt=datetime.datetime.strptime(i[7],'%Y-%m-%d')
+      dt=datetime.datetime.strptime(i[8],'%Y-%m-%d')
 #      try:
-      recr=int(i[8])
-      groc_phar=int(i[9])
+      recr=int(i[9])
+      groc_phar=int(i[10])
 #      except:
 #          print('error parsing '+str(i))
 #          continue
-      parks=int(i[10])
-      trans=int(i[11])
-      wrksp=int(i[12])
-      resi=int(i[13])
+      parks=int(i[11])
+      trans=int(i[12])
+      wrksp=int(i[13])
+      resi=int(i[14])
       avg=(recr+groc_phar+parks+trans+wrksp+resi)/6.
       y.append((dt,recr,groc_phar,parks,trans,wrksp,resi,avg))
 
@@ -2572,6 +2588,7 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
             dates2=pylab.date2num(dates2);dates=pylab.date2num(dates)
             ax=pylab.axes()
             locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+            # ~ formatter = mdates.ConciseDateFormatter(locator)
             formatter = mdates.ConciseDateFormatter(locator)
             ax.xaxis.set_major_locator(locator)
             ax.xaxis.set_major_formatter(formatter) 
@@ -2600,6 +2617,7 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
                 avg=avg[-1*plot_days:]
             ax=pylab.axes()
             locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+            # ~ formatter = mdates.ConciseDateFormatter(locator)
             formatter = mdates.ConciseDateFormatter(locator)
             ax.xaxis.set_major_locator(locator)
             ax.xaxis.set_major_formatter(formatter) 
@@ -3089,7 +3107,7 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
     ax=pylab.axes()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
     # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.AutoDateFormatter(locator)
+    formatter = mdates.ConciseDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
@@ -3110,7 +3128,7 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
     ax=pylab.axes()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
     # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.AutoDateFormatter(locator)
+    formatter = mdates.ConciseDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
@@ -4227,7 +4245,7 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
     
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
   # ~ formatter = mdates.ConciseDateFormatter(locator)
-  formatter = mdates.AutoDateFormatter(locator)
+  formatter = mdates.ConciseDateFormatter(locator)
   ax.xaxis.set_major_locator(locator)
   ax.xaxis.set_major_formatter(formatter) 
 
@@ -4259,7 +4277,7 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
     sp,ax=pylab.subplots()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
     # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.AutoDateFormatter(locator)
+    formatter = mdates.ConciseDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
@@ -4273,7 +4291,7 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
     ax2=ax.twinx()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
     # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.AutoDateFormatter(locator)
+    formatter = mdates.ConciseDateFormatter(locator)
     ax2.xaxis.set_major_locator(locator)
     ax2.xaxis.set_major_formatter(formatter) 
 
@@ -4296,7 +4314,7 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
     color = 'black'
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
     # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.AutoDateFormatter(locator)
+    formatter = mdates.ConciseDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
@@ -4310,7 +4328,7 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
     color = 'tab:green'
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
     # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.AutoDateFormatter(locator)
+    formatter = mdates.ConciseDateFormatter(locator)
     ax2.xaxis.set_major_locator(locator)
     ax2.xaxis.set_major_formatter(formatter) 
 
@@ -4338,7 +4356,7 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
       sp,ax=pylab.subplots()
       locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
       # ~ formatter = mdates.ConciseDateFormatter(locator)
-      formatter = mdates.AutoDateFormatter(locator)
+      formatter = mdates.ConciseDateFormatter(locator)
       ax.xaxis.set_major_locator(locator)
       ax.xaxis.set_major_formatter(formatter) 
 
@@ -4352,7 +4370,7 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
       ax2=ax.twinx()
       locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
       # ~ formatter = mdates.ConciseDateFormatter(locator)
-      formatter = mdates.AutoDateFormatter(locator)
+      formatter = mdates.ConciseDateFormatter(locator)
       ax2.xaxis.set_major_locator(locator)
       ax2.xaxis.set_major_formatter(formatter) 
 
@@ -4471,7 +4489,7 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
   color = 'tab:blue'
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
   # ~ formatter = mdates.ConciseDateFormatter(locator)
-  formatter = mdates.AutoDateFormatter(locator)
+  formatter = mdates.ConciseDateFormatter(locator)
   ax.xaxis.set_major_locator(locator)
   ax.xaxis.set_major_formatter(formatter) 
 
@@ -4486,7 +4504,7 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
   color = 'tab:red'
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
   # ~ formatter = mdates.ConciseDateFormatter(locator)
-  formatter = mdates.AutoDateFormatter(locator)
+  formatter = mdates.ConciseDateFormatter(locator)
   ax2.xaxis.set_major_locator(locator)
   ax2.xaxis.set_major_formatter(formatter) 
 
@@ -4506,7 +4524,7 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
   color = 'tab:blue'
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
   # ~ formatter = mdates.ConciseDateFormatter(locator)
-  formatter = mdates.AutoDateFormatter(locator)
+  formatter = mdates.ConciseDateFormatter(locator)
   ax.xaxis.set_major_locator(locator)
   ax.xaxis.set_major_formatter(formatter) 
 
@@ -4520,7 +4538,7 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
   color = 'tab:orange'
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
   # ~ formatter = mdates.ConciseDateFormatter(locator)
-  formatter = mdates.AutoDateFormatter(locator)
+  formatter = mdates.ConciseDateFormatter(locator)
   ax2.xaxis.set_major_locator(locator)
   ax2.xaxis.set_major_formatter(formatter) 
 
