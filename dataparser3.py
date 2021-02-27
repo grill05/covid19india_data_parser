@@ -158,6 +158,7 @@ def vaccination_national():
   for i in info[1:]:
     date=i[1];#date=date.replace('/1/','/01/')
     cumdoses=i[12]
+    cumdosestot=i[15]
     cumsessions=i[16]
     cumhcw=i[10]
     cumfront=i[11]
@@ -167,11 +168,12 @@ def vaccination_national():
       else: cumhcw=int(cumhcw)
       if not cumfront: cumfront=0
       else: cumfront=int(cumfront)
-      info2.append((date,cumdoses,cumsessions,cumhcw,cumfront))
+      info2.append((date,cumdoses,cumsessions,cumhcw,cumfront,cumdosestot))
   info=[]
-  info.append((info2[0][0],int(info2[0][1]),int(info2[0][2]),float(info2[0][1])/int(info2[0][2]),info2[0][3],info2[0][4]))
+  info.append((info2[0][0],int(info2[0][1]),int(info2[0][2]),float(info2[0][1])/int(info2[0][2]),info2[0][3],info2[0][4],int(info2[0][5])))
   for j in range(len(info2[1:])):
     dailydoses=int(info2[j+1][1])-int(info2[j][1])
+    dosestot=int(info2[j+1][5])-int(info2[j][5])
     sess=info2[j+1][2];sessonday=0
     hcw=0;front=0
     cumhcw=info2[j+1][3];cumfront=info2[j+1][4]
@@ -192,7 +194,7 @@ def vaccination_national():
         dosespersession=float(dailydoses)/sessonday
       except ZeroDivisionError:
         dosespersession=0
-    info.append((info2[j+1][0],dailydoses,sessonday,dosespersession,hcw,front))
+    info.append((info2[j+1][0],dailydoses,sessonday,dosespersession,hcw,front,dosestot))
 
   #return info,info2,info0
   return info
