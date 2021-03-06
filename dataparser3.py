@@ -157,78 +157,62 @@ def vaccination_national():
   info0=info[1:]
   for i in info[1:]:
     date=i[1];#date=date.replace('/1/','/01/')
-    cumhcw=i[10]
-    cumfront=i[11]
-    cum45_59=i[12]
-    cum60plus=i[13]
-    cumdoses=i[14]
-    cum2nddoses=i[15]
-    cumind=i[16]
-    cumdosestot=i[17]
-    cumsessions=i[18]
+    cumreg=i[10]
+    cumsessions=i[11]
+    cumsites=i[12]
+    cum1stdoses=i[13]
+    cum2nddoses=i[14]
+    cummales=i[15]
+    cumfemales=i[16]
+    cumcovaxin=i[18]
+    cumcovidshield=i[19]
+    cumind=i[20]
+    cumdoses=i[21]
     
     if cumdoses or cumsessions:
-      date=datetime.datetime.strptime(date,'%d/%m/%Y')
-      if not cumhcw: cumhcw=0
-      else: cumhcw=int(cumhcw)
-      if not cumfront: cumfront=0
-      else: cumfront=int(cumfront)
-      if not cum45_59: cum45_59=0
-      else: cum45_59=int(cum45_59)
-      if not cum60plus: cum60plus=0
-      else: cum60plus=int(cum60plus)
-      if not cum2nddoses: cum2nddoses=0
-      else: cum2nddoses=int(cum2nddoses)
-      if not cumdoses: cumdoses=0
-      else: cumdoses=int(cumdoses)
-      if not cumind: cumind=0
-      else: cumind=int(cumind)
-      if not cumdosestot: cumdosestot=0
-      else: cumdosestot=int(cumdosestot)
+      date=datetime.datetime.strptime(date,'%d/%m/%Y');prog=''
+      
+      if not cumreg: cumreg=0
+      else: cumreg=int(cumreg)
       if not cumsessions: cumsessions=0
       else: cumsessions=int(cumsessions)
-      # ~ info2.append((date,cumdoses,cumsessions,cumhcw,cumfront,cumdosestot))
-      info2.append((date,cumhcw,cumfront,cum45_59,cum60plus,cumdoses,cum2nddoses,cumind,cumdosestot,cumsessions))
-  # ~ return info2
+      if not cumsites: cumsites=0
+      else: cumsites=int(cumsites)
+      if not cum1stdoses: cum1stdoses=0
+      else: cum1stdoses=int(cum1stdoses)
+      if not cum2nddoses: cum2nddoses=0
+      else: cum2nddoses=int(cum2nddoses)
+      if not cummales: cummales=0
+      else: cummales=int(cummales)
+      if not cumfemales: cumfemales=0
+      else: cumfemales=int(cumfemales)
+      if not cumcovaxin: cumcovaxin=0
+      else: cumcovaxin=int(cumcovaxin)
+      if not cumcovidshield: cumcovidshield=0
+      else: cumcovidshield=int(cumcovidshield)
+      if not cumind: cumind=0
+      else: cumind=int(cumind)
+      if not cumdoses: cumdoses=0
+      else: cumdoses=int(cumdoses)
+
+        
+      info2.append((date,cumreg,cumsessions,cumsites,cum1stdoses,cum2nddoses,cummales,cumfemales,cumcovaxin,cumcovidshield,cumind,cumdoses))
+
+  # ~ return info2  
   info=[]
-  # ~ info.append((info2[0][0],int(info2[0][1]),int(info2[0][2]),float(info2[0][1])/int(info2[0][2]),info2[0][3],info2[0][4],int(info2[0][5])))
+
   
-  dates,hcw,front,p45,p60,firstdose,seconddose,individuals,totdose,sessions=zip(*info2)
+  dates,cumreg,cumsessions,cumsites,cum1stdoses,cum2nddoses,cummales,cumfemales,cumcovaxin,cumcovidshield,cumind,cumdoses=zip(*info2)
   
-  hcw=np.diff(hcw);front=np.diff(front);p45=np.diff(p45);p60=np.diff(p60);firstdose=np.diff(firstdose);
-  seconddose=np.diff(seconddose);individuals=np.diff(individuals);totdose=np.diff(totdose);sessions=np.diff(sessions);
+  cumreg=np.diff(cumreg);cumsessions=np.diff(cumsessions);cumsites=np.diff(cumsites);cum1stdoses=np.diff(cum1stdoses);cum2nddoses=np.diff(cum2nddoses);
+  cummales=np.diff(cummales);cumfemales=np.diff(cumfemales);cumcovaxin=np.diff(cumcovaxin);cumcovidshield=np.diff(cumcovidshield);
+  cumind=np.diff(cumind);cumdoses=np.diff(cumdoses);
   
   info.append(info2[0])
   
-  for j in range(len(hcw)):
-    info.append((dates[j+1],hcw[j],front[j],p45[j],p60[j],firstdose[j],seconddose[j],individuals[j],totdose[j],sessions[j]))
+  for j in range(len(cumreg)):
+    info.append((dates[j+1],cumreg[j],cumsessions[j],cumsites[j],cum1stdoses[j],cum2nddoses[j],cummales[j],cumfemales[j],cumcovaxin[j],cumcovidshield[j],cumind[j],cumdoses[j]))
   
-  # ~ for j in range(len(info2[1:])):
-    # ~ dailydoses=int(info2[j+1][1])-int(info2[j][1])
-    # ~ dosestot=int(info2[j+1][5])-int(info2[j][5])
-    # ~ sess=info2[j+1][2];sessonday=0
-    # ~ hcw=0;front=0
-    # ~ cumhcw=info2[j+1][3];cumfront=info2[j+1][4]
-    # ~ if cumhcw: 
-      # ~ if info2[j][3]: hcw=cumhcw-info2[j][3]
-      # ~ else: hcw=cumhcw-info2[j-1][3]
-    # ~ if hcw<0: hcw=0
-    # ~ if cumfront: 
-      # ~ if info2[j][4]: front=cumfront-info2[j][4]
-      # ~ else: front=cumfront-info2[j-1][4]
-    # ~ if front<0: front=0
-    # ~ dosespersession=0
-    # ~ if not sess: sess=0
-    # ~ else: 
-      # ~ sess=int(sess)
-      # ~ sessonday=sess-int(info2[j][2])
-      # ~ try:
-        # ~ dosespersession=float(dailydoses)/sessonday
-      # ~ except ZeroDivisionError:
-        # ~ dosespersession=0
-    # ~ info.append((info2[j+1][0],dailydoses,sessonday,dosespersession,hcw,front,dosestot))
-
-  #return info,info2,info0
   return info
 
 def parse_census(state='Tamil Nadu',metric='mean age'):
