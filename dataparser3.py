@@ -3184,7 +3184,8 @@ def kerala_parse_deaths(bulletin='',format_type='new'):
     print(('parsing '+pdf))
     cmd='pdftotext -nopgbrk -layout "'+pdf+'" tmp.txt';os.system(cmd)
   
-    b=[i.strip() for i in open('tmp.txt','r',encoding='utf-8').readlines() if i.strip()][3:]
+    # ~ b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()][3:]
+    b=[i.strip() for i in open('tmp.txt','r',encoding='unicode_escape').readlines() if i.strip()][3:]
     bulletin_date=[i for i in b if i.startswith('Date:')]
     if not bulletin_date:
       print(('could not find date from bulletin: '+bulletin+' !!'))
