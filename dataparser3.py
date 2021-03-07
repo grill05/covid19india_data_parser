@@ -268,7 +268,7 @@ def get_cases_global(country='India',case_type='confirmed',do_moving_average=Tru
     info=[]
     for i in r: info.append(i)
     dates=info[0][4:]
-    dates=[datetime.datetime.strptime(d+'20','%m/%d/%Y') for d in dates]
+    dates=[datetime.datetime.strptime((d+'20').replace('/2120','/2021'),'%m/%d/%Y') for d in dates]
     cdata=[i for i in info if i[1]==country]
     if not cdata: print('info for %s not found!' %(country));return
     cdata=np.int_(cdata[0][4:])
@@ -3184,7 +3184,7 @@ def kerala_parse_deaths(bulletin='',format_type='new'):
     print(('parsing '+pdf))
     cmd='pdftotext -nopgbrk -layout "'+pdf+'" tmp.txt';os.system(cmd)
   
-    b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()][3:]
+    b=[i.strip() for i in open('tmp.txt','r',encoding='utf-8').readlines() if i.strip()][3:]
     bulletin_date=[i for i in b if i.startswith('Date:')]
     if not bulletin_date:
       print(('could not find date from bulletin: '+bulletin+' !!'))
