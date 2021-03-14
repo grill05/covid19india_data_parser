@@ -3190,8 +3190,11 @@ def karnataka_read_csv():
     fatality=generic_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date)
     fatalities.append(fatality)
   return fatalities
-def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=True,ma_size=3,state='Tamil Nadu',plot=False):
-  d1=datetime.date(2020,9,13);d2=datetime.date(2021,3,3);delta=d2-d1
+def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=False,draw_vline=False):
+  # ~ d1=datetime.date(2020,9,13);
+  d1=datetime.date(2020,10,1);
+  d2=datetime.date(2021,3,13);
+  delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   datetimes=[datetime.datetime.combine(i,datetime.time(0, 0)) for i in datetimes]
 
@@ -3205,21 +3208,21 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
     d='';d1='';d2=''
     if moving_average:
       if not date_type or date_type=='death': #default behavious
-        d=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta)]
-        d1=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta) and i.district==capital]
-        d2=[i for i in deaths if i.date_of_death<=(dd+ma_delta) and i.date_of_death>=(dd-ma_delta) and i.district!=capital]
+        d=[i for i in deaths if i.date_of_death<=dd and i.date_of_death>=(dd-ma_delta)]
+        d1=[i for i in deaths if i.date_of_death<=dd and i.date_of_death>=(dd-ma_delta) and i.district==capital]
+        d2=[i for i in deaths if i.date_of_death<=dd and i.date_of_death>=(dd-ma_delta) and i.district!=capital]
         
          
       elif date_type=='reporting':
-        d=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=(dd+ma_delta) and i.date_of_reporting>=(dd-ma_delta)]
-        d1=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=(dd+ma_delta) and i.date_of_reporting>=(dd-ma_delta) and i.district==capital]
-        d2=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=(dd+ma_delta) and i.date_of_reporting>=(dd-ma_delta) and i.district!=capital]
+        d=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=dd and i.date_of_reporting>=(dd-ma_delta)]
+        d1=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=dd and i.date_of_reporting>=(dd-ma_delta) and i.district==capital]
+        d2=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=dd and i.date_of_reporting>=(dd-ma_delta) and i.district!=capital]
         
           
       elif date_type=='admission':
-        d=[i for i in deaths if i.date_of_admission<=(dd+ma_delta) and i.date_of_admission>=(dd-ma_delta)]
-        d1=[i for i in deaths if i.date_of_admission<=(dd+ma_delta) and i.date_of_admission>=(dd-ma_delta) and i.district==capital]
-        d2=[i for i in deaths if i.date_of_admission<=(dd+ma_delta) and i.date_of_admission>=(dd-ma_delta) and i.district!=capital]
+        d=[i for i in deaths if i.date_of_admission<=dd and i.date_of_admission>=(dd-ma_delta)]
+        d1=[i for i in deaths if i.date_of_admission<=dd and i.date_of_admission>=(dd-ma_delta) and i.district==capital]
+        d2=[i for i in deaths if i.date_of_admission<=dd and i.date_of_admission>=(dd-ma_delta) and i.district!=capital]
   
     else:
       d=[i for i in deaths if i.date_of_death==dd]
@@ -3303,8 +3306,12 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
     title=label+' for '+state+' (over time)'
     pylab.xlabel(xlabel);pylab.ylabel(label);pylab.title(title);
     helper_plot_linear_fit(pylab.date2num(dates),m);
-    ax.legend(fontsize=7)
+    
+    
+    if draw_vline:
+      pylab.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(m),max(m),color='xkcd:rose',label='Elderly vaccinations begin',linestyle='dashed',linewidth=4)
 
+    ax.legend(fontsize=7)
     pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
 
     ax=pylab.axes()
