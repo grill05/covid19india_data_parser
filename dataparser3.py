@@ -39,7 +39,7 @@ state_code_to_name={"an" : "Andaman and Nicobar Islands" ,"ap" : "Andhra Pradesh
                     "un" : "State Unassigned" ,"tn" : "Tamil Nadu" ,
                     "tg" : "Telangana" , "tr" : "Tripura" ,
                     "up" : "Uttar Pradesh" ,   "ut" : "Uttarakhand" ,      
-                    "wb" : "West Bengal" ,
+                    "wb" : "West Bengal" , 'jk': 'Jammu and Kashmir'
                     }
 state_name_to_code={}
 for k in state_code_to_name: state_name_to_code[state_code_to_name[k]]=k
@@ -215,6 +215,43 @@ def vaccination_national():
   
   return info
 
+def parse_mohfw_bulletin(bulletin=''):
+  cmd='pdftotext -nopgbrk -layout "'+bulletin+'" tmp.txt';os.system(cmd)
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+  
+  #get date
+  
+  date=[i for i in b if 'As on' in i]
+  if not date: print('could not extract date from %s' %(buletin));return
+  date=date[0].split('on')[1].split("’")[0].strip()
+  date=date.replace('1st March','01 Mar') #malformed bulletin on mar1
+  date=datetime.datetime.strptime(date+' 2021','%d %b %Y')
+  date=date-datetime.timedelta(days=1) #correct by 1 day since bulletin comes next morning
+  
+  
+  ind=[j for j in range(len(b)) if 'A & N Islands' in b[j]]
+  if not ind: print('no index for AN islands!!');return
+  ind=ind[0]
+  b=[i.replace('&',' and ') for i in b[ind:]]
+  info=[];fd={};sd={}
+  for i in b:
+    bb=i.split()[1:]
+    state=bb[0];index=1
+    for k in bb[1:]:
+      if not k[0].isnumeric(): state+=' '+k;index+=1
+      else: break
+    bb=bb[index:]
+    firstdoses=int(bb[0].replace(',',''))
+    seconddoses=int(bb[1].replace(',',''))
+    totaldoses=int(bb[2].replace(',',''))
+    state=state.replace('A and N Islands','Andaman and Nicobar Islands')
+    info.append((state,firstdoses,seconddoses,totaldoses))
+    fd[state]=firstdoses
+    sd[state]=seconddoses
+  return (date,info,fd,sd)
+
+    
+  
 def parse_census(state='Tamil Nadu',metric='mean age'):
   if state=='Delhi':
     state='NCT of Delhi'
@@ -223,14 +260,24 @@ def parse_census(state='Tamil Nadu',metric='mean age'):
   for i in r: info.append(i)
   data=[i for i in info if i[0]==state]
 #  print(len(data))
-  if metric=='agedict':
+  if metric in ['above60'] or metric.startswith('agedict'):
     data=data[1:-3]#exclude last 2 rows and initial one
     agedict={}
     for i in data:
       age=int(i[1])
       num_persons=int(i[2])
+      num_males=int(i[3])
+      num_females=int(i[4])
       agedict[age]=num_persons
-    return agedict
+      if metric=='agedictm': agedict[age]=num_males
+      elif metric=='agedictf': agedict[age]=num_females
+    if metric.startswith('agedict'): return agedict
+    elif metric=='above60':
+      tot_persons=sum(list(agedict.values()))
+      above60=sum([agedict[i] for i in agedict if i>=60])
+      try:frac=float('%.3f' %(float(above60)/tot_persons))
+      except ZeroDivisionError: frac=0
+      return (above60,frac)
 
   elif metric in ['mean age','tot_persons']:
     data=data[1:-3]#exclude last 2 rows and initial one
@@ -438,28 +485,43 @@ def get_tests_national(return_full_series=True):
   t2=zip(dates[1:],np.diff(t))
   t=[tests[0]];  t.extend(t2)
   return t
-def get_cases_national(return_full_series=True):
-  r=csv.reader(open('tested_numbers_icmr_data.csv'))
+def get_cases_national(return_full_series=True,case_type='confirmed'):
+  x=json.load(open('data.json'))['cases_time_series']
   info=[]
-  for i in r: info.append(i)
-  info=info[1:];tests=[]
-  cnt=0
-  for i in info:
-    try:date=datetime.datetime.strptime(i[1].strip(),'%d/%m/%Y');
-    except:
-      try:date=datetime.datetime.strptime(i[0].split()[0].strip(),'%d/%m/%Y');
-      except:
-        print('error getting date form %s' %(str(i)))
-        sys.exit(1)
-    if i[8]: cumtests=int(i[8].strip().replace(',',''))
-    else: print('recurd for %s\ni[8] %s' %(i,i[8]));cumtests=tests[cnt-1][1]
-    print(cumtests)
-    tests.append((date,cumtests))
-    cnt+=1
-  dates,t=zip(*tests)
-  t2=zip(dates[1:],np.diff(t))
-  t=[tests[0]];  t.extend(t2)
-  return t
+  for i in x:
+    date=i['dateymd'];y=0    
+    date=datetime.datetime.strptime(date,'%Y-%m-%d')
+    # ~ print(date)
+    if case_type=='confirmed': y=int(i['dailyconfirmed'])
+    elif case_type in ['deaths','death']: y=int(i['dailydeceased'])
+    elif case_type in ['recovered']: y=int(i['dailyrecovered'])
+    elif case_type in ['active']: y=int(i['dailyconfirmed'])-int(i['dailyrecovered'])-int(i['dailydeceased'])
+    info.append((date,y))
+  return info
+  # ~ r=csv.reader(open('tested_numbers_icmr_data.csv'))
+  # ~ info=[]
+  # ~ for i in r: info.append(i)
+  # ~ info=info[1:];tests=[]
+  # ~ cnt=0
+  # ~ index=8
+  # ~ if case_type=='confirmed': index=6
+  # ~ for i in info:
+    # ~ try:date=datetime.datetime.strptime(i[1].strip(),'%d/%m/%Y');
+    # ~ except:
+      # ~ try:date=datetime.datetime.strptime(i[0].split()[0].strip(),'%d/%m/%Y');
+      # ~ except:
+        # ~ print('error getting date form %s' %(str(i)))
+        # ~ sys.exit(1)
+    # ~ if i[index]: cumtests=int(i[index].strip().replace(',',''))
+    # ~ else: print('recurd for %s\ni[8] %s' %(i,i[index]));cumtests=tests[cnt-1][1]
+    # ~ print(cumtests)
+    # ~ tests.append((date,cumtests))
+    # ~ cnt+=1
+  # ~ return tests
+  # ~ dates,t=zip(*tests)
+  # ~ t2=zip(dates[1:],np.diff(t))
+  # ~ t=[tests[0]];  t.extend(t2)
+  # ~ return t
 
 def get_testing_delta():
   x=json.load(open('data-all.json'))
@@ -565,9 +627,8 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',
   if dates2.any() and type(dates2[0])==datetime.datetime: dates2=pylab.date2num(dates2)
   ax=pylab.axes()
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-  # ~ formatter = mdates.ConciseDateFormatter(locator)
-  # ~ formatter = mdates.ConciseDateFormatter(locator)
-  formatter = mdates.DateFormatter('%d-%m')
+  formatter = mdates.ConciseDateFormatter(locator)
+  # ~ formatter = mdates.DateFormatter('%d-%m')
   ax.xaxis.set_major_locator(locator)
   ax.xaxis.set_major_formatter(formatter) 
 
@@ -1078,26 +1139,52 @@ def cartogram_date(date='09_20_2020',window_size=3,plot_base=False,verbose=True,
   else:
     json_data=geojson.load(open('cartogram.json'))
   
-  fig=plt.figure();
-  ax=fig.gca();
-  BLUE='#6699cc'
-  # ~ colors=plt.cm.rainbow(numpy.linspace(0, 1, len(json_data['features'])))
-  colors=plt.cm.hsv(numpy.linspace(0, 1, len(json_data['features'])))
   
-  for feature,color in zip(json_data['features'],colors):
-    poly=feature['geometry']
-    patch=PolygonPatch(poly,fc=color,ec=color,alpha=0.5,zorder=2)
-    ax.add_patch(patch);
-    ax.axis('scaled');
-  plt.axis('off')
   if plot_base: orig_date='BASEMAP'
   else: orig_date=orig_date.strftime('%b-%2d')
-  plt.title(orig_date)
-  plt.savefig(orig_date+'.png',bbox_layout='tight')
-  plt.close()
+  
+  #if doing carto with confirmed, use color for deaths
+  data_dict={}  
+  os.chdir('..')
+  for state in state_name_to_code:
+    if state.startswith(('Dadra','State Unassigned')): continue
+    if ctype and  state.startswith(('Laks')): continue
+    if ctype=='confirmed':
+      y=get_cases(state=state,case_type='deaths',return_full_series=True,verbose=False)
+      d_y=[i[1] for i in y if i[0]<=date and i[0]>date_delta]
+      deaths_window=d_y[-1]-d_y[0]
+    else:      
+      y=get_cases(state=state,case_type='confirmed',return_full_series=True,verbose=False)
+      c_y=[i[1] for i in y if i[0]<=date and i[0]>date_delta]
+      deaths_window=c_y[-1]-c_y[0] # 10 is scaling factor
+    data_dict[state]=deaths_window
+  
+  os.chdir('cartogram')
+  chloropleth(data_dict=data_dict,date='',extra_title=orig_date,reverse_colormap=False,use_map='cartogram.json')
+  
+  #apply corrections
+  
+  # ~ fig=plt.figure();
+  # ~ ax=fig.gca();
+  # ~ BLUE='#6699cc'
+  # ~ colors=plt.cm.hsv(numpy.linspace(0, 1, len(json_data['features'])))
+  
+  
+  
+  # ~ for feature,color in zip(json_data['features'],colors):
+    # ~ poly=feature['geometry']
+    # ~ patch=PolygonPatch(poly,fc=color,ec=color,alpha=0.5,zorder=2)
+    # ~ ax.add_patch(patch);
+    # ~ ax.axis('scaled');
+  # ~ plt.axis('off')
+  # ~ if plot_base: orig_date='BASEMAP'
+  # ~ else: orig_date=orig_date.strftime('%b-%2d')
+  # ~ plt.title(orig_date)
+  # ~ plt.savefig(orig_date+'.png',bbox_layout='tight')
+  # ~ plt.close()
   os.chdir('..')
   
-  return (plt,ax,patch)
+  # ~ return (plt,ax,patch)
 
 def chloropleth_data():
     data=[]
@@ -1143,7 +1230,17 @@ def chloropleth_data():
         d2[date]=ddict2
     return data,d2,d2_orig
 
-def chloropleth(data_dict={},date=''):
+def norm_cmap(values, cmap='YlGn', vmin=None, vmax=None):
+  import matplotlib.pyplot as plt
+  from matplotlib.colors import Normalize
+  mn = vmin or min(values)
+  mx = vmax or max(values)
+  norm = Normalize(vmin=mn, vmax=mx)
+  n_cmap = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
+  return n_cmap
+  
+  
+def chloropleth(data_dict={},date='',extra_title='',reverse_colormap=False,use_map=''):
   from  matplotlib.colors import LinearSegmentedColormap
   import matplotlib.colors as colors
   import matplotlib.cm as cm
@@ -1152,11 +1249,15 @@ def chloropleth(data_dict={},date=''):
           'green': ((0,0.8,0.8),(0.5,1,1),(1,0,0)),
           'blue' : ((0,0,0),(0.5,1,1),(1,0,0))
   }
-  #cmap=LinearSegmentedColormap.from_list('rg',["r", "y", "g"], N=256) 
-  # ~ cmap=LinearSegmentedColormap.from_list('',["g", "y", "r"], N=256) 
+  
+  cmap=LinearSegmentedColormap.from_list('',["g", "y", "r"], N=256) 
+  if reverse_colormap: cmap=LinearSegmentedColormap.from_list('rg',["r", "y", "g"], N=256) 
   # ~ cmap = colors.LinearSegmentedColormap('GnRd', cdict) 
-  cmap = cm.PiYG(np.arange(-1,1,0.01))
+  # ~ cmap = cm.PiYG(np.arange(-1,1,0.01))
+  # ~ cmap=norm_cmap(data_dict.values(),mycolormap)
+  cmap=norm_cmap(data_dict.values(),cmap)
   jsonfile='india_state.json'
+  if use_map and use_map.endswith('json'): jsonfile=use_map
   #jsonfile='india_telengana.geojson'
   json_data=geojson.load(open(jsonfile))
 
@@ -1167,17 +1268,18 @@ def chloropleth(data_dict={},date=''):
   #for feature,color in zip(json_data['features'],colors):
   for feature in json_data['features']:
     poly=feature['geometry']
-    if 'gana' in jsonfile:
+    if 'gana' in jsonfile or 'cartogram' in jsonfile:
       name=feature.properties['NAME_1']
     else:
       name=feature.properties['ST_NM']
     if name in data_dict:
         data_value=data_dict[name]
+        color=cmap.to_rgba(data_value)
         # ~ color=cmap(data_value)
-        if data_value<0: #green
-            color=[0,np.abs(data_value),0]
-        else: #red
-            color=[np.abs(data_value),0,0]
+        # ~ if data_value<0: #green
+            # ~ color=[0,np.abs(data_value),0]
+        # ~ else: #red
+            # ~ color=[np.abs(data_value),0,0]
     else:
         print('Feature with name %s was not in data_dict' %(name))
         continue
@@ -1185,15 +1287,30 @@ def chloropleth(data_dict={},date=''):
     ax.add_patch(patch);
     ax.axis('scaled');
   plt.axis('off')
-  orig_date=date.strftime('%b-%d')
+  
+  orig_date=''
+  if date: orig_date=date.strftime('%b-%d')
+  if extra_title: 
+    if orig_date: orig_date+=' '
+    orig_date+=extra_title
   plt.title(orig_date)
+  
+  #COLORBAR
+  from mpl_toolkits.axes_grid1 import make_axes_locatable 
+  divider = make_axes_locatable(ax)
+  cax = divider.append_axes('right', size='5%', pad=0.05)
+  fig.colorbar(cmap,cax=cax, orientation='vertical')
+  # ~ import matplotlib.colorbar;  matplotlib.colorbar.ColorbarBase(ax=ax,values=sorted(data_dict.values()),orientation='vertical')
+  
+  fig.tight_layout()
+  
   plt.savefig(TMPDIR+orig_date+'.png',bbox_layout='tight')
   print('saved to %s.png' %(orig_date))
 
-def cartogram(window_size=3,ctype=''):
+def cartogram(window_size=7,ctype=''):
   # ~ d1=datetime.date(2020,5,1);d2=datetime.date(2020,9,23);delta=d2-d1
-  d1=datetime.date(2020,8,1);d2=datetime.date(2020,9,28);delta=d2-d1
-  dates=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
+  d2=datetime.date(2021,3,4);d1=datetime.date(2020,9,28);delta=d2-d1
+  dates=[(d1 + datetime.timedelta(days=i)) for i in range(1,delta.days + 1)]
   dates=dates[::window_size]
   for date in dates:
     str_date=date.strftime('%m_%d_%Y')
@@ -1933,6 +2050,53 @@ def karnataka_map_patient_no_to_date(patient_no=1,case_series=''):
     pass
   return date
 
+def tamil_nadu_parse_cases(analysis=False,plot=True):
+  r=csv.reader(open('csv_dumps/TN_cases.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info=info[1:]
+  out=[]
+  for i in info:
+    date,u12,f13t60,a60=i
+    date=datetime.datetime.strptime(date+'/2021','%d/%m/%Y')
+    out.append((date,int(u12),int(f13t60),int(a60),int(a60)+int(f13t60)+int(u12)))
+    
+  if analysis:
+    print('analysing!')
+    x=get_cases('Tamil Nadu',case_type='confirmed',return_full_series=True)
+    x.append((datetime.datetime(2021, 3, 13, 0, 0),858967))#hack
+    datesc,c=zip(*x)
+    dates,u12,a12,a60,tot=zip(*out)
+    
+    # ~ dates=dates[-1*days:]
+    # ~ dates=[i for i in dates if i>= datetime.datetime(2021, 2, 1, 0, 0)]
+    a60=np.diff(a60)#[-1*len(dates):]
+    c=np.diff(c)[-1*len(a60):]#[-1*len(dates):]
+    
+    # ~ frac=100*(np.array(moving_average(a60))/np.array(moving_average(c)))
+    frac=100*np.array(moving_average(a60/c))
+    
+    # ~ dates=[i for i in dates if i>= datetime.datetime(2021, 2, 1, 0, 0)]
+    dates=dates[7:]
+    frac=frac[-1*len(dates):]    
+    
+    if plot:
+      sp,ax=pylab.subplots()
+      locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
+      ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
+
+      ax.set_xlabel('Date')
+      ax.set_ylabel('Percent of 60+ in daily cases (7-day MA)')
+      ax.plot_date(pylab.date2num(dates),frac,label='Percent of 60+ in daily cases')      
+      ax.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(frac)-0.5,max(frac)+0.5,label='Elderly vaccinations begin',color='green',linestyles='dashed',linewidth=4)
+      ax.legend(fontsize=8);pylab.title("Percentage of 60+ in Tamil Nadu's daily cases")
+      fname=TMPDIR+'Tamil_nadu_elderly_cases_fraction.jpg'
+      pylab.savefig(fname);pylab.close();print('saved fig to %s' %(fname))
+    return (dates,frac)
+    
+    
+    
+  return out
 def tamil_nadu_parse_csv():
   r=csv.reader(open('csv_dumps/TN_fatalities_Jul1_Feb11.csv'))
   info=[]
@@ -3027,7 +3191,7 @@ def karnataka_read_csv():
     fatalities.append(fatality)
   return fatalities
 def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=True,ma_size=3,state='Tamil Nadu',plot=False):
-  d1=datetime.date(2020,6,1);d2=datetime.date(2021,2,11);delta=d2-d1
+  d1=datetime.date(2020,9,13);d2=datetime.date(2021,3,3);delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   datetimes=[datetime.datetime.combine(i,datetime.time(0, 0)) for i in datetimes]
 
@@ -3231,15 +3395,16 @@ def kerala_parse_deaths(bulletin='',format_type='new'):
         return
   
       age=entry.split()[2].strip()
-      if 'month' in entry.split()[3].lower(): age='1'
+      if ('month' in entry.split()[3].lower()) or ('month' in entry.split()[2].lower()): age='1'
   
       gender=entry.split()[-3].strip()
       if gender.lower()=='female': gender='F'
       else: gender='M'
   
-      dod=entry.split()[-2].strip().replace('.','/').replace('-','/')
+      dod=entry.split()[-2].strip().replace('267.09.2020','26.09.2020').replace('.','/').replace('-','/')
       if dod.count('/')==2:
         if dod.endswith('/20'):dod+='20'
+        elif dod.endswith('/21'):dod=dod.replace('/21','/2021')
         dod=datetime.datetime.strptime(dod,'%d/%m/%Y')
   
       origin=entry.split()[-1].strip()
@@ -3950,12 +4115,13 @@ def get_antigen_tests(state='Karnataka',verbose=False,do_moving_average=False):
     tests_on_day=int(i['totaltested'])-int(x[idx-1]['totaltested'])
     antigen_on_day=int(i['ratrapidantigentest'])-int(x[idx-1]['ratrapidantigentest'])
     percent_antigen=100*(float(antigen_on_day)/tests_on_day)
+    date=datetime.datetime.strptime(date,'%d/%m/%Y')
     all_antigen.append((date,tests_on_day,antigen_on_day,percent_antigen))
   
   if verbose:
     print(('For state: %s' %(state)))
     for i in all_antigen:
-      (date,tests_on_day,antigen_on_day,percent_antigen)=i
+      (date,tests_on_day,antigen_on_day,percent_antigen)=i      
       print(('%s: %d tests,  %.1f percent (%d tests) were antigen' %(date,tests_on_day,percent_antigen,antigen_on_day)))
   if do_moving_average:
     dates,t,pa,ad=zip(*all_antigen)
@@ -4235,6 +4401,7 @@ def get_people_on_ventilators(state='Telangana',verbose=False):
   return all_percent_ventilator
 
 def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   deaths=get_cases(state=state,case_type='deaths',return_full_series=True,verbose=False)
   deaths=[i for i in deaths if i[0]>=datetime.datetime(2020,6,1,0,0)]
   dates2=pylab.date2num([i[0] for i in deaths][1:]);d=moving_average(numpy.diff([i[1] for i in deaths]))
@@ -4366,7 +4533,8 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
   if extra:
       yy=get_antigen_tests(state)
       ap=moving_average([i[-1] for i in yy])
-      ad=[datetime.datetime.strptime(i[0],'%d/%m/%Y') for i in yy]
+      ad=[i[0] for i in yy]
+      # ~ ad=[datetime.datetime.strptime(i[0],'%d/%m/%Y') for i in yy]
       ad=pylab.date2num(ad)
       if plot_days:
           ap=ap[-1*plot_days:]
@@ -4411,10 +4579,10 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
 def webp():
     x=[i for i in os.listdir('.') if i.endswith(('.jpg','.jpeg','.png'))];x.sort()
     from PIL import Image;import tqdm
-    os.system('mkdir -p webp')
+    os.system('mkdir -p encoded')
     for i in tqdm.tqdm(x,desc='making webp'):
         y=Image.open(i)
-        y.save('webp/'+os.path.splitext(i)[0]+'.webp')
+        y.save('encoded/'+os.path.splitext(i)[0]+'.webp')
         
 
 def analysis_undercounting_karnataka(district='Bengaluru Urban',verbose=True,plot_days=''):
@@ -4474,13 +4642,14 @@ def analysis_undercounting_karnataka(district='Bengaluru Urban',verbose=True,plo
   
   
 def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
-  if atype in ['ventilator','ventilators']:
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
+  if atype in ['v','ventilator','ventilators']:
     y=get_people_on_ventilators(state)
-  elif atype in ['icu','icus']:
+  elif atype in ['i','icu','icus']:
     y=get_people_in_icus(state)
-  elif atype in ['beds','hospital beds']:
+  elif atype in ['b','beds','hospital beds']:
     y=get_beds(state)
-  if atype in ['beds','hospital beds']:
+  if atype in ['b','beds','hospital beds']:
     dates,x,b=zip(*y)
   else:
     dates=pylab.date2num([datetime.datetime.strptime(i[0],'%d/%m/%Y') for i in y]);
