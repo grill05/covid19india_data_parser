@@ -1304,7 +1304,8 @@ def chloropleth(data_dict={},date='',extra_title='',reverse_colormap=False,use_m
   
   fig.tight_layout()
   
-  plt.savefig(TMPDIR+orig_date+'.png',bbox_layout='tight')
+  # ~ plt.savefig(TMPDIR+orig_date+'.png',bbox_layout='tight')
+  plt.savefig(TMPDIR+orig_date+'.png')
   print('saved to %s.png' %(orig_date))
 
 def cartogram(window_size=7,ctype=''):
@@ -2050,6 +2051,39 @@ def karnataka_map_patient_no_to_date(patient_no=1,case_series=''):
     pass
   return date
 
+def tamil_nadu_auto_cases_actual(bulletin=''):
+  #get date first
+  date=tamil_nadu_bulletin_parser(bulletin,return_date=True)\
+  #check pg6 infact contains breakup of cases
+  cmd='pdftotext -nopgbrk -layout "'+bulletin+'" -f 6 -l 6 tmp.txt';os.system(cmd)
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()][0].strip()
+  if not b.startswith('Age and Sex distribution'): print('Page 6 of %s did not start with "Age and Sex distribution"..' %(bulletin));return
+  cmd='pdftotext -nopgbrk -layout "'+bulletin+'" -f 6 -l 6 -x 355 -y 0 -W 400 -H 700 tmp.txt';os.system(cmd)
+  b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+  index=0
+  for i in b:
+    if 'Male' in i: break
+    else: index+=1
+  rest=b[index+1:]
+  if not rest: print('could not find the text with "male" in parsing '+bulletin);return
+  cases=rest[0]
+  if cases.isnumeric(): cases=int(cases)
+  else: print('60+ cases found in %s was %s which is not numeric' %(bulletin,cases))
+  
+  a=open('tmp.csv','a')
+  a.write('%s,%s\n' %(date.strftime('%d-%m'),str(cases)))
+  a.close()
+  
+  return cases
+  
+def tamil_nadu_auto_cases(bulletin='',noexc=False):
+  if noexc:
+    return tamil_nadu_auto_cases_actual(bulletin)
+  else:
+    try: return tamil_nadu_auto_cases_actual(bulletin)
+    except: print('unable to get 60+ cases info from %s' %(bulletin))
+  
+
 def tamil_nadu_parse_cases(analysis=False,plot=True):
   r=csv.reader(open('csv_dumps/TN_cases.csv'))
   info=[]
@@ -2057,9 +2091,9 @@ def tamil_nadu_parse_cases(analysis=False,plot=True):
   info=info[1:]
   out=[]
   for i in info:
-    date,u12,f13t60,a60=i
+    date,a60=i
     date=datetime.datetime.strptime(date+'/2021','%d/%m/%Y')
-    out.append((date,int(u12),int(f13t60),int(a60),int(a60)+int(f13t60)+int(u12)))
+    out.append((date,int(a60)))
     
   if analysis:
     print('analysing!')
@@ -2098,7 +2132,7 @@ def tamil_nadu_parse_cases(analysis=False,plot=True):
     
   return out
 def tamil_nadu_parse_csv():
-  r=csv.reader(open('csv_dumps/TN_fatalities_Jul1_Feb11.csv'))
+  r=csv.reader(open('csv_dumps/TN_fatalities_Jul1_Mar13_2021.csv'))
   info=[]
   for i in r: info.append(i)
   info=info[1:]
@@ -2112,9 +2146,44 @@ def tamil_nadu_parse_csv():
     f=generic_fatality(district,pn,age,gender,origin,comorb,doa,dod,dor,state='Tamil Nadu')
     y.append(f)
   return y
+def kerala_parse_csv():
+  r=csv.reader(open('csv_dumps/Kerala_fatalities_upto_mar13_2021.csv'))  
+  info=[]
+  for i in r: info.append(i)
+  info=info[1:]
+  y=[]
+  for i in info:
+    pn,district,age,gender,origin,dodetect,doa,dod,dor=i[:9]
+    comorb=' /'.join(i[9:])
+    # ~ doa=datetime.datetime.strptime(doa,'%Y-%m-%d')
+    dod=datetime.datetime.strptime(dod,'%Y-%m-%d')
+    if dor: dor=datetime.datetime.strptime(dor,'%Y-%m-%d')
     
+    f=generic_fatality(district,pn,age,gender,origin,comorb,doa,dod,dor,state='Kerala')
+    y.append(f)
+  return y
+ 
   
-def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin=False,dump_clippings=False):
+def get_pfr(state='Tamil Nadu',do_moving_average=False,ma_size=2):
+  if state=='Tamil Nadu':    deaths=tamil_nadu_parse_csv()
+  elif state=='Kerala':    deaths=kerala_parse_csv()
+  dd={}
+  for i in deaths:
+    age=i.age
+    if age in dd: dd[age]+=1
+    else: dd[age]=1
+  agedict=parse_census(state,'agedict')
+  pfr={}
+  for i in dd: 
+    if i in agedict:   
+      pfr[i]=100*(float(dd[i])/agedict[i])
+      if do_moving_average:
+        deaths_ma=sum([dd[j] for j in dd if j<=(i+ma_size) and j>=(i-ma_size)])
+        ages_ma=sum([agedict[j] for j in agedict if j<=(i+ma_size) and j>=(i-ma_size)])
+        pfr[i]=100*(float(deaths_ma)/ages_ma)
+  return pfr
+  
+def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin=False,return_date=False,dump_clippings=False):
   cmd='pdftotext  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
   # ~ b=[i for i in open('tmp.txt').readlines() if i]
   b=[i for i in open('tmp.txt',encoding='utf-8',errors='ignore').readlines() if i]
@@ -2126,6 +2195,7 @@ def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin
     bulletin_date=bd[0].split('lletin')[1].strip().replace('-','.').replace('/','.')
     bulletin_date_string=bulletin_date
     bulletin_date=datetime.datetime.strptime(bulletin_date,'%d.%m.%Y')
+  if return_date: return bulletin_date
     
   for i in b:
     if '\x0c' in i: page_count+=1    
@@ -3190,6 +3260,12 @@ def karnataka_read_csv():
     fatality=generic_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date)
     fatalities.append(fatality)
   return fatalities
+
+def mode1(x):
+  values,counts=np.unique(x, return_counts=True)
+  m=counts.argmax()
+  # ~ return values[m],counts[m]
+  return values[m]
 def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=False,draw_vline=False):
   # ~ d1=datetime.date(2020,9,13);
   d1=datetime.date(2020,10,1);
@@ -3242,6 +3318,10 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
       d=100*float(len([i for i in d if i.origin in ['SARI','ILI']]))/len(d)
       d1=100*float(len([i for i in d1 if i.origin in ['SARI','ILI']]))/len(d1)
       d2=100*float(len([i for i in d2 if i.origin in ['SARI','ILI']]))/len(d2)
+    elif filter_type=='percent60plus': #find fraction of SARI/ILI in daily deaths on date
+      d=100*float(len([i for i in d if i.age>=60]))/len(d)
+      d1=100*float(len([i for i in d1 if i.age>=60]))/len(d1)
+      d2=100*float(len([i for i in d2 if i.age>=60]))/len(d2)
     elif filter_type=='comorb': #find fraction of SARI/ILI in daily deaths on date
       d=100*float(len([i for i in d if i.comorbidities!=['']]))/len(d)
       d1=100*float(len([i for i in d1 if i.comorbidities!=['']]))/len(d1)
@@ -3256,9 +3336,9 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
       d2=[i.death_reporting_interval for i in d2 if i.death_reporting_interval and i.death_reporting_interval>=0]
     elif filter_type=='raw_number': #find fraction of SARI/ILI in daily deaths on date
       if moving_average:
-        d=float(len(d))/(2*ma_size+1)
-        d1=float(len(d1))/(2*ma_size+1)
-        d2=float(len(d2))/(2*ma_size+1)
+        d=float(len(d))/(ma_size)
+        d1=float(len(d1))/(ma_size)
+        d2=float(len(d2))/(ma_size)
       else:
         d=float(len(d))
         d1=float(len(d1))
@@ -3278,6 +3358,9 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
       if d1: m1=numpy.mean(d1)
       if d2: m2=numpy.mean(d2)
       if d: m=numpy.mean(d)
+      # ~ if d1: m1=mode1(d1)
+      # ~ if d2: m2=mode1(d2)
+      # ~ if d: m=mode1(d)
       mean_values.append((dd,m,m1,m2))
   if plot:
     mean_values=mean_values[:-5]
@@ -3298,9 +3381,11 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
 
     if filter_type=='':      label='Mean age'
     if filter_type=='gender':      label='Percentage of Males in daily deaths'
-    if filter_type=='comorb':      label='Percentage of deaths iwth NO comorbidities among daily deaths'
+    if filter_type=='comorb':      label='Percentage of deaths with comorbidities among daily deaths'
     if filter_type=='admission_death':      label='Admission-Death interval'
     if filter_type=='death_reporting':      label='Death-Reporting interval'
+    if filter_type=='percent60plus':      label='Percent of deaths that were 60+yrs'
+    if filter_type=='raw_number':      label='Raw number of deaths'
     #mean age vs time
     ax.plot_date(pylab.date2num(dates),m,label=label);
     title=label+' for '+state+' (over time)'
@@ -3312,7 +3397,7 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
       pylab.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(m),max(m),color='xkcd:rose',label='Elderly vaccinations begin',linestyle='dashed',linewidth=4)
 
     ax.legend(fontsize=7)
-    pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
+    pylab.savefig(TMPDIR+title+'.jpg');pylab.show();pylab.close()
 
     ax=pylab.axes()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
@@ -4792,3 +4877,5 @@ def make_plots(use_all_states=False,use_solid_lines=False):
     
 if __name__=='__main__':
   make_plots()
+
+
