@@ -71,6 +71,7 @@ def parse_census_district(state='Karnataka',district='Bengaluru Urban',metric='u
 
     return info
 def vaccination_state(state='Delhi',mohfw=True,check=False):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   if mohfw:
     r=csv.reader(open('vaccine_doses_statewise.csv'))
     info=[]
@@ -253,6 +254,7 @@ def parse_mohfw_bulletin(bulletin=''):
     
   
 def parse_census(state='Tamil Nadu',metric='mean age'):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   if state=='Delhi':
     state='NCT of Delhi'
   r=csv.reader(open('census.csv'))
@@ -338,6 +340,7 @@ def get_population(state='Karnataka',district='Bengaluru Urban'):
     pop=int(pop)
     return pop
 def get_mortality_rate(state='Tamil Nadu',district='',return_full_series=False,do_dpm=False,plot=False,plot_days=''):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   if not return_full_series:
     d=get_cases(state=state,case_type='deaths')
     c=get_cases(state=state,case_type='confirmed')
@@ -385,6 +388,7 @@ def get_mortality_rate(state='Tamil Nadu',district='',return_full_series=False,d
 
 
 def get_symptomatic(state='Telangana',asymp=False,plot=False):
+    if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
     x=json.load(open('state_test_data.json'))
     field="cumuilativenumberofsymptomaticcases"
     if asymp: field="cumuilativenumberofasymptomaticcases"
@@ -701,6 +705,7 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
 def get_national_data(case_type='active',verbose=False):
   pass
 def get_beds(state='West Bengal'):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   x=json.load(open('state_test_data.json'))
   if state in ['West Bengal']:
     x=[i for i in x['states_tested_data'] if i['state']==state and  i['bedsoccupiednormalisolation']]
@@ -767,6 +772,7 @@ def wb_analysis(plot=False,plot_days=''):
 
 
 def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full_series=False,verbose=False):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   x=json.load(open('states_daily.json'))['states_daily']
 
   target_datetime=datetime.datetime.strptime(date,'%d/%m/%Y')
@@ -1987,17 +1993,24 @@ def wb_parse_bulletin(bulletin='WB_DHFW_Bulletin_16th_SEPTEMBER_REPORT_FINAL.pdf
 
   return (date,occupied_beds,tot_covid_beds,icu,vent,home_quan+gov_quan)
   
-def moving_average(input_array=[],window_size=7,index_to_do_ma=1):
+def moving_average(input_array=[],window_size=7,index_to_do_ma=1,centered=True):
   x=input_array
+  if centered:
+    half_window=int(window_size/2)
+    x2=[]
+    # ~ for index in range(half_window,len(x)-half_window-1):
+    for index in range(len(x)):
+      left=index-half_window
+      if left<0: left=0
+      right=index+half_window
+      x2.append(float(sum(x[left:right]))/len(x[left:right]))
+    return x2
+    
   if type(input_array[0])==tuple:
     x=[i[index_to_do_ma] for i in input_array]
     dates=[i[0] for i in input_array]
     x2=numpy.convolve(x, numpy.ones((window_size,))/window_size, mode='valid')
-    # ~ print type(x2),type(x[:window_size])
     x2=list(x[:window_size-1])+list(x2)
-    # ~ d2=dates[window_size-1:]
-    # ~ return zip(d2,x2)
-    # ~ d2=dates[window_size-1:]
     return list(zip(dates,x2))
   else:
     x=numpy.convolve(input_array, numpy.ones((window_size,))/window_size, mode='valid')
@@ -2100,10 +2113,9 @@ def tamil_nadu_parse_cases(analysis=False,plot=True):
     x=get_cases('Tamil Nadu',case_type='confirmed',return_full_series=True)
     x.append((datetime.datetime(2021, 3, 13, 0, 0),858967))#hack
     datesc,c=zip(*x)
-    dates,u12,a12,a60,tot=zip(*out)
+    # ~ dates,u12,a12,a60,tot=zip(*out)
+    dates,a60=zip(*out)
     
-    # ~ dates=dates[-1*days:]
-    # ~ dates=[i for i in dates if i>= datetime.datetime(2021, 2, 1, 0, 0)]
     a60=np.diff(a60)#[-1*len(dates):]
     c=np.diff(c)[-1*len(a60):]#[-1*len(dates):]
     
@@ -2165,6 +2177,7 @@ def kerala_parse_csv():
  
   
 def get_pfr(state='Tamil Nadu',do_moving_average=False,ma_size=2):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   if state=='Tamil Nadu':    deaths=tamil_nadu_parse_csv()
   elif state=='Kerala':    deaths=kerala_parse_csv()
   dd={}
@@ -2798,6 +2811,7 @@ class mumbaihosp():
     print(info)
 
 def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=False,plot_days=''):
+    if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
     import csv;info=[]
     r=csv.reader(open('2020_IN_Region_Mobility_Report.csv'))
     for i in r: info.append(i);
@@ -3266,13 +3280,30 @@ def mode1(x):
   m=counts.argmax()
   # ~ return values[m],counts[m]
   return values[m]
-def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=False,draw_vline=False):
-  # ~ d1=datetime.date(2020,9,13);
-  d1=datetime.date(2020,10,1);
-  d2=datetime.date(2021,3,13);
+def simplify_json():
+  x=json.load(open('state_test_data.json'))['states_tested_data']
+  x2=[]
+  for d in x:
+    d2=d.copy()
+    for k in d:
+      if not d[k]: d2.pop(k)
+    x2.append(d2)
+  x={'states_tested_data': x2}
+  a=open('simplified.json','w')
+  json.dump(x,a);a.close()
+  print('wrote simplified.json from state_test_data.json removing empty fields')
+def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,noplotcapital=True,startdate=datetime.date(2020,9,13),enddate=datetime.date(2021,3,13)):
+  if not deaths:
+    if state=='Tamil Nadu': deaths=tamil_nadu_parse_csv() ;print('loaded TN fatality data from csv')
+    elif state=='Kerala': deaths=kerala_parse_csv();print('loaded KL fatality data from csv')
+    else: print('State is not TN/KL and no deaths data given to function');return
+      
+  d1=startdate
+  d2=enddate
   delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   datetimes=[datetime.datetime.combine(i,datetime.time(0, 0)) for i in datetimes]
+  # ~ return datetimes
 
   mean_values=[];capital='bengaluru';outside=''
   
@@ -3319,9 +3350,12 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
       d1=100*float(len([i for i in d1 if i.origin in ['SARI','ILI']]))/len(d1)
       d2=100*float(len([i for i in d2 if i.origin in ['SARI','ILI']]))/len(d2)
     elif filter_type=='percent60plus': #find fraction of SARI/ILI in daily deaths on date
-      d=100*float(len([i for i in d if i.age>=60]))/len(d)
-      d1=100*float(len([i for i in d1 if i.age>=60]))/len(d1)
-      d2=100*float(len([i for i in d2 if i.age>=60]))/len(d2)
+      if d: d=100*float(len([i for i in d if i.age>=60]))/len(d)
+      else: d=0
+      if d1: d1=100*float(len([i for i in d1 if i.age>=60]))/len(d1)
+      else: d1=0
+      if d2: d2=100*float(len([i for i in d2 if i.age>=60]))/len(d2)
+      else: d2=0
     elif filter_type=='comorb': #find fraction of SARI/ILI in daily deaths on date
       d=100*float(len([i for i in d if i.comorbidities!=['']]))/len(d)
       d1=100*float(len([i for i in d1 if i.comorbidities!=['']]))/len(d1)
@@ -3361,9 +3395,11 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
       # ~ if d1: m1=mode1(d1)
       # ~ if d2: m2=mode1(d2)
       # ~ if d: m=mode1(d)
-      mean_values.append((dd,m,m1,m2))
+      if m :
+        mean_values.append((dd,m,m1,m2))
+      # ~ print('got for %s' %(dd.strftime('%d-%m')))
   if plot:
-    mean_values=mean_values[:-5]
+    # ~ mean_values=mean_values[:-5]
     if filter_type=='death_reporting': 
       mean_values=mean_values[:-5]
       mean_values=[i for i in mean_values if i[1]<4 and (i[0]>=datetime.datetime(2020,9,20,0,0) or i[0]<=datetime.datetime(2020,9,7,0,0)) ] #temp hack
@@ -3386,9 +3422,10 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
     if filter_type=='death_reporting':      label='Death-Reporting interval'
     if filter_type=='percent60plus':      label='Percent of deaths that were 60+yrs'
     if filter_type=='raw_number':      label='Raw number of deaths'
+    label+=' (7-day MA)'
     #mean age vs time
     ax.plot_date(pylab.date2num(dates),m,label=label);
-    title=label+' for '+state+' (over time)'
+    title=label+' for '+state
     pylab.xlabel(xlabel);pylab.ylabel(label);pylab.title(title);
     helper_plot_linear_fit(pylab.date2num(dates),m);
     
@@ -3397,22 +3434,24 @@ def helper_get_mean_deaths(deaths,filter_type='',date_type='',moving_average=Tru
       pylab.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(m),max(m),color='xkcd:rose',label='Elderly vaccinations begin',linestyle='dashed',linewidth=4)
 
     ax.legend(fontsize=7)
-    pylab.savefig(TMPDIR+title+'.jpg');pylab.show();pylab.close()
+    pylab.savefig(TMPDIR+title+'.jpg');#pylab.show();
+    pylab.close()
+    
+    if not noplotcapital:
 
-    ax=pylab.axes()
-    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.ConciseDateFormatter(locator)
-    ax.xaxis.set_major_locator(locator)
-    ax.xaxis.set_major_formatter(formatter) 
-
-    #chn and rotn
-    ax.plot_date(pylab.date2num(dates),m1,label=label+'('+capital+')');
-    ax.plot_date(pylab.date2num(dates),m2,label=label+' ('+outside+')');
-    title=label+' for '+capital+' and '+outside+' (over time)'
-    pylab.xlabel(xlabel);pylab.ylabel(label);pylab.title(title);
-    ax.legend(fontsize=7)
-    pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
+      ax=pylab.axes()
+      locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+      formatter = mdates.ConciseDateFormatter(locator)
+      ax.xaxis.set_major_locator(locator)
+      ax.xaxis.set_major_formatter(formatter) 
+  
+      #chn and rotn
+      ax.plot_date(pylab.date2num(dates),m1,label=label+'('+capital+')');
+      ax.plot_date(pylab.date2num(dates),m2,label=label+' ('+outside+')');
+      title=label+' for '+capital+' and '+outside+' (over time)'
+      pylab.xlabel(xlabel);pylab.ylabel(label);pylab.title(title);
+      ax.legend(fontsize=7)
+      pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
 
 
   return mean_values
@@ -4193,6 +4232,7 @@ def karnataka_parser(return_specific=''):
  # ~ u'Nagaland': 13,
  # ~ u'Sikkim': 13}
 def get_antigen_tests(state='Karnataka',verbose=False,do_moving_average=False):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   x=json.load(open('state_test_data.json'))
   x=[i for i in x['states_tested_data'] if 'ratrapidantigentest' in i and i['ratrapidantigentest'] and i['state']==state]
 
@@ -4221,6 +4261,7 @@ def get_antigen_tests(state='Karnataka',verbose=False,do_moving_average=False):
     all_antigen=list(zip(dates,t,pa,ad))
   return all_antigen
 def get_pcr_tests(state='Punjab'):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   r=csv.reader(open('pcr.csv'));info=[]
   for i in r: info.append(i)
   dates=info[0][1:]
@@ -4248,6 +4289,7 @@ def get_pcr_tests(state='Punjab'):
 
 
 def get_tests(state='Karnataka',date='',return_full_series=True,verbose=False,do_moving_average=False):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   x=json.load(open('state_test_data.json'))
   x=[i for i in x['states_tested_data'] if i['state']==state]
 
@@ -4334,6 +4376,7 @@ def get_positivity_national(do_moving_average=True,plot=False,plot_days=''):
   pass
   
 def get_positivity(state='Karnataka',do_moving_average=True,plot=False,plot_days=''):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   cases_cum=get_cases(state=state,case_type='confirmed',return_full_series=True,verbose=False)
   d=[i[0] for i in cases_cum][1:]
   c=numpy.diff([i[1] for i in cases_cum])
@@ -4420,6 +4463,7 @@ def delhi_parse_json():
  # ~ u'Sikkim': 2,
  # ~ u'Telangana': 55}
 def get_people_in_icus(state='Telangana',verbose=False):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   x=json.load(open('state_test_data.json'))
   all_icu_data=[i for i in x['states_tested_data'] if 'peopleonicubeds' in i and  i['peopleonicubeds'] and i['state']==state]
   if not all_icu_data:
@@ -4446,6 +4490,7 @@ def estimate_lag():
     d=get_cases(state=states,case_type='deaths',return_full_series=True)
 
 def state_demographics(state='Punjab'):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   import csv
   
   a=open('population_pyramid_all_states.csv');r=csv.reader(a);info=[];
@@ -4472,6 +4517,7 @@ def state_demographics(state='Punjab'):
  # ~ u'Punjab': 88,
  # ~ u'Telangana': 11}
 def get_people_on_ventilators(state='Telangana',verbose=False):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   x=json.load(open('state_test_data.json'))
   all_ventilator_data=[i for i in x['states_tested_data'] if i['state']==state and i['peopleonventilator']]
   if not all_ventilator_data:
