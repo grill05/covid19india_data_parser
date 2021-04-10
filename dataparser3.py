@@ -386,6 +386,18 @@ def get_mortality_rate(state='Tamil Nadu',district='',return_full_series=False,d
       pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
     return x
 
+def helper_get_pdf_urls(state='Tamil Nadu',start='10-03-2021',end='15-04-2021'):
+    if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
+    start=datetime.datetime.strptime(start,'%d-%m-%Y')
+    end=datetime.datetime.strptime(end,'%d-%m-%Y')
+    x=json.load(open('state_test_data.json'))['states_tested_data']
+    x=[i for i in x if i['state']==state]
+    y=[i for i in x if datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')>=start and datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')<=end]
+    y=[(i['source1'],datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')) for i in y]
+    y2=[i[0] for i in y if '.pdf' in i[0]]
+    y3=[i[1].strftime('%d-%m-%Y') for i in y if '.pdf' not in i[0]]
+    if not y3: y3='got pdf for all days between %s and %s' %(start.strftime('%d-%m'),end.strftime('%d-%m'))
+    return y2,y3
 
 def get_symptomatic(state='Telangana',asymp=False,plot=False):
     if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
@@ -490,7 +502,7 @@ def get_tests_national(return_full_series=True):
   t=[tests[0]];  t.extend(t2)
   return t
 def get_cases_national(return_full_series=True,case_type='confirmed'):
-  x=json.load(open('data.json'))['cases_time_series']
+  x=json.load(open('national_data.json'))['cases_time_series']
   info=[]
   for i in x:
     date=i['dateymd'];y=0    
@@ -502,30 +514,6 @@ def get_cases_national(return_full_series=True,case_type='confirmed'):
     elif case_type in ['active']: y=int(i['dailyconfirmed'])-int(i['dailyrecovered'])-int(i['dailydeceased'])
     info.append((date,y))
   return info
-  # ~ r=csv.reader(open('tested_numbers_icmr_data.csv'))
-  # ~ info=[]
-  # ~ for i in r: info.append(i)
-  # ~ info=info[1:];tests=[]
-  # ~ cnt=0
-  # ~ index=8
-  # ~ if case_type=='confirmed': index=6
-  # ~ for i in info:
-    # ~ try:date=datetime.datetime.strptime(i[1].strip(),'%d/%m/%Y');
-    # ~ except:
-      # ~ try:date=datetime.datetime.strptime(i[0].split()[0].strip(),'%d/%m/%Y');
-      # ~ except:
-        # ~ print('error getting date form %s' %(str(i)))
-        # ~ sys.exit(1)
-    # ~ if i[index]: cumtests=int(i[index].strip().replace(',',''))
-    # ~ else: print('recurd for %s\ni[8] %s' %(i,i[index]));cumtests=tests[cnt-1][1]
-    # ~ print(cumtests)
-    # ~ tests.append((date,cumtests))
-    # ~ cnt+=1
-  # ~ return tests
-  # ~ dates,t=zip(*tests)
-  # ~ t2=zip(dates[1:],np.diff(t))
-  # ~ t=[tests[0]];  t.extend(t2)
-  # ~ return t
 
 def get_testing_delta():
   x=json.load(open('data-all.json'))
@@ -700,10 +688,6 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
     pylab.savefig(TMPDIR+title+'.jpg',dpi=100)
     pylab.close()
 
-
-
-def get_national_data(case_type='active',verbose=False):
-  pass
 def get_beds(state='West Bengal'):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   x=json.load(open('state_test_data.json'))
@@ -1236,6 +1220,30 @@ def chloropleth_data():
         d2[date]=ddict2
     return data,d2,d2_orig
 
+def vaccination_chloropleth(upto='mar13',multiple=0.62):  
+  mar1=parse_mohfw_bulletin('bulletins/vaccination/mar01.pdf')[2]
+  end=parse_mohfw_bulletin('bulletins/vaccination/'+upto+'.pdf')[2]
+  
+  vd={}
+  for state in state_name_to_code:
+    try: vd[state]=int(multiple*(end[state]-mar1[state]))
+    except: print('failed for %s' %(state))
+
+  
+  chloropleth(vd,'','Number of 60+ vaccinated',reverse_colormap=True)
+  
+  vd={}
+  for state in state_name_to_code:
+    try: vd[state]=100*(0.62*(end[state]-mar1[state])/parse_census(state,'above60')[0])
+    except: print('failed for %s' %(state))
+  # ~ print(vd)  
+  for i in ['Sikkim','Arunachal Pradesh',]:
+    if i in vd: vd.pop(i)  
+  vi=list(vd.items());vi.sort(key=lambda ff: ff[1])
+
+  chloropleth(vd,'','Percent of 60+ vaccinated(restricted set of states)',reverse_colormap=True)
+  return vi
+  
 def norm_cmap(values, cmap='YlGn', vmin=None, vmax=None):
   import matplotlib.pyplot as plt
   from matplotlib.colors import Normalize
@@ -2119,8 +2127,8 @@ def tamil_nadu_parse_cases(analysis=False,plot=True):
     a60=np.diff(a60)#[-1*len(dates):]
     c=np.diff(c)[-1*len(a60):]#[-1*len(dates):]
     
-    # ~ frac=100*(np.array(moving_average(a60))/np.array(moving_average(c)))
-    frac=100*np.array(moving_average(a60/c))
+    frac=100*(np.array(moving_average(a60))/np.array(moving_average(c)))
+    # ~ frac=100*np.array(moving_average(a60/c))
     
     # ~ dates=[i for i in dates if i>= datetime.datetime(2021, 2, 1, 0, 0)]
     dates=dates[7:]
@@ -3456,8 +3464,9 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
 
   return mean_values
 
-def kerala_parse_deaths(bulletin='',format_type='new'):  
-  b=[i.strip() for i in open('olddeaths.txt').readlines() if i.strip()][3:]
+def kerala_parse_deaths(format_type='new'):  
+  b=[]
+  if os.path.exists('olddeaths.txt'):  b=[i.strip() for i in open('olddeaths.txt').readlines() if i.strip()][3:]
   patient_numbers=[i.strip().split()[0] for i in b if i.strip()[0].isdigit()]
   districts=[i.split()[1] for i in b if i.strip()[0].isdigit()]
   ages=[i.split()[2] for i in b if i.strip()[0].isdigit()]
@@ -3474,7 +3483,7 @@ def kerala_parse_deaths(bulletin='',format_type='new'):
   if format_type=='old':    return fatalities
 
   pdfs=[i for i in os.listdir('.') if i.endswith('.pdf')];pdfs.sort()
-
+  if not pdfs: print('no pdf files(kerala bulletins) in curdir!!');return
   for pdf in pdfs:
     print(('parsing '+pdf))
     cmd='pdftotext -nopgbrk -layout "'+pdf+'" tmp.txt';os.system(cmd)
