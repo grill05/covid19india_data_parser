@@ -149,73 +149,156 @@ def vaccination_state(state='Delhi',mohfw=True,check=False):
   #else: return info,info2
   else: return info
 
+def diffdata(data):  
+  data2=[data[0]];  data2.extend(np.diff(data))
+  return data2
 
-def vaccination_national():
-  r=csv.reader(open('tested_numbers_icmr_data.csv'))
-  info=[]
-  for i in r: info.append(i)
-  info2=[]
-  info0=info[1:]
-  for i in info[1:]:
-    date=i[1];#date=date.replace('/1/','/01/')
-    cumreg=i[10]
-    cumsessions=i[11]
-    cumsites=i[12]
-    cum1stdoses=i[13]
-    cum2nddoses=i[14]
-    cummales=i[15]
-    cumfemales=i[16]
-    cumcovaxin=i[18]
-    cumcovidshield=i[19]
-    cumind=i[20]
-    cumdoses=i[21]
+# ~ def vaccination_national():
+  # ~ r=csv.reader(open('tested_numbers_icmr_data.csv'))
+  # ~ info=[]
+  # ~ for i in r: info.append(i)
+  # ~ info2=[]
+  # ~ info0=info[1:]
+  # ~ for i in info[1:]:
+    # ~ date=i[1];#date=date.replace('/1/','/01/')
+    # ~ cumreg=i[10]
+    # ~ cumsessions=i[11]
+    # ~ cumsites=i[12]
+    # ~ cum1stdoses=i[13]
+    # ~ cum2nddoses=i[14]
+    # ~ cummales=i[15]
+    # ~ cumfemales=i[16]
+    # ~ cumcovaxin=i[18]
+    # ~ cumcovidshield=i[19]
+    # ~ cumind=i[20]
+    # ~ cumdoses=i[21]
     
-    if cumdoses or cumsessions:
-      date=datetime.datetime.strptime(date,'%d/%m/%Y');prog=''
+    # ~ if cumdoses or cumsessions:
+      # ~ date=datetime.datetime.strptime(date,'%d/%m/%Y');prog=''
       
-      if not cumreg: cumreg=0
-      else: cumreg=int(cumreg)
-      if not cumsessions: cumsessions=0
-      else: cumsessions=int(cumsessions)
-      if not cumsites: cumsites=0
-      else: cumsites=int(cumsites)
-      if not cum1stdoses: cum1stdoses=0
-      else: cum1stdoses=int(cum1stdoses)
-      if not cum2nddoses: cum2nddoses=0
-      else: cum2nddoses=int(cum2nddoses)
-      if not cummales: cummales=0
-      else: cummales=int(cummales)
-      if not cumfemales: cumfemales=0
-      else: cumfemales=int(cumfemales)
-      if not cumcovaxin: cumcovaxin=0
-      else: cumcovaxin=int(cumcovaxin)
-      if not cumcovidshield: cumcovidshield=0
-      else: cumcovidshield=int(cumcovidshield)
-      if not cumind: cumind=0
-      else: cumind=int(cumind)
-      if not cumdoses: cumdoses=0
-      else: cumdoses=int(cumdoses)
+      # ~ if not cumreg: cumreg=0
+      # ~ else: cumreg=int(cumreg)
+      # ~ if not cumsessions: cumsessions=0
+      # ~ else: cumsessions=int(cumsessions)
+      # ~ if not cumsites: cumsites=0
+      # ~ else: cumsites=int(cumsites)
+      # ~ if not cum1stdoses: cum1stdoses=0
+      # ~ else: cum1stdoses=int(cum1stdoses)
+      # ~ if not cum2nddoses: cum2nddoses=0
+      # ~ else: cum2nddoses=int(cum2nddoses)
+      # ~ if not cummales: cummales=0
+      # ~ else: cummales=int(cummales)
+      # ~ if not cumfemales: cumfemales=0
+      # ~ else: cumfemales=int(cumfemales)
+      # ~ if not cumcovaxin: cumcovaxin=0
+      # ~ else: cumcovaxin=int(cumcovaxin)
+      # ~ if not cumcovidshield: cumcovidshield=0
+      # ~ else: cumcovidshield=int(cumcovidshield)
+      # ~ if not cumind: cumind=0
+      # ~ else: cumind=int(cumind)
+      # ~ if not cumdoses: cumdoses=0
+      # ~ else: cumdoses=int(cumdoses)
 
         
-      info2.append((date,cumreg,cumsessions,cumsites,cum1stdoses,cum2nddoses,cummales,cumfemales,cumcovaxin,cumcovidshield,cumind,cumdoses))
+      # ~ info2.append((date,cumreg,cumsessions,cumsites,cum1stdoses,cum2nddoses,cummales,cumfemales,cumcovaxin,cumcovidshield,cumind,cumdoses))
 
-  # ~ return info2  
-  info=[]
+  # ~ info=[]
 
   
-  dates,cumreg,cumsessions,cumsites,cum1stdoses,cum2nddoses,cummales,cumfemales,cumcovaxin,cumcovidshield,cumind,cumdoses=zip(*info2)
+  # ~ dates,cumreg,cumsessions,cumsites,cum1stdoses,cum2nddoses,cummales,cumfemales,cumcovaxin,cumcovidshield,cumind,cumdoses=zip(*info2)
   
-  cumreg=np.diff(cumreg);cumsessions=np.diff(cumsessions);cumsites=np.diff(cumsites);cum1stdoses=np.diff(cum1stdoses);cum2nddoses=np.diff(cum2nddoses);
-  cummales=np.diff(cummales);cumfemales=np.diff(cumfemales);cumcovaxin=np.diff(cumcovaxin);cumcovidshield=np.diff(cumcovidshield);
-  cumind=np.diff(cumind);cumdoses=np.diff(cumdoses);
+  # ~ cumreg=np.diff(cumreg);cumsessions=np.diff(cumsessions);cumsites=np.diff(cumsites);cum1stdoses=np.diff(cum1stdoses);cum2nddoses=np.diff(cum2nddoses);
+  # ~ cummales=np.diff(cummales);cumfemales=np.diff(cumfemales);cumcovaxin=np.diff(cumcovaxin);cumcovidshield=np.diff(cumcovidshield);
+  # ~ cumind=np.diff(cumind);cumdoses=np.diff(cumdoses);
   
-  info.append(info2[0])
+  # ~ info.append(info2[0])
   
-  for j in range(len(cumreg)):
-    info.append((dates[j+1],cumreg[j],cumsessions[j],cumsites[j],cum1stdoses[j],cum2nddoses[j],cummales[j],cumfemales[j],cumcovaxin[j],cumcovidshield[j],cumind[j],cumdoses[j]))
+  # ~ for j in range(len(cumreg)):
+    # ~ info.append((dates[j+1],cumreg[j],cumsessions[j],cumsites[j],cum1stdoses[j],cum2nddoses[j],cummales[j],cumfemales[j],cumcovaxin[j],cumcovidshield[j],cumind[j],cumdoses[j]))
   
-  return info
+  # ~ return info
 
+
+def vaccination_national():
+  x=json.load(open('national_data.json'))['tested']
+  x=[i for i in x if 'firstdoseadministered' in i and i['firstdoseadministered']]
+  firstdoses=[];seconddoses=[];dates=[]
+  frontlinefirstdoses=[];frontlineseconddoses=[];hcwfirstdoses=[];hcwseconddoses=[]
+  over60firstdoses=[];over60seconddoses=[];upto60firstdoses=[];upto60seconddoses=[]
+  for i in x:
+    if i['firstdoseadministered']:firstdoses.append(int(i['firstdoseadministered']))
+    else: firstdoses.append(0)
+    if i['seconddoseadministered']:seconddoses.append(int(i['seconddoseadministered']))
+    else: seconddoses.append(0)
+    if i['frontlineworkersvaccinated1stdose']:frontlinefirstdoses.append(int(i['frontlineworkersvaccinated1stdose']))
+    else: frontlinefirstdoses.append(0)
+    if i['frontlineworkersvaccinated2nddose']:frontlineseconddoses.append(int(i['frontlineworkersvaccinated2nddose']))
+    else: frontlineseconddoses.append(0)
+    if i['healthcareworkersvaccinated1stdose']:hcwfirstdoses.append(int(i['healthcareworkersvaccinated1stdose']))
+    else: hcwfirstdoses.append(0)
+    if i['healthcareworkersvaccinated2nddose']:hcwseconddoses.append(int(i['healthcareworkersvaccinated2nddose']))
+    else: hcwseconddoses.append(0)
+    if i['over60years1stdose']:over60firstdoses.append(int(i['over60years1stdose']))
+    else: over60firstdoses.append(0)
+    if i['over60years2nddose']:over60seconddoses.append(int(i['over60years2nddose']))
+    else: over60seconddoses.append(0)
+    if i['to60yearswithco-morbidities1stdose']:upto60firstdoses.append(int(i['to60yearswithco-morbidities1stdose']))
+    else: upto60firstdoses.append(0)
+    if i['to60yearswithco-morbidities2nddose']:upto60seconddoses.append(int(i['to60yearswithco-morbidities2nddose']))
+    else: upto60seconddoses.append(0)
+    date=datetime.datetime.strptime(i['testedasof'],'%d/%m/%Y')
+    dates.append(date)
+    
+  
+  firstdoses=diffdata(firstdoses);seconddoses=diffdata(seconddoses);
+  frontlinefirstdoses=diffdata(frontlinefirstdoses);frontlineseconddoses=diffdata(frontlineseconddoses);
+  hcwfirstdoses=diffdata(hcwfirstdoses);hcwseconddoses=diffdata(hcwseconddoses);
+  over60firstdoses=diffdata(over60firstdoses);over60seconddoses=diffdata(over60seconddoses);
+  upto60firstdoses=diffdata(upto60firstdoses);upto60seconddoses=diffdata(upto60seconddoses)
+  return list(zip(dates,firstdoses,seconddoses,frontlinefirstdoses,frontlineseconddoses,hcwfirstdoses,hcwseconddoses,over60firstdoses,over60seconddoses,upto60firstdoses,upto60seconddoses))
+
+def vaccination_national_csv():
+  x=csv.reader(open('tested_numbers_icmr_data.csv'));  info=[]
+  for i in x: info.append(i)
+  info=info[1:]
+  x=[i for i in info if i[19]]
+  firstdoses=[];seconddoses=[];dates=[]
+  frontlinefirstdoses=[];frontlineseconddoses=[];hcwfirstdoses=[];hcwseconddoses=[]
+  over60firstdoses=[];over60seconddoses=[];upto60firstdoses=[];upto60seconddoses=[]
+
+  for i in x:
+    if i[19]:firstdoses.append(int(i[19]))
+    else: firstdoses.append(0)
+    if i[20]:seconddoses.append(int(i[20]))
+    else: seconddoses.append(0)
+    if i[12]:frontlinefirstdoses.append(int(i[12]))
+    else: frontlinefirstdoses.append(0)
+    if i[13]:frontlineseconddoses.append(int(i[13]))
+    else: frontlineseconddoses.append(0)
+    if i[10]:hcwfirstdoses.append(int(i[10]))
+    else: hcwfirstdoses.append(0)
+    if i[11]:hcwseconddoses.append(int(i[11]))
+    else: hcwseconddoses.append(0)
+    if i[17]:over60firstdoses.append(int(i[17]))
+    else: over60firstdoses.append(0)
+    if i[18]:over60seconddoses.append(int(i[18]))
+    else: over60seconddoses.append(0)
+    if i[15]:upto60firstdoses.append(int(i[15]))
+    else: upto60firstdoses.append(0)
+    if i[16]:upto60seconddoses.append(int(i[16]))
+    else: upto60seconddoses.append(0)
+    date=datetime.datetime.strptime(i[1],'%d/%m/%Y')
+    dates.append(date)
+  
+  
+  firstdoses=diffdata(firstdoses);seconddoses=diffdata(seconddoses);
+  frontlinefirstdoses=diffdata(frontlinefirstdoses);frontlineseconddoses=diffdata(frontlineseconddoses);
+  hcwfirstdoses=diffdata(hcwfirstdoses);hcwseconddoses=diffdata(hcwseconddoses);
+  over60firstdoses=diffdata(over60firstdoses);over60seconddoses=diffdata(over60seconddoses);
+  upto60firstdoses=diffdata(upto60firstdoses);upto60seconddoses=diffdata(upto60seconddoses)
+  return list(zip(dates,firstdoses,seconddoses,frontlinefirstdoses,frontlineseconddoses,hcwfirstdoses,hcwseconddoses,over60firstdoses,over60seconddoses,upto60firstdoses,upto60seconddoses))
+
+  
 def parse_mohfw_bulletin(bulletin=''):
   cmd='pdftotext -nopgbrk -layout "'+bulletin+'" tmp.txt';os.system(cmd)
   b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
@@ -236,12 +319,15 @@ def parse_mohfw_bulletin(bulletin=''):
   b=[i.replace('&',' and ') for i in b[ind:]]
   info=[];fd={};sd={}
   for i in b:
+    if not i[0].isnumeric(): continue
     bb=i.split()[1:]
     state=bb[0];index=1
     for k in bb[1:]:
       if not k[0].isnumeric(): state+=' '+k;index+=1
       else: break
     bb=bb[index:]
+    # ~ bb=[i for i in bb if i]
+    # ~ print(bb),print
     firstdoses=int(bb[0].replace(',',''))
     seconddoses=int(bb[1].replace(',',''))
     totaldoses=int(bb[2].replace(',',''))
@@ -386,7 +472,7 @@ def get_mortality_rate(state='Tamil Nadu',district='',return_full_series=False,d
       pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
     return x
 
-def helper_get_pdf_urls(state='Tamil Nadu',start='10-03-2021',end='15-04-2021'):
+def helper_get_pdf_urls(state='Tamil Nadu',start='15-03-2021',end='30-04-2021',write=True):
     if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
     start=datetime.datetime.strptime(start,'%d-%m-%Y')
     end=datetime.datetime.strptime(end,'%d-%m-%Y')
@@ -395,8 +481,15 @@ def helper_get_pdf_urls(state='Tamil Nadu',start='10-03-2021',end='15-04-2021'):
     y=[i for i in x if datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')>=start and datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')<=end]
     y=[(i['source1'],datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')) for i in y]
     y2=[i[0] for i in y if '.pdf' in i[0]]
+    
     y3=[i[1].strftime('%d-%m-%Y') for i in y if '.pdf' not in i[0]]
+    if state=='Karnataka': 
+      y2=[i[0] for i in y]
+      y3=[i for i in y if 't.co/' not in i]
     if not y3: y3='got pdf for all days between %s and %s' %(start.strftime('%d-%m'),end.strftime('%d-%m'))
+    a=open('urls.txt','w')
+    for i in y2: a.write(i+'\n')
+    a.close()
     return y2,y3
 
 def get_symptomatic(state='Telangana',asymp=False,plot=False):
@@ -501,7 +594,7 @@ def get_tests_national(return_full_series=True):
   t2=zip(dates[1:],np.diff(t))
   t=[tests[0]];  t.extend(t2)
   return t
-def get_cases_national(return_full_series=True,case_type='confirmed'):
+def get_cases_national(case_type='confirmed',return_full_series=True):
   x=json.load(open('national_data.json'))['cases_time_series']
   info=[]
   for i in x:
@@ -535,16 +628,16 @@ def get_testing_delta():
     tested_states.append((dt,tested_national,tested,tested-tested_national))
   return tested_states
       
-def fix_faulty_json():
-  b=[i for i in open('states_daily.json').readlines()]
-  b[22165]=b[22165].replace('"0"','"135"')
-  b[22294]=b[22294].replace('"0"','"113"')
-  b[22423]=b[22423].replace('"0"','"104"')
-  b[22552]=b[22552].replace('"0"','"116"')
-  b[22681]=b[22681].replace('"0"','"128"')
-  a=open('states_daily.json','w')
-  for i in b: a.write(i)
-  a.close()
+# ~ def fix_faulty_json():
+  # ~ b=[i for i in open('states_daily.json').readlines()]
+  # ~ b[22165]=b[22165].replace('"0"','"135"')
+  # ~ b[22294]=b[22294].replace('"0"','"113"')
+  # ~ b[22423]=b[22423].replace('"0"','"104"')
+  # ~ b[22552]=b[22552].replace('"0"','"116"')
+  # ~ b[22681]=b[22681].replace('"0"','"128"')
+  # ~ a=open('states_daily.json','w')
+  # ~ for i in b: a.write(i)
+  # ~ a.close()
 ##date must be given as 01/09/2020 for September 1,2020
 ##State must be fullname (see dict above)
 def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/2020',case_type='confirmed_delta',return_full_series=True,verbose=False):
@@ -745,8 +838,8 @@ def wb_analysis(plot=False,plot_days=''):
         dates4=dates4[-1*plot_days:]
     #util vs cap
     plot2(dates2,moving_average(bed_util),dates2,moving_average(bed_cap),label1='hospital beds used (7-day MA)',label2='hospital bed capacity (7-day MA)',state='West Bengal')
-    plot2(dates2,moving_average(bed_util),dates2,moving_average(ppe),label1='hospital beds used (7-day MA)',label2='daily PPE (7-day MA)',color2='maroon',state='West Bengal')
-    plot2(dates2,moving_average(bed_util),dates2,moving_average(n95),label1='hospital beds used (7-day MA)',label2='daily N95 masks (7-day MA)',color2='grey',state='West Bengal')
+    # ~ plot2(dates2,moving_average(bed_util),dates2,moving_average(ppe),label1='hospital beds used (7-day MA)',label2='daily PPE (7-day MA)',color2='maroon',state='West Bengal')
+    # ~ plot2(dates2,moving_average(bed_util),dates2,moving_average(n95),label1='hospital beds used (7-day MA)',label2='daily N95 masks (7-day MA)',color2='grey',state='West Bengal')
     plot2(dates2,moving_average(bed_util),dates3,actives,label1='hospital beds used (7-day MA)',label2='Active cases (7-day MA)',color2='orange',state='West Bengal')
     plot2(dates2,moving_average(bed_util),dates4,deaths,label1='hospital beds used (7-day MA)',label2='Daily Deaths (7-day MA)',color2='red',state='West Bengal')
 
@@ -856,21 +949,28 @@ def highlight(text):
   highlight_reset=colorama.Back.RESET+colorama.Fore.RESET+colorama.Style.RESET_ALL
   return highlight_begin+text+highlight_reset
 def helper_download_karnataka_bulletin(twitter_link,debug=False):
-  x=requests.get(twitter_link)
-  url=x.url
-  file_id=url.split('/d/')[1].split('/')[0]
-  google_drive_url='https://docs.google.com/uc?export=download&id='+file_id
-  download_cmd='wget -q --no-check-certificate "'+google_drive_url+'" -O tmp.pdf'
-  if debug: print(download_cmd)
-  os.system(download_cmd)
-  (bulletin_date,annex_range)=karnataka_bulletin_parser('tmp.pdf',return_date_only=True)
-  if debug: print(('bulletin_date: '+str(bulletin_date)))
-  if not bulletin_date:
-    print('could not find date for bulletin. Using tmp format')
-    bulletin_date_string=datetime.datetime.now().strftime('%H-%s')
-  else:    
-    bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
-  os.system('cp -v tmp.pdf "'+bulletin_date_string+'.pdf"')
+  twitter_links=[]
+  if os.path.exists(twitter_link):
+    twitter_links=[i.strip() for i in open(twitter_link).readlines() if i.strip()]
+  else: 
+    twitter_links=[twitter_link]
+  for twitter_link in tqdm.tqdm(twitter_links):
+    print('processing '+twitter_link)
+    x=requests.get(twitter_link)
+    url=x.url
+    file_id=url.split('/d/')[1].split('/')[0]
+    google_drive_url='https://docs.google.com/uc?export=download&id='+file_id
+    download_cmd='wget -q --no-check-certificate "'+google_drive_url+'" -O tmp.pdf'
+    if debug: print(download_cmd)
+    os.system(download_cmd)
+    (bulletin_date,annex_range)=karnataka_bulletin_parser('tmp.pdf',return_date_only=True)
+    if debug: print(('bulletin_date: '+str(bulletin_date)))
+    if not bulletin_date:
+      print('could not find date for bulletin. Using tmp format')
+      bulletin_date_string=datetime.datetime.now().strftime('%H-%s')
+    else:    
+      bulletin_date_string=datetime.datetime.strftime(bulletin_date,'%m_%d_%Y')
+    os.system('cp -v tmp.pdf "'+bulletin_date_string+'.pdf"')
 
 def helper_download_delhi_bulletin(link,debug=False):
   download_cmd='wget -q --no-check-certificate "'+link+'" -O tmp.pdf'
@@ -1220,29 +1320,46 @@ def chloropleth_data():
         d2[date]=ddict2
     return data,d2,d2_orig
 
-def vaccination_chloropleth(upto='mar13',multiple=0.62):  
+def vaccination_chloropleth(upto='mar13',multiple=0.53):  
   mar1=parse_mohfw_bulletin('bulletins/vaccination/mar01.pdf')[2]
   end=parse_mohfw_bulletin('bulletins/vaccination/'+upto+'.pdf')[2]
   
   vd={}
+  failed=[]
   for state in state_name_to_code:
     try: vd[state]=int(multiple*(end[state]-mar1[state]))
-    except: print('failed for %s' %(state))
-
+    except: failed.append(state)
+  print('failed for %s' %(str(failed)))
+  vd0=vd.copy()
+  chloropleth(vd,'','Number of 60+ vaccinated',reverse_colormap=True,no_print_error=True)
   
-  chloropleth(vd,'','Number of 60+ vaccinated',reverse_colormap=True)
-  
-  vd={}
+  vd={};failed=[]
   for state in state_name_to_code:
     try: vd[state]=100*(0.62*(end[state]-mar1[state])/parse_census(state,'above60')[0])
-    except: print('failed for %s' %(state))
-  # ~ print(vd)  
-  for i in ['Sikkim','Arunachal Pradesh',]:
+    except: failed.append(state)
+  print('failed for %s' %(str(failed)))
+  
+  for i in ['Sikkim','Arunachal Pradesh','Tripura']:
     if i in vd: vd.pop(i)  
   vi=list(vd.items());vi.sort(key=lambda ff: ff[1])
+  
+  dc={}
+  for i in vd:
+    if i in vd0: dc[i]=(vd[i],vd0[i])
+  vi2=list(dc.items());vi2.sort(key=lambda ff: ff[1][0])
+  chloropleth(vd,'','Percent of 60+ vaccinated(restricted set of states)',reverse_colormap=True,no_print_error=True)
 
-  chloropleth(vd,'','Percent of 60+ vaccinated(restricted set of states)',reverse_colormap=True)
-  return vi
+  vd={};failed=[]
+  for state in state_name_to_code:
+    try: vd[state]=100*(end[state]/parse_census(state,'tot_persons'))
+    except: failed.append(state)
+  print('failed for %s' %(str(failed)))
+  
+  for i in ['Sikkim','Arunachal Pradesh','Tripura']:
+    if i in vd: vd.pop(i)  
+  chloropleth(vd,'','Percent of total pop. vaccinated(restricted set of states)',reverse_colormap=True,no_print_error=True)
+
+  return vi,vi2
   
 def norm_cmap(values, cmap='YlGn', vmin=None, vmax=None):
   import matplotlib.pyplot as plt
@@ -1254,7 +1371,7 @@ def norm_cmap(values, cmap='YlGn', vmin=None, vmax=None):
   return n_cmap
   
   
-def chloropleth(data_dict={},date='',extra_title='',reverse_colormap=False,use_map=''):
+def chloropleth(data_dict={},date='',extra_title='',reverse_colormap=False,use_map='',no_print_error=False):
   from  matplotlib.colors import LinearSegmentedColormap
   import matplotlib.colors as colors
   import matplotlib.cm as cm
@@ -1295,7 +1412,8 @@ def chloropleth(data_dict={},date='',extra_title='',reverse_colormap=False,use_m
         # ~ else: #red
             # ~ color=[np.abs(data_value),0,0]
     else:
-        print('Feature with name %s was not in data_dict' %(name))
+        if not no_print_error:
+          print('Feature with name %s was not in data_dict' %(name))
         continue
     patch=PolygonPatch(poly,fc=color,ec=color,alpha=0.5,zorder=2)
     ax.add_patch(patch);
@@ -1764,9 +1882,9 @@ def delhi_analysis(do='',plot_days=''):
   return (hos_used,deaths)
   
 def update_data_files(extra=False):
-  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv']
+  urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv','https://api.covid19india.org/data.json']
   
-  if extra: urls.extend(['https://api.covid19india.org/data.json','https://api.covid19india.org/v4/data-all.json'])
+  if extra: urls.extend(['https://api.covid19india.org/v4/data-all.json'])
   for i in urls:
     filename=os.path.split(i)[1]
     if os.path.exists(filename):
@@ -2119,9 +2237,7 @@ def tamil_nadu_parse_cases(analysis=False,plot=True):
   if analysis:
     print('analysing!')
     x=get_cases('Tamil Nadu',case_type='confirmed',return_full_series=True)
-    x.append((datetime.datetime(2021, 3, 13, 0, 0),858967))#hack
     datesc,c=zip(*x)
-    # ~ dates,u12,a12,a60,tot=zip(*out)
     dates,a60=zip(*out)
     
     a60=np.diff(a60)#[-1*len(dates):]
@@ -2184,17 +2300,23 @@ def kerala_parse_csv():
   return y
  
   
-def get_pfr(state='Tamil Nadu',do_moving_average=False,ma_size=2):
+def get_pfr(state='Tamil Nadu',start='',end='',do_moving_average=False,ma_size=2,plot=False):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   if state=='Tamil Nadu':    deaths=tamil_nadu_parse_csv()
   elif state=='Kerala':    deaths=kerala_parse_csv()
   dd={}
+  if start:
+    deaths=[i for i in deaths if i.date_of_death>=start]
+  if end:
+    deaths=[i for i in deaths if i.date_of_death<=end]
+  allages=[i.age for i in deaths]
   for i in deaths:
     age=i.age
     if age in dd: dd[age]+=1
     else: dd[age]=1
   agedict=parse_census(state,'agedict')
   pfr={}
+  
   for i in dd: 
     if i in agedict:   
       pfr[i]=100*(float(dd[i])/agedict[i])
@@ -2202,7 +2324,21 @@ def get_pfr(state='Tamil Nadu',do_moving_average=False,ma_size=2):
         deaths_ma=sum([dd[j] for j in dd if j<=(i+ma_size) and j>=(i-ma_size)])
         ages_ma=sum([agedict[j] for j in agedict if j<=(i+ma_size) and j>=(i-ma_size)])
         pfr[i]=100*(float(deaths_ma)/ages_ma)
-  return pfr
+        # ~ histdata.append((i,deaths_ma))
+  if plot:
+    ages,pfrs=zip(*list(pfr.items()))
+    label='PFR for '+state
+    if start: label+=' from '+start.strftime('%d_%m_%Y')
+    if end: label+=' to '+end.strftime('%d_%m_%Y')
+    
+    pylab.plot(ages,pfrs,'.',label=label)
+    pylab.xlabel('age');pylab.ylabel('PFR');pylab.legend();pylab.title(label)
+    pylab.savefig(TMPDIR+'/'+label+'.jpg');pylab.close()
+    pylab.semilogy(ages,pfrs,'.',label=label+' semilog')
+    pylab.xlabel('age');pylab.ylabel('PFR');pylab.legend();pylab.title(label+' semilogy')
+    pylab.savefig(TMPDIR+'/'+label+'semilog.jpg');pylab.close()
+    
+  return pfr,allages
   
 def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin=False,return_date=False,dump_clippings=False):
   cmd='pdftotext  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
@@ -2285,7 +2421,12 @@ def tamil_nadu_parse_clippings():
   bulletin_date_string=''
   for j in range(len(indices)-1):
     bulletin_date_string=indices[j][1]
-    bulletin_date=datetime.datetime.strptime(bulletin_date_string,'%d.%m.%Y')
+    try:
+      bulletin_date=datetime.datetime.strptime(bulletin_date_string,'%d.%m.%Y')
+    except:
+      print('error in getting bulletin_date with bulletin_date_string: %s' %(bulletin_date_string))
+      if not bulletin_date_string: print(indices);print(j)
+      return indices
 
     start=indices[j][0];end=indices[j+1][0]
     
@@ -3300,7 +3441,7 @@ def simplify_json():
   a=open('simplified.json','w')
   json.dump(x,a);a.close()
   print('wrote simplified.json from state_test_data.json removing empty fields')
-def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,noplotcapital=True,startdate=datetime.date(2020,9,13),enddate=datetime.date(2021,3,13)):
+def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,1,20),enddate=datetime.date(2021,4,30),use_median=False,ignore_capital=True):
   if not deaths:
     if state=='Tamil Nadu': deaths=tamil_nadu_parse_csv() ;print('loaded TN fatality data from csv')
     elif state=='Kerala': deaths=kerala_parse_csv();print('loaded KL fatality data from csv')
@@ -3324,94 +3465,138 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
     if moving_average:
       if not date_type or date_type=='death': #default behavious
         d=[i for i in deaths if i.date_of_death<=dd and i.date_of_death>=(dd-ma_delta)]
-        d1=[i for i in deaths if i.date_of_death<=dd and i.date_of_death>=(dd-ma_delta) and i.district==capital]
-        d2=[i for i in deaths if i.date_of_death<=dd and i.date_of_death>=(dd-ma_delta) and i.district!=capital]
+        if not ignore_capital:
+          d1=[i for i in deaths if i.date_of_death<=dd and i.date_of_death>=(dd-ma_delta) and i.district==capital]
+          d2=[i for i in deaths if i.date_of_death<=dd and i.date_of_death>=(dd-ma_delta) and i.district!=capital]
         
          
       elif date_type=='reporting':
         d=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=dd and i.date_of_reporting>=(dd-ma_delta)]
-        d1=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=dd and i.date_of_reporting>=(dd-ma_delta) and i.district==capital]
-        d2=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=dd and i.date_of_reporting>=(dd-ma_delta) and i.district!=capital]
+        if not ignore_capital:
+          d1=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=dd and i.date_of_reporting>=(dd-ma_delta) and i.district==capital]
+          d2=[i for i in deaths if i.date_of_reporting and i.date_of_reporting<=dd and i.date_of_reporting>=(dd-ma_delta) and i.district!=capital]
         
           
       elif date_type=='admission':
         d=[i for i in deaths if i.date_of_admission<=dd and i.date_of_admission>=(dd-ma_delta)]
-        d1=[i for i in deaths if i.date_of_admission<=dd and i.date_of_admission>=(dd-ma_delta) and i.district==capital]
-        d2=[i for i in deaths if i.date_of_admission<=dd and i.date_of_admission>=(dd-ma_delta) and i.district!=capital]
+        if not ignore_capital:
+          d1=[i for i in deaths if i.date_of_admission<=dd and i.date_of_admission>=(dd-ma_delta) and i.district==capital]
+          d2=[i for i in deaths if i.date_of_admission<=dd and i.date_of_admission>=(dd-ma_delta) and i.district!=capital]
   
     else:
       d=[i for i in deaths if i.date_of_death==dd]
-      d1=[i for i in deaths if i.date_of_death==dd and i.district==capital]
-      d2=[i for i in deaths if i.date_of_death==dd and i.district!=capital]
+      if not ignore_capital:
+        d1=[i for i in deaths if i.date_of_death==dd and i.district==capital]
+        d2=[i for i in deaths if i.date_of_death==dd and i.district!=capital]
   
     m1=0;m2=0
     
     if filter_type=='gender': #find fraction of males in daily deaths on date
       if d: d=100*float(len([i for i in d if i.gender=='M']))/len(d)
       else: d=0
-      if d1: d1=100*float(len([i for i in d1 if i.gender=='M']))/len(d1)
-      else: d1=0
-      if d2: d2=100*float(len([i for i in d2 if i.gender=='M']))/len(d2)
-      else: d2=0
+      if not ignore_capital:
+        if d1: d1=100*float(len([i for i in d1 if i.gender=='M']))/len(d1)
+        else: d1=0
+        if d2: d2=100*float(len([i for i in d2 if i.gender=='M']))/len(d2)
+        else: d2=0
     elif filter_type=='origin': #find fraction of SARI/ILI in daily deaths on date
       d=100*float(len([i for i in d if i.origin in ['SARI','ILI']]))/len(d)
-      d1=100*float(len([i for i in d1 if i.origin in ['SARI','ILI']]))/len(d1)
-      d2=100*float(len([i for i in d2 if i.origin in ['SARI','ILI']]))/len(d2)
+      if not ignore_capital:
+        d1=100*float(len([i for i in d1 if i.origin in ['SARI','ILI']]))/len(d1)
+        d2=100*float(len([i for i in d2 if i.origin in ['SARI','ILI']]))/len(d2)
     elif filter_type=='percent60plus': #find fraction of SARI/ILI in daily deaths on date
       if d: d=100*float(len([i for i in d if i.age>=60]))/len(d)
       else: d=0
-      if d1: d1=100*float(len([i for i in d1 if i.age>=60]))/len(d1)
-      else: d1=0
-      if d2: d2=100*float(len([i for i in d2 if i.age>=60]))/len(d2)
-      else: d2=0
+      if not ignore_capital:
+        if d1: d1=100*float(len([i for i in d1 if i.age>=60]))/len(d1)
+        else: d1=0
+        if d2: d2=100*float(len([i for i in d2 if i.age>=60]))/len(d2)
+        else: d2=0
     elif filter_type=='comorb': #find fraction of SARI/ILI in daily deaths on date
       d=100*float(len([i for i in d if i.comorbidities!=['']]))/len(d)
-      d1=100*float(len([i for i in d1 if i.comorbidities!=['']]))/len(d1)
-      d2=100*float(len([i for i in d2 if i.comorbidities!=['']]))/len(d2)
+      if not ignore_capital:
+        d1=100*float(len([i for i in d1 if i.comorbidities!=['']]))/len(d1)
+        d2=100*float(len([i for i in d2 if i.comorbidities!=['']]))/len(d2)
+    elif filter_type=='comorb45to60': #find fraction of SARI/ILI in daily deaths on date
+      d=[i for i in d if i.age>=45 and i.age<60]
+      if not ignore_capital:
+        d1=[i for i in d1 if i.age>=45 and i.age<60]
+        d2=[i for i in d2 if i.age>=45 and i.age<60]
+      if d: d=100*float(len([i for i in d if i.comorbidities!=['']]))/len(d)
+      else: d=0
+      if not ignore_capital:
+        if d1: d1=100*float(len([i for i in d1 if i.comorbidities!=['']]))/len(d1)
+        else: d1=0
+        if d2: d2=100*float(len([i for i in d2 if i.comorbidities!=['']]))/len(d2)
+        else: d2=0
     elif filter_type=='admission_death': #find fraction of SARI/ILI in daily deaths on date
       d=[i.admission_death_interval for i in d if i.admission_death_interval>=0]
-      d1=[i.admission_death_interval for i in d1 if i.admission_death_interval>=0]
-      d2=[i.admission_death_interval for i in d2 if i.admission_death_interval>=0]
+      if not ignore_capital:
+        d1=[i.admission_death_interval for i in d1 if i.admission_death_interval>=0]
+        d2=[i.admission_death_interval for i in d2 if i.admission_death_interval>=0]
     elif filter_type=='death_reporting': #find fraction of SARI/ILI in daily deaths on date
       d=[i.death_reporting_interval for i in d if i.death_reporting_interval and i.death_reporting_interval>=0]
-      d1=[i.death_reporting_interval for i in d1 if i.death_reporting_interval and i.death_reporting_interval>=0]
-      d2=[i.death_reporting_interval for i in d2 if i.death_reporting_interval and i.death_reporting_interval>=0]
+      if not ignore_capital:
+        d1=[i.death_reporting_interval for i in d1 if i.death_reporting_interval and i.death_reporting_interval>=0]
+        d2=[i.death_reporting_interval for i in d2 if i.death_reporting_interval and i.death_reporting_interval>=0]
     elif filter_type=='raw_number': #find fraction of SARI/ILI in daily deaths on date
       if moving_average:
         d=float(len(d))/(ma_size)
-        d1=float(len(d1))/(ma_size)
-        d2=float(len(d2))/(ma_size)
+        if not ignore_capital:
+          d1=float(len(d1))/(ma_size)
+          d2=float(len(d2))/(ma_size)
       else:
         d=float(len(d))
-        d1=float(len(d1))
-        d2=float(len(d2))
+        if not ignore_capital:
+          d1=float(len(d1))
+          d2=float(len(d2))
     else: #find all ages on date
       d=[i.age for i in d]
-      d1=[i.age for i in d1]
-      d2=[i.age for i in d2]
+      if not ignore_capital:
+        d1=[i.age for i in d1]
+        d2=[i.age for i in d2]
 
-    if filter_type in ['gender','origin','comorb','raw_number']: #find percent of males in daily deaths over time
-      mean_values.append((dd,d,d1,d2))
+    if filter_type in ['gender','origin','comorb','comorb45to60','raw_number']: #find percent of males in daily deaths over time
+      if not ignore_capital:
+        mean_values.append((dd,d,d1,d2))
+      else:
+        mean_values.append((dd,d))
     else:
       if not d:
         # ~ print 'no deaths info for '+str(dd)
         continue
       m=0;m1=0;m2=0
-      if d1: m1=numpy.mean(d1)
-      if d2: m2=numpy.mean(d2)
-      if d: m=numpy.mean(d)
-      # ~ if d1: m1=mode1(d1)
-      # ~ if d2: m2=mode1(d2)
-      # ~ if d: m=mode1(d)
+
+      if use_median:
+        # ~ print('using median not mean')
+        if not ignore_capital:
+          if d1: m1=np.median(d1)
+          if d2: m2=np.median(d2)
+        if d: m=np.median(d)
+      else:
+        if not ignore_capital:
+          if d1: m1=numpy.mean(d1)
+          if d2: m2=numpy.mean(d2)
+        if d: m=numpy.mean(d)
       if m :
-        mean_values.append((dd,m,m1,m2))
+        if not ignore_capital:
+          mean_values.append((dd,m,m1,m2))
+        else:
+          mean_values.append((dd,m))
       # ~ print('got for %s' %(dd.strftime('%d-%m')))
   if plot:
+    pylab.close()
     # ~ mean_values=mean_values[:-5]
     if filter_type=='death_reporting': 
       mean_values=mean_values[:-5]
       mean_values=[i for i in mean_values if i[1]<4 and (i[0]>=datetime.datetime(2020,9,20,0,0) or i[0]<=datetime.datetime(2020,9,7,0,0)) ] #temp hack
-    dates,m,m1,m2=zip(*mean_values)
+    try:
+      if not ignore_capital:
+        dates,m,m1,m2=zip(*mean_values)
+      else:
+        dates,m=zip(*mean_values)
+    except: 
+      print(mean_values);return
     xlabel='';ylabel='';title=''
     if date_type=='':      xlabel='Date of death'
     elif date_type=='admission':      xlabel='Date of admission'
@@ -3423,9 +3608,12 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_major_formatter(formatter) 
 
-    if filter_type=='':      label='Mean age'
+    if filter_type=='':      
+      label='Mean age'
+      if use_median: label='Median Age'
     if filter_type=='gender':      label='Percentage of Males in daily deaths'
     if filter_type=='comorb':      label='Percentage of deaths with comorbidities among daily deaths'
+    if filter_type=='comorb45to60':      label='Percent of deaths with comorbidities(45-60 yrs)'
     if filter_type=='admission_death':      label='Admission-Death interval'
     if filter_type=='death_reporting':      label='Death-Reporting interval'
     if filter_type=='percent60plus':      label='Percent of deaths that were 60+yrs'
@@ -3445,7 +3633,7 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
     pylab.savefig(TMPDIR+title+'.jpg');#pylab.show();
     pylab.close()
     
-    if not noplotcapital:
+    if not ignore_capital:
 
       ax=pylab.axes()
       locator = mdates.AutoDateLocator(minticks=3, maxticks=7)

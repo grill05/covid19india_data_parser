@@ -11443,3 +11443,292 @@ State P no,District,Age,Sex,Origin,Date of Detection,Date of Admission,Date of D
 12541,chengalpattu,54,M,,,2021-03-10,2021-03-11,2021-03-13,Coronary Artery Disease/ Diabetes Mellitus/Systemic Hypertension
 12542,chengalpattu,84,M,,,2021-03-04,2021-03-12,2021-03-13,Type2DM/HTN/CAD
 12543,chennai,75,F,,,2021-03-03,2021-03-12,2021-03-13,SHTN/DM/CAD
+12548,coimbatore,67,F,,,2021-02-28,2021-03-13,2021-03-15,
+12549,nagapattinam,75,M,,,2021-03-13,2021-03-13,2021-03-15,
+12550,madurai,83,M,,,2021-03-07,2021-03-14,2021-03-15,Type2DM/HTN
+12551,chennai,71,M,,,2021-03-08,2021-03-13,2021-03-15,Complaints of Fever for 7 days died on 13.03.2021 at 08.45 PM due to COVID-19 Pneumonia. Death in Government health facilities (DME) due to comorbidities
+12552,chengalpattu,80,M,,,2021-03-10,2021-03-13,2021-03-16,Diabetes Mellitus
+12553,thiruvarur,55,M,,,2021-03-14,2021-03-15,2021-03-16,Psychiatry Disorder
+12554,chennai,75,M,,,2021-03-04,2021-03-14,2021-03-16,DM/Parkinsonism
+12555,chennai,83,M,,,2021-02-25,2021-03-07,2021-03-16,
+12556,chennai,73,M,,,2021-03-04,2021-03-06,2021-03-16,
+12557,chennai,62,F,,,2021-03-11,2021-03-12,2021-03-17,
+12558,chennai,75,M,,,2021-03-06,2021-03-11,2021-03-17,Systemic Hypertension
+12559,chennai,74,M,,,2021-03-12,2021-03-12,2021-03-17,Coronary Artery Disease
+12560,chennai,60,M,,,2021-03-07,2021-03-15,2021-03-17,HTN/DM/CAD
+12561,chengalpattu,83,F,,,2021-03-05,2021-03-15,2021-03-17,CAD
+12562,thiruvannamalai,54,M,,,2021-03-06,2021-03-15,2021-03-17,Bronchial Asthma
+12563,vellore,50,M,,,2021-03-06,2021-03-15,2021-03-17,DM/HTN
+12564,chennai,30,F,,,2021-02-28,2021-03-15,2021-03-17,DM/Hypothyroid
+12565,thanjavur,78,F,,,2021-03-12,2021-03-15,2021-03-18,Type2Diabetes Mellitus/ Systemic Hypertension
+12566,chengalpattu,67,M,,,2021-03-07,2021-03-16,2021-03-18,Cerebro Vascular Accident/ Coronary Artery Disease-Valvular Heart Disease/Post Mitral Valve Replacement Status
+12567,chennai,67,F,,,2021-03-09,2021-03-16,2021-03-18,Type2Diabetes Mellitus/ Systemic Hypertension
+12568,chennai,74,M,,,2021-03-10,2021-03-15,2021-03-18,DM/HTN/Hypothyroidism
+12569,ranipet,75,F,,,2021-03-05,2021-03-17,2021-03-18,HTN/DM
+12570,thanjavur,80,F,,,2021-03-01,2021-03-16,2021-03-18,DM/CKD/SHTN
+12571,thanjavur,74,F,,,2021-03-14,2021-03-16,2021-03-18,HTN
+12572,chennai,89,M,,,2021-03-14,2021-03-17,2021-03-18,CAD/Type2DM/HTN
+12573,sivagangai,77,M,,,2021-03-14,2021-03-17,2021-03-18,SHTN/Type2DM/AKI
+12574,thiruvallur,62,F,,,2021-03-11,2021-03-17,2021-03-19,Systemic Hypertension/ Chronic Kidney Disease
+12575,nilgiris,72,F,,,2021-03-16,2021-03-17,2021-03-19,Type2Diabetes Mellitus/ Systemic Hypertension
+12576,chennai,67,M,,,2021-03-14,2021-03-17,2021-03-19,Type2Diabetes Mellitus/ Systemic Hypertension/Obesity
+12577,chennai,79,F,,,2021-03-15,2021-03-18,2021-03-19,SHTN
+12578,chengalpattu,70,M,,,2021-03-17,2021-03-18,2021-03-19,"Complaints of Fever for 6 days Headache, Myalgia, Loss of Apetite, Nausea died on 18.03.2021 at 05.49 AM due to ARDS/COVID-19 Pneumonia."
+12579,chennai,76,M,,,2021-03-11,2021-03-18,2021-03-19,HTN/DM
+12580,chennai,65,F,,,2021-03-10,2021-03-18,2021-03-19,DM/HTN
+12581,thanjavur,54,M,,,2021-03-16,2021-03-17,2021-03-19,Type2DM
+12582,chengalpattu,57,M,,,2021-03-10,2021-03-17,2021-03-19,Obesity/Dyslipidemia
+12591,kancheepuram,48,M,,,2021-03-17,2021-03-20,2021-03-21,
+12592,nagapattinam,64,F,,,2021-03-14,2021-03-18,2021-03-21,Systemic Hypertension
+12593,thiruvallur,55,F,,,2021-03-12,2021-03-19,2021-03-21,Diabetes Mellitus/ Hypothyroid
+12594,pudukkottai,56,F,,,2021-03-16,2021-03-19,2021-03-21,Newly Dignosed Type2 Diabetes Mellitus/Systemic Hypertension
+12595,thirunelveli,54,M,,,2021-03-19,2021-03-19,2021-03-21,Systemic Hypertension/Type 2Diabetes Mellitus
+12596,chennai,53,M,,,2021-03-16,2021-03-21,2021-03-21,"Complaints of Fever for 5 days, Difficulty in Breathing for 3 days, Cough died on 21.03.2021 at 09.00 AM due to COVID-19 Pneumonia. Death in Government health facilities (DME)"
+12597,chengalpattu,71,M,,,2021-03-06,2021-03-20,2021-03-21,HTN
+12598,vellore,59,M,,,2021-03-04,2021-03-20,2021-03-21,DM/HTN
+12599,thanjavur,69,M,,,2021-03-13,2021-03-19,2021-03-21,"Complaints of Fever for 10 days, Cough for 7 days, Difficulty in Breathing for 5 days died on 19.03.2021 at 11.40 AM due to COVID-19 Pneumonia. Death in Government health facilities (DME) due to comorbidities"
+12600,chennai,36,F,,,2021-03-16,2021-03-19,2021-03-22,Diabetes Mellitus/Systemic Hypertension/Post renal Transplant/Hypothyroidism
+12601,chengalpattu,69,F,,,2021-03-10,2021-03-19,2021-03-22,Type2Diabetes Mellitus/ Systemic Hypertension/Chronic Obstructive Pulmonary Disease
+12602,chengalpattu,39,M,,,2021-03-14,2021-03-20,2021-03-22,Type2Diabetes Mellitus/ Morbid Obesity
+12603,coimbatore,60,F,,,2021-03-19,2021-03-20,2021-03-22,Systemic Hypertension
+12604,thanjavur,75,M,,,2021-03-19,2021-03-20,2021-03-22,Systemic Hypertension/Diabetes Mellitus/Coronary Artery Disease
+12605,chennai,89,F,,,2021-03-19,2021-03-22,2021-03-22,HTN
+12606,salem,70,M,,,2021-03-20,2021-03-22,2021-03-22,"Complaints of Fever,Difficulty in Breathing for 7 days Body Pain died on 22.03.2021 at 06.53 AM due to COVID-19 Pneumonia."
+12607,chennai,71,M,,,2021-03-20,2021-03-21,2021-03-22,Type2DM/SHTN
+12608,coimbatore,64,M,,,2021-03-03,2021-03-21,2021-03-22,"Complaints of Fever,Cough and Difficulty in Breathing died on 21.03.2021 at 05.00 AM due to ARDS/COVID-19 Pneumonia. COVID-19 Positive Deaths due to comorbidities – Total: 9 Death in Private health facilities due to comorbidities"
+12609,chennai,81,M,,,2021-03-14,2021-03-19,2021-03-22,HTN/DM
+12610,thiruvallur,62,M,,,2021-03-19,2021-03-20,2021-03-23,
+12611,chengalpattu,65,M,,,2021-03-15,2021-03-20,2021-03-23,Type2Diabetes Mellitus/ Systemic Hypertension
+12612,chennai,81,F,,,2021-03-20,2021-03-20,2021-03-23,
+12613,chennai,65,M,,,2021-03-16,2021-03-21,2021-03-23,Diabetes Mellitus
+12614,chengalpattu,75,F,,,2021-03-16,2021-03-21,2021-03-23,DM/HTN
+12615,thiruvallur,63,M,,,2021-03-12,2021-03-22,2021-03-23,DM/HTN/CAD
+12616,chennai,74,M,,,2021-03-20,2021-03-22,2021-03-23,
+12617,chennai,86,M,,,2021-03-06,2021-03-22,2021-03-23,DM/CAD
+12618,nagapattinam,43,M,,,2021-03-21,2021-03-23,2021-03-23,HTN
+12619,kanyakumari,84,F,,,2021-03-15,2021-03-21,2021-03-24,Type2Diabetes Mellitus/ Systemic Hypertension/Bronchial Asthma
+12620,chengalpattu,89,M,,,2021-03-21,2021-03-22,2021-03-24,Diabetes Mellitus
+12621,chennai,71,M,,,2021-03-20,2021-03-23,2021-03-24,Type2Diabetes Mellitus/Coronary Artery Disease
+12622,chennai,68,F,,,2021-03-20,2021-03-22,2021-03-24,Diabetes Mellitus/Systemic Hypertension
+12623,chengalpattu,58,M,,,2021-03-18,2021-03-22,2021-03-24,Obesity
+12624,kancheepuram,39,M,,,2021-03-23,2021-03-23,2021-03-24,"Complaints of Fever, Cough and Difficulty in Breathing for 4 days died on 23.03.2021 at 07.13 AM due to ARDS/COVID-19 Pneumonia. COVID-19 Positive Deaths due to comorbidities – Total: 11 Death in Private health facilities due to comorbidities"
+12625,chennai,55,F,,,2021-03-15,2021-03-23,2021-03-24,SHTN
+12626,chennai,50,F,,,2021-03-21,2021-03-23,2021-03-24,Sarcoidosis
+12627,coimbatore,87,M,,,2021-03-20,2021-03-23,2021-03-24,"Complaints of Fever, Cough and Difficulty in Breathing for 1 day died on 23.03.2021 at 07.30 AM due to ARDS/COVID-19 Pneumonia."
+12628,thanjavur,66,F,,,2021-03-15,2021-03-22,2021-03-24,DM
+12629,chennai,69,M,,,2021-03-10,2021-03-22,2021-03-24,HTN
+12630,kancheepuram,69,M,,,2021-03-17,2021-03-22,2021-03-24,"Complaints of Fever, Cough for 7 days, Difficulty in Breathing for 3 days died on 22.03.2021 at 05.31 PM due to COVID-19 Pneumonia. Death in Government health facilities (DMS) due to comorbidities"
+12631,chennai,78,M,,,2021-03-17,2021-03-22,2021-03-25,Diabetes Mellitus/Hypertension/ Coronary Artery Disease
+12632,thiruvallur,50,M,,,2021-03-21,2021-03-22,2021-03-25,Diabetes Mellitus/Hypertension
+12633,chennai,66,M,,,2021-03-16,2021-03-23,2021-03-25,
+12634,chennai,50,F,,,2021-03-20,2021-03-23,2021-03-25,DM/HTN
+12635,chennai,70,F,,,2021-03-19,2021-03-24,2021-03-25,HTN/DM
+12636,chennai,75,F,,,2021-03-23,2021-03-24,2021-03-25,Type2DM
+12637,thanjavur,69,M,,,2021-03-17,2021-03-24,2021-03-25,Type2DM/SHTN
+12638,chennai,67,M,,,2021-03-13,2021-03-23,2021-03-25,SHTN
+12639,kancheepuram,81,M,,,2021-03-17,2021-03-23,2021-03-25,CAD/COPD/HTN/DM
+12640,vellore,67,M,,,2021-03-10,2021-03-23,2021-03-25,Type2DM
+12641,chennai,47,M,,,2021-03-18,2021-03-06,2021-03-25,
+12642,madurai,49,M,,,2021-03-11,2021-03-23,2021-03-26,
+12643,chennai,48,F,,,2021-03-19,2021-03-24,2021-03-26,
+12644,kancheepuram,72,F,,,2021-03-22,2021-03-23,2021-03-26,Obstructive Sleep Apnoea COR Pulmonale
+12645,krishnagiri,51,M,,,2021-03-21,2021-03-23,2021-03-26,Hypertension/Type2Diabetes Mellitus/ Hypothyroid/Obesity
+12646,chengalpattu,76,M,,,2021-03-23,2021-03-25,2021-03-26,DM
+12647,tenkasi,70,M,,,2021-03-24,2021-03-25,2021-03-26,Complaints of Difficulty in Breathing died on 25.03.2021 at 12.05 PM due to ARDS/COVID-19 Pneumonia.
+12648,thiruvarur,65,F,,,2021-03-14,2021-03-25,2021-03-26,DM/Chronic Liver Disease
+12649,chennai,83,M,,,2021-03-20,2021-03-25,2021-03-26,Type2DM/CAD
+12650,chennai,53,F,,,2021-03-11,2021-03-24,2021-03-26,DM
+12651,chennai,65,F,,,2021-03-22,2021-03-24,2021-03-27,Type2Diabetes Mellitus/ Systemic Hypertension/Hypothyrodism
+12652,chennai,75,M,,,2021-03-18,2021-03-24,2021-03-27,Type2Diabetes Mellitus/ Hypertension/Coronary Artery Disease
+12653,chennai,82,M,,,2021-03-17,2021-03-24,2021-03-27,Type2Diabetes Mellitus/ Hypertension
+12654,thiruvallur,65,M,,,2021-03-24,2021-03-25,2021-03-27,Type2Diabetes Mellitus/ Systemic Hypertension
+12655,chengalpattu,82,F,,,2021-02-22,2021-03-25,2021-03-27,Diabetes Mellitus
+12656,pudukkottai,65,F,,,2021-03-23,2021-03-25,2021-03-27,DM/HTN
+12657,chennai,75,M,,,2021-03-26,2021-03-26,2021-03-27,DM/CAD
+12658,pudukkottai,57,M,,,2021-03-17,2021-03-26,2021-03-27,DM
+12659,madurai,86,M,,,2021-03-16,2021-03-26,2021-03-27,Type2DM/SHTN
+12660,chennai,44,M,,,2021-03-19,2021-03-26,2021-03-28,
+12661,thiruvarur,80,M,,,2021-03-23,2021-03-25,2021-03-28,Systemic Hypertension
+12662,kanyakumari,78,F,,,2021-03-22,2021-03-26,2021-03-28,Type2Diabetes Mellitus/ Systemic Hypertension/Bronchial Asthma
+12663,chennai,68,F,,,2021-03-23,2021-03-26,2021-03-28,Diabetes Mellitus/Systemic Hypertension
+12664,chennai,78,M,,,2021-03-23,2021-03-25,2021-03-28,Interstitial Lung Disease/Type2 Diabetes Mellitus/Systemic Hypertension
+12665,thiruvallur,76,M,,,2021-03-23,2021-03-27,2021-03-28,Bronchial Asthma
+12666,thanjavur,74,F,,,2021-03-24,2021-03-27,2021-03-28,SHTN/DM
+12667,thiruvallur,78,M,,,2021-03-20,2021-03-27,2021-03-28,DM/SHTN/CKD
+12668,tiruppur,50,M,,,2021-03-24,2021-03-27,2021-03-28,Type2DM
+12669,chennai,68,M,,,2021-03-26,2021-03-26,2021-03-28,HTN
+12670,thirupathur,83,M,,,2021-03-20,2021-03-26,2021-03-28,"Complaints of Fever,Cough for 1 day Difficulty in Breathing for 7 days died on 26.03.2021 at 05.35 PM due to COVID-19 Pneumonia. Death in Government health facilities (DME) due to comorbidities"
+12671,tiruppur,85,M,,,2021-03-24,2021-03-27,2021-03-29,
+12672,chengalpattu,61,M,,,2021-03-18,2021-03-27,2021-03-29,Type2Diabetes M ellitus
+12673,chengalpattu,78,M,,,2021-03-24,2021-03-27,2021-03-29,Diabetes M ellitus/Parkinsons Disease
+12674,chennai,68,F,,,2021-03-26,2021-03-27,2021-03-29,Diabetes M ellitus/Systemic Hypertension/Coronary Artery Disease
+12675,coimbatore,38,M,,,2021-03-18,2021-03-26,2021-03-29,Systemic Hypertension
+12676,nagapattinam,78,M,,,2021-03-27,2021-03-27,2021-03-29,Type2Diabetes M ellitus/ Systemic Hypertension/Chronic Kidney Disease
+12677,chengalpattu,50,F,,,2021-03-26,2021-03-28,2021-03-29,"Complaints of Fever for 3 days, Cough for 2 days died on 28.03.2021 at 06.30 AM due to ARDS/ COVID-19 Pneumonia. COVID-19 Positive Deaths due to comorbidities – Total: 12 Death in Private health facilities due to comorbidities"
+12678,madurai,55,M,,,2021-03-16,2021-03-28,2021-03-29,"Complaints of Fever,Cough for 4 days, Difficulty in Breathing for 3 days died on 28.03.2021 at 06.06 AM due to ARDS/ COVID-19 Pneumonia. Death in Government health facilities (Other Government Institutions like Railway Hospitals, ESI hospitals)"
+12679,chengalpattu,79,F,,,2021-03-26,2021-03-28,2021-03-29,Chronic Schizophrenia
+12680,chennai,78,M,,,2021-03-27,2021-03-28,2021-03-29,DM,HTN/CAD
+12681,coimbatore,70,F,,,2021-03-24,2021-03-28,2021-03-29,"Complaints of Fever,Cough and Difficulty in Breathing died on 28.03.2021 at 05.00 AM due to ARDS/COVID-19 Pneumonia."
+12682,thiruvallur,65,F,,,2021-03-16,2021-03-28,2021-03-29,Type2DM,HTN/M orbid Obesity
+12683,cuddalore,63,M,,,2021-03-19,2021-03-27,2021-03-29,SHTN/Bronchial Asthma/COPD
+12684,karur,78,F,,,2021-03-23,2021-03-27,2021-03-29,Type2DM,SHTN/Dyslipidemia
+12685,coimbatore,23,F,,,2021-03-26,2021-03-27,2021-03-30,
+12686,chennai,53,M,,,2021-03-28,2021-03-28,2021-03-30,
+12687,thanjavur,75,M,,,2021-03-26,2021-03-28,2021-03-30,Type2Diabetes Mellitus
+12688,nagapattinam,54,M,,,2021-03-28,2021-03-28,2021-03-30,Type2Diabetes Mellitus/ Systemic Hypertension
+12689,chennai,75,F,,,2021-03-28,2021-03-28,2021-03-30,Type2Diabetes Mellitus/ Systemic Hypertension
+12690,kancheepuram,67,M,,,2021-03-25,2021-03-28,2021-03-30,Type2Diabetes Mellitus/ Systemic Hypertension/Morbid Obesity
+12691,coimbatore,75,M,,,2021-03-28,2021-03-29,2021-03-30,Coronary Artery Disease
+12692,kancheepuram,55,M,,,2021-03-11,2021-03-29,2021-03-30,HTN/Type2DM
+12693,chengalpattu,60,M,,,2021-03-23,2021-03-29,2021-03-30,Type2DM/Interstitial Lung Disease
+12694,chennai,90,M,,,2021-03-27,2021-03-28,2021-03-30,DM/CAD
+12695,chengalpattu,56,F,,,2021-03-27,2021-03-29,2021-03-30,HTN/DM
+12696,chennai,69,M,,,2021-03-22,2021-03-28,2021-03-30,DM
+12697,thiruvallur,59,M,,,2021-03-25,2021-03-28,2021-03-30,Type2DM
+12698,dindigul,53,F,,,2021-03-24,2021-03-28,2021-03-30,SHTN/Hypothyroid
+12699,thanjavur,82,M,,,2021-03-26,2021-03-28,2021-03-30,HTN/DM
+12700,thanjavur,74,M,,,2021-03-27,2021-03-29,2021-03-30,"Complaints of Fever,Cough and Difficulty in Breathing for 2 days died on 29.03.2021 at 09.45 PM due to ARDS/COVID-19 Pneumonia. Death in Government health facilities (DMS) due to comorbidities"
+12701,chennai,36,M,,,2021-03-23,2021-03-29,2021-03-31,
+12702,thiruvallur,40,F,,,2021-03-25,2021-03-29,2021-03-31,Hypertension
+12703,chengalpattu,48,M,,,2021-03-28,2021-03-29,2021-03-31,Hypertension/Seizure Disorder
+12704,dindigal,70,M,,,2021-03-27,2021-03-29,2021-03-31,Diabetes Mellitus
+12705,nagapattinam,54,F,,,2021-03-25,2021-03-29,2021-03-31,Type2Diabetes Mellitus
+12706,chennai,39,F,,,2021-03-28,2021-03-28,2021-03-31,Type2Diabetes Mellitus/ Systemic Hypertension/Hypothyroidism
+12707,nagapattinam,70,F,,,2021-03-27,2021-03-27,2021-03-31,Type2Diabetes Mellitus
+12708,cuddalore,40,F,,,2021-03-17,2021-03-29,2021-03-31,Diabetes Mellitus/Myocardial Infarction
+12709,chennai,39,F,,,2021-03-22,2021-03-30,2021-03-31,"Complaints of Fever,Cough for 4 days died on 30.03.2021 at 04.45 AM due to ARDS/COVID-19 Pneumonia. Death in Government health facilities (DME)"
+12710,chennai,57,F,,,2021-03-20,2021-03-30,2021-03-31,HTN
+12711,trichy,39,M,,,2021-03-27,2021-03-29,2021-03-31,DM
+12712,chengalpattu,71,F,,,2021-03-26,2021-03-29,2021-03-31,DM
+12713,chennai,86,M,,,2021-03-26,2021-03-29,2021-03-31,DM
+12714,chengalpattu,62,F,,,2021-03-23,2021-03-29,2021-03-31,DM/HTN/Hypothyroid/Morbid Obesity
+12715,thiruvarur,80,F,,,2021-03-27,2021-03-29,2021-03-31,Type2DM/HTN
+12716,chennai,83,M,,,2021-03-18,2021-03-29,2021-03-31,DM/HTN
+12717,chennai,68,F,,,2021-03-26,2021-03-29,2021-03-31,DM/HTN
+12718,thanjavur,65,F,,,2021-03-22,2021-03-29,2021-03-31,Type2DM/SHTN
+12719,coimbatore,66,M,,,2021-03-26,2021-03-29,2021-03-31,Type2DM/SHTN
+12720,chengalpattu,71,M,,,2021-03-30,2021-03-31,2021-04-01,Type2Diabetes Mellitus/ Systemic Hypertension/Chronic Obstructive Pulmonary Disease
+12721,chennai,60,M,,,2021-03-27,2021-03-29,2021-04-01,Diabetes Mellitus/Systemic Hypertension/Coronary Artery Disease
+12722,nagapattinam,52,M,,,2021-03-29,2021-03-30,2021-04-01,Type2Diabetes Mellitus (Newly Diagnosed)
+12723,kancheepuram,71,M,,,2021-03-28,2021-03-29,2021-04-01,Diabetes Mellitus/Multiple Myeloma
+12724,chennai,38,M,,,2021-03-29,2021-03-31,2021-04-01,Seizure Disorder/Down’s Syndrome
+12725,thiruvallur,62,M,,,2021-03-20,2021-03-31,2021-04-01,Type2Diabetes Mellitus/ Systemic Hypertension/Coronary Artery Disease
+12726,kancheepuram,60,F,,,2021-03-29,2021-03-31,2021-04-01,Type2Diabetes Mellitus/ Chronic Kidney Disease
+12727,ramanathapuram,39,F,,,2020-07-26,2020-08-13,2021-04-01,
+12728,chengalpattu,36,M,,,2021-03-25,2021-03-31,2021-04-01,"Complaints of Fever,Cough died on 31.03.2021 at 04.53 AM due to ARDS/COVID-19 Pneumonia."
+12729,thiruvallur,54,F,,,2021-03-26,2021-03-30,2021-04-01,"Complaints of Fever,Cough for 10 days, Difficulty in Breathing for 2 days died on 30.03.2021 at 08.45 AM due to COVID-19 Pneumonia. COVID-19 Positive Deaths due to comorbidities – Total: 16 Death in Private health facilities due to comorbidities"
+12730,thanjavur,68,F,,,2021-03-26,2021-03-31,2021-04-01,Type2DM/SHTN/CKD/Hypothyroid
+12731,chennai,77,M,,,2021-03-19,2021-03-31,2021-04-01,"Complaints of Fever,Cough for 4 days, Difficulty in Breathing for 3 days died on 31.03.2021 at 12.02 PM due to ARDS/COVID-19 Pneumonia."
+12732,chennai,62,F,,,2021-03-26,2021-03-31,2021-04-01,Type2DM/HTN
+12733,chennai,89,F,,,2021-03-24,2021-03-30,2021-04-01,DM
+12734,cuddalore,38,M,,,2021-03-27,2021-03-30,2021-04-01,DM
+12735,madurai,66,M,,,2021-03-24,2021-03-30,2021-04-01,Type2DM/HTN/CAD
+12736,kancheepuram,53,F,,,2021-03-27,2021-03-30,2021-04-01,SHTN/Hypothyroidism
+12737,chennai,88,M,,,2021-03-22,2021-03-29,2021-04-01,HTN
+12738,tirunelveli,75,F,,,2021-03-25,2021-03-30,2021-04-01,Complaints of Fever for 4 days Difficulty in Breathing for died on 30.03.2021 at 08.55 AM due to COVID-19 Pneumonia. Death in Government health facilities (DMS) due to comorbidities
+12739,chennai,62,F,,,2021-03-24,2021-04-01,2021-04-02,Type2Diabetes Mellitus/ Systemic Hypertension
+12740,kanyakumari,58,F,,,2021-03-29,2021-03-31,2021-04-02,Type2Diabetes Mellitus
+12741,chennai,77,M,,,2021-03-26,2021-04-01,2021-04-02,HTN
+12742,chennai,53,M,,,2021-03-22,2021-04-01,2021-04-02,HTN
+12743,tenkasi,77,M,,,2021-04-01,2021-04-01,2021-04-02,Type2DM
+12744,chennai,81,M,,,2021-03-31,2021-04-01,2021-04-02,DM/SHTN
+12745,kancheepuram,83,F,,,2021-03-27,2021-04-01,2021-04-02,Type2DM/SHTN
+12746,chennai,63,F,,,2021-03-22,2021-04-01,2021-04-02,DM/HTN/CAD/CKD
+12747,chennai,62,M,,,2021-03-11,2021-04-01,2021-04-02,HTN/CAD
+12748,thiruvannamalai,60,M,,,2021-03-30,2021-04-01,2021-04-02,DM/HTN/CAD
+12749,chennai,81,M,,,2021-03-19,2021-03-31,2021-04-02,HTN/CAD/Dyslipidemia
+12750,trichy,79,M,,,2021-03-25,2021-03-31,2021-04-02,Type2DM/Br.Asthma
+12751,kancheepuram,65,M,,,2021-03-29,2021-04-01,2021-04-03,Type2Diabetes Mellitus/ Systemic Hypertension
+12752,thanjavur,83,M,,,2021-03-30,2021-04-02,2021-04-03,Type2Diabetes                Mellitus/ Systemic Hypertension
+12753,chennai,72,M,,,2021-03-30,2021-04-01,2021-04-03,Type2Diabetes Mellitus/Systemic Hypertension
+12754,chennai,64,M,,,2021-03-25,2021-04-02,2021-04-03,Type2Diabetes Mellitus/Systemic Hypertension/Acute Kidney Injury
+12755,chennai,63,F,,,2021-03-28,2021-04-02,2021-04-03,Type2Diabetes Mellitus/ Systemic Hypertension
+12756,chennai,80,M,,,2021-03-27,2021-04-03,2021-04-03,DM/HTN
+12757,chennai,73,M,,,2021-03-26,2021-04-02,2021-04-03,DM/HTN/COPD
+12758,chennai,81,M,,,2021-03-29,2021-04-02,2021-04-03,DM
+12759,thiruvallur,65,F,,,2021-03-30,2021-04-02,2021-04-03,DM
+12760,madurai,47,F,,,2021-04-01,2021-04-02,2021-04-03,CAD/DM/RHD
+12761,chengalpattu,69,M,,,2021-03-22,2021-04-02,2021-04-03,HTN
+12762,chennai,73,M,,,2021-03-29,2021-04-02,2021-04-03,DM
+12763,chengalpattu,75,M,,,2021-03-25,2021-04-02,2021-04-03,DM/Parkinson's Disease
+12764,chennai,63,M,,,2021-03-29,2021-04-01,2021-04-03,DM/SHTN/CAD
+12765,thiruvallur,63,M,,,2021-03-30,2021-04-02,2021-04-04,
+12766,kancheepuram,58,M,,,2021-03-30,2021-04-02,2021-04-04,
+12767,chennai,77,M,,,2021-04-02,2021-04-02,2021-04-04,Type2Diabetes Mellitus/Systemic Hypertension
+12768,chengalpattu,58,F,,,2021-03-30,2021-04-03,2021-04-04,Type2Diabetes Mellitus/ Systemic Hypertension
+12769,kancheepuram,74,F,,,2021-04-01,2021-04-02,2021-04-04,
+12770,chengalpattu,81,M,,,2021-04-01,2021-04-02,2021-04-04,Dilated Cardiomyopathy/ Rheumatic heart Disease
+12771,chennai,67,M,,,2021-03-31,2021-04-04,2021-04-04,DM
+12772,chengalpattu,60,F,,,2021-03-28,2021-04-03,2021-04-04,Type2DM
+12773,chennai,52,M,,,2021-03-28,2021-04-03,2021-04-04,Morbid Obesity
+12774,chengalpattu,75,M,,,2021-03-27,2021-04-03,2021-04-04,Tye2DM/HTN
+12775,chengalpattu,53,M,,,2021-04-03,2021-04-03,2021-04-04,DM/HTN/Old Pulmonary Tuberculosis
+12776,chennai,90,F,,,2021-03-23,2021-04-03,2021-04-04,HTN
+12777,kanyakumari,52,M,,,2021-04-01,2021-04-03,2021-04-04,Type2DM
+12778,tiruppur,62,M,,,2021-03-31,2021-04-03,2021-04-04,Type2DM/SHTN/CAD
+12779,chennai,50,M,,,2021-04-01,2021-04-04,2021-04-05,
+12780,chennai,62,M,,,2021-04-01,2021-04-03,2021-04-05,
+12781,chennai,74,M,,,2021-04-03,2021-04-03,2021-04-05,
+12782,chennai,90,M,,,2021-03-30,2021-04-05,2021-04-05,CAD/HTN
+12783,nagapattinam,83,M,,,2021-04-03,2021-04-05,2021-04-05,"Complaints of Cough for 5 days died on 05.04.2021 at 06.10 AM due to ARDS/COVID-19 Pneumonia. Death in Government health facilities (Other Government Institutions like Railway Hospitals, ESI hospitals) due to comorbidities"
+12784,chennai,71,M,,,2021-03-31,2021-04-04,2021-04-05,"Complaints of Fever, Difficulty in Breathing for 1 day died on 04.04.2021 at 07.00 PM due to ARDS/COVID- 19 Pneumonia. Death in Government health facilities (DME) due to comorbidities"
+12785,madurai,60,F,,,2021-03-28,2021-04-05,2021-04-05,DM/HTN
+12786,vellore,59,M,,,2021-04-02,2021-04-05,2021-04-05,Type2DM/SHTN
+12787,chennai,52,M,,,2021-03-22,2021-04-04,2021-04-05,DM/HTN
+12788,chennai,71,F,,,2021-03-29,2021-04-03,2021-04-05,Type2DM/HTN
+12789,chengalpattu,64,M,,,2021-03-30,2021-04-03,2021-04-05,DM/SHTN
+12790,chengalpattu,60,M,,,2021-04-03,2021-04-04,2021-04-06,
+12791,chengalpattu,75,F,,,2021-03-30,2021-04-04,2021-04-06,Type2Diabetes Mellitus/ Bronchial Asthma
+12792,chennai,67,F,,,2021-04-01,2021-04-04,2021-04-06,Type2Diabetes Mellitus
+12793,chennai,54,F,,,2021-03-29,2021-04-03,2021-04-06,Type2Diabetes Mellitus/Hypo thyroidism
+12794,thiruvallur,47,M,,,2021-04-02,2021-04-04,2021-04-06,Type2Diabetes Mellitus
+12795,thiruvannamalai,65,F,,,2021-04-02,2021-04-04,2021-04-06,
+12796,chennai,67,F,,,2021-04-02,2021-04-05,2021-04-06,Type2Diabetes Mellitus
+12797,thanjavur,58,M,,,2021-04-05,2021-04-05,2021-04-06,Type2Diabetes Mellitus/ Systemic Hypertension/CAHD
+12798,thanjavur,75,M,,,2021-04-04,2021-04-05,2021-04-06,Systemic Hypertension
+12799,coimbatore,55,M,,,2021-04-01,2021-04-05,2021-04-06,"Complaints of Fever,Cough and Difficulty in Breathing for 5 days died on 05.04.2021 at 11.00 PM due to ARDS/COVID-19 Pneumonia."
+12800,chengalpattu,43,M,,,2021-03-25,2021-04-04,2021-04-06,"Complaints of Fever,Cough and Difficulty in Breathing died on 04.04.2021 at 01.31 PM due to ARDS/COVID-19 Pneumonia. Death in Government health facilities (DME)"
+12801,chengalpattu,66,M,,,2021-03-23,2021-04-05,2021-04-06,DM/SHTN/CKD
+12802,chennai,69,M,,,2021-04-01,2021-04-05,2021-04-06,CAD/CKD/DM/SHTN
+12803,chennai,76,M,,,2021-04-03,2021-04-05,2021-04-06,Type2DM/SHTN
+12804,chengalpattu,89,F,,,2021-04-02,2021-04-04,2021-04-06,Type2DM/Hypothyroidism
+12805,nagapattinam,60,M,,,2021-04-02,2021-04-05,2021-04-07,
+12806,chennai,58,M,,,2021-04-02,2021-04-05,2021-04-07,
+12807,coimbatore,36,F,,,2021-04-04,2021-04-05,2021-04-07,Morbid Obesity
+12808,thiruvannamalai,57,F,,,2021-03-31,2021-04-05,2021-04-07,Type2Diabetes Mellitus
+12809,chengalpattu,50,M,,,2021-04-04,2021-04-05,2021-04-07,Type2Diabetes Mellitus/ Coronary Artery Disease
+12810,thanjavur,75,M,,,2021-03-31,2021-04-05,2021-04-07,Type2Diabetes Mellitus
+12811,chennai,42,F,,,2021-04-02,2021-04-04,2021-04-07,Systemic Hypertension
+12812,chennai,55,F,,,2021-03-31,2021-04-05,2021-04-07,Systemic Hypertension
+12813,salem,56,M,,,2021-04-02,2021-04-06,2021-04-07,Complaints of Fever and Throat Pain died on 06.04.2021 at 06.10 AM due to COVID-19 Pneumonia. Death in Government health facilities (DME)
+12814,tirunelveli,82,M,,,2021-04-05,2021-04-06,2021-04-07,Type2DM
+12815,madurai,57,M,,,2021-03-30,2021-04-06,2021-04-07,Type2DM/Morbid Obesity
+12816,chennai,87,M,,,2021-03-31,2021-04-06,2021-04-07,Type2DM/Hypothyroidism
+12817,chennai,73,F,,,2021-03-30,2021-04-06,2021-04-07,Type2DM/SHTN
+12818,chengalpattu,51,F,,,2021-04-03,2021-04-06,2021-04-07,DM
+12819,trichy,71,M,,,2021-03-24,2021-04-05,2021-04-07,DM
+12820,chennai,68,M,,,2021-04-05,2021-04-05,2021-04-07,Type2DM
+12821,tiruppur,85,M,,,2021-04-01,2021-04-05,2021-04-07,CKD/CAD
+12841,chennai,64,M,,,2021-04-05,2021-04-07,2021-04-09,
+12842,virudhunagar,42,M,,,2021-04-06,2021-04-07,2021-04-09,
+12843,thanjavur,57,M,,,2021-04-04,2021-04-07,2021-04-09,Systemic Hypertension/ Type2Diabetes Mellitus
+12844,coimbatore,55,F,,,2021-04-02,2021-04-07,2021-04-09,Type2Diabetes Mellitus/ Systemic Hypertension
+12845,chennai,58,F,,,2021-04-06,2021-04-06,2021-04-09,Type2Diabetes Mellitus
+12846,chennai,80,M,,,2021-04-05,2021-04-07,2021-04-09,Systemic Hypertension
+12847,thanjavur,64,M,,,2021-04-06,2021-04-07,2021-04-09,Type2Diabetes Mellitus
+12848,chennai,83,M,,,2021-04-03,2021-04-07,2021-04-09,Systemic Hypertension/Chronic Kidney Disease/Coronary Artery Disease
+12849,thiruvallur,79,M,,,2021-03-26,2021-04-06,2021-04-09,Coronary Artery Disease/Diabetes       Mellitus/Systemic      Hypertension/Parkinsonism
+12850,chennai,60,F,,,2021-04-06,2021-04-08,2021-04-09,Morbid Obesity
+12851,thiruvallur,44,M,,,2021-04-08,2021-04-08,2021-04-09,"Complaints of Fever,Cough and Difficulty in Breathing for 3 days died on 08.04.2021 at 07.15 AM due to ARDS/COVID-19 Pneumonia. Death in Government health facilities (DME)"
+12852,chennai,70,M,,,2021-03-31,2021-04-08,2021-04-09,DM/CAD/HTN
+12853,chengalpattu,58,M,,,2021-03-26,2021-04-08,2021-04-09,Type2DM/Byssinosis
+12854,chennai,67,F,,,2021-03-30,2021-04-08,2021-04-09,Type2DM/HTN/COPD/Hypothyroidism
+12855,chennai,64,F,,,2021-04-05,2021-04-07,2021-04-09,HTN/DM/Old Pulmonary Tubeculosis/COPD
+12856,madurai,61,F,,,2021-04-05,2021-04-08,2021-04-09,Type2DM
+12857,thoothukudi,58,M,,,2021-04-04,2021-04-08,2021-04-09,Type2DM/SHTN/Hypothyroidism/CAD
+12858,kancheepuram,70,F,,,2021-04-02,2021-04-08,2021-04-09,Type2DM
+12859,trichy,74,M,,,2021-04-02,2021-04-08,2021-04-09,HTN/CAD/Bronchial Asthma
+12860,chennai,81,M,,,2021-04-05,2021-04-08,2021-04-09,DM/SHTN/CVA (OLD)
+12861,chennai,64,F,,,2021-04-07,2021-04-07,2021-04-09,DM/SHTN
+12862,trichy,64,M,,,2021-04-07,2021-04-07,2021-04-09,DM/Seizure Disorder
+12863,nagapattinam,60,F,,,2021-03-28,2021-04-07,2021-04-09,CAD
