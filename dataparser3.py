@@ -348,7 +348,7 @@ def parse_census(state='Tamil Nadu',metric='mean age'):
   for i in r: info.append(i)
   data=[i for i in info if i[0]==state]
 #  print(len(data))
-  if metric in ['above60'] or metric.startswith('agedict'):
+  if metric in ['above60','above45'] or metric.startswith('agedict'):
     data=data[1:-3]#exclude last 2 rows and initial one
     agedict={}
     for i in data:
@@ -365,7 +365,13 @@ def parse_census(state='Tamil Nadu',metric='mean age'):
       above60=sum([agedict[i] for i in agedict if i>=60])
       try:frac=float('%.3f' %(float(above60)/tot_persons))
       except ZeroDivisionError: frac=0
-      return (above60,frac)
+      return (above60,frac*100)
+    elif metric=='above45':
+      tot_persons=sum(list(agedict.values()))
+      above45=sum([agedict[i] for i in agedict if i>=45])
+      try:frac=float('%.3f' %(float(above45)/tot_persons))
+      except ZeroDivisionError: frac=0
+      return (above45,frac*100)
 
   elif metric in ['mean age','tot_persons']:
     data=data[1:-3]#exclude last 2 rows and initial one
@@ -737,7 +743,7 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',
   pylab.close()
 
 
-def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',color2='red',plot_days=''):
+def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',color2='red',draw_vline=False,plot_days=''):
     if plot_days:
         dates=dates[-1*plot_days:]
         dates2=dates2[-1*plot_days:]
@@ -759,6 +765,10 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
     ax.set_ylabel(label1,color=color)
     ax.plot_date(dates,data,color=color,label=label1)
     ax.tick_params(axis='y', labelcolor=color)
+    
+    if draw_vline:
+      ax.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(data)-0.5,max(data)+0.5,label='Elderly vaccinations begin',color='green',linestyles='dashed',linewidth=4)
+    
     ax.legend(loc='lower left',fontsize=6)
 
     ax2=ax.twinx()
@@ -940,9 +950,9 @@ def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full
 
 
 #cache this to avoid repeated file reads
-#global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
-#global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
-#global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
+global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
+global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
   
 def highlight(text):
   highlight_begin=colorama.Back.BLACK+colorama.Fore.WHITE+colorama.Style.BRIGHT
@@ -1320,7 +1330,7 @@ def chloropleth_data():
         d2[date]=ddict2
     return data,d2,d2_orig
 
-def vaccination_chloropleth(upto='mar13',multiple=0.53):  
+def vaccination_chloropleth(upto='apr29',multiple=1):  
   mar1=parse_mohfw_bulletin('bulletins/vaccination/mar01.pdf')[2]
   end=parse_mohfw_bulletin('bulletins/vaccination/'+upto+'.pdf')[2]
   
@@ -1331,23 +1341,23 @@ def vaccination_chloropleth(upto='mar13',multiple=0.53):
     except: failed.append(state)
   print('failed for %s' %(str(failed)))
   vd0=vd.copy()
-  chloropleth(vd,'','Number of 60+ vaccinated',reverse_colormap=True,no_print_error=True)
+  chloropleth(vd,'','Number of 45+ vaccinated',reverse_colormap=True,no_print_error=True)
   
   vd={};failed=[]
   for state in state_name_to_code:
-    try: vd[state]=100*(0.62*(end[state]-mar1[state])/parse_census(state,'above60')[0])
+    try: vd[state]=100*(multiple*(end[state]-mar1[state])/parse_census(state,'above45')[0])
     except: failed.append(state)
   print('failed for %s' %(str(failed)))
   
-  for i in ['Sikkim','Arunachal Pradesh','Tripura']:
+  for i in ['Sikkim','Arunachal Pradesh','Tripura','Mizoram']:
     if i in vd: vd.pop(i)  
   vi=list(vd.items());vi.sort(key=lambda ff: ff[1])
   
   dc={}
   for i in vd:
     if i in vd0: dc[i]=(vd[i],vd0[i])
-  vi2=list(dc.items());vi2.sort(key=lambda ff: ff[1][0])
-  chloropleth(vd,'','Percent of 60+ vaccinated(restricted set of states)',reverse_colormap=True,no_print_error=True)
+  
+  chloropleth(vd,'','Percent of 45+ vaccinated(restricted set of states)',reverse_colormap=True,no_print_error=True)
 
   vd={};failed=[]
   for state in state_name_to_code:
@@ -1358,7 +1368,7 @@ def vaccination_chloropleth(upto='mar13',multiple=0.53):
   for i in ['Sikkim','Arunachal Pradesh','Tripura']:
     if i in vd: vd.pop(i)  
   chloropleth(vd,'','Percent of total pop. vaccinated(restricted set of states)',reverse_colormap=True,no_print_error=True)
-
+  vi2=list(vd.items());vi2.sort(key=lambda ff: ff[1])
   return vi,vi2
   
 def norm_cmap(values, cmap='YlGn', vmin=None, vmax=None):
@@ -1942,7 +1952,7 @@ class fatality():
 
     age_gender=ss.split('of')[0].strip()
     age=age_gender.split(' ')[age_gender.split(' ').index('year')-1]
-    if age.isdigit(): self.age=int(age)
+    if age.isdigit(): self.age=int(float(age))
     else:             print(('for %s, could not parse age: %s from age_gender string: %s' %(fatality_string,age,age_gender)))
     self.gender=age_gender.split(' ')[-1]
       
@@ -1984,7 +1994,7 @@ class generic_fatality():
     if patient_number:
       self.patient_number=int(patient_number.replace('n',''))
     age=age.lower().replace('yrs','').replace('y','');#workaround for typos in bulletin
-    self.age=int(age)
+    self.age=int(float(age))
     self.gender=gender
     self.origin=origin
     if state=='Karnataka':
@@ -1992,6 +2002,7 @@ class generic_fatality():
     else:
       self.comorbidities=comorbidity.split(' /')
     if state=='Karnataka':
+      
       self.date_of_detection=karnataka_map_patient_no_to_date(self.patient_number,global_karnataka_case_series)
     
     self.date_of_admission=date_of_admission
@@ -2064,7 +2075,6 @@ class generic_icu_usage():
     info_str='In %s,  district: %s on %s, icu_usage: %d' %(self.state,self.district,self.date.strftime('%d-%m-%Y'),self.icu)
     if self.ventilator: info_str+=' ventilator: '+str(self.ventilator)
     print(info_str)
-#class meant to represent a discharges patient in Karnataka
 class karnataka_discharge():
   patient_number='';date_of_detection='';date_of_discharge='';
   district='';detection_discharge_interval=0
@@ -2223,6 +2233,52 @@ def tamil_nadu_auto_cases(bulletin='',noexc=False):
     except: print('unable to get 60+ cases info from %s' %(bulletin))
   
 
+def karnataka_parse_vaccination(multiple=1.15,plot=False):
+  r=csv.reader(open('csv_dumps/karnataka_vaccination.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info=info[1:]
+  out=[]
+  for i in info:
+    date,a60vaccinated,from45to60vaccinated=i
+    date=datetime.datetime.strptime(date+'/2021','%d/%m/%Y')
+    out.append((date,int(a60vaccinated),int(from45to60vaccinated)))
+  
+  tot=float(parse_census('ka','above60')[0])*multiple
+  dates,v,v2=zip(*out);
+  v=np.int_(moving_average(v,window_size=7));  v2=np.int_(moving_average(v2,window_size=7))
+  percent_elderly_vaccinated=(v/tot)*100;  
+  tot=float(parse_census('ka','above45')[0])*multiple
+  percent_over45_vaccinated=((v+v2)/tot)*100
+  out2=list(zip(dates,v,v2,percent_elderly_vaccinated,percent_over45_vaccinated))
+  
+  if plot:
+    sp,ax=pylab.subplots()
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
+
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Percent of 60+ vaccinated in KA  (7-day MA)')
+    ax.plot_date(pylab.date2num(dates),percent_elderly_vaccinated,label='Percent of 60+ vaccinated')      
+    ax.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(percent_elderly_vaccinated)-0.5,max(percent_elderly_vaccinated)+0.5,label='Elderly vaccinations begin',color='green',linestyles='dashed',linewidth=4)
+    ax.legend(fontsize=8);pylab.title("Percent of 60+ vaccinated in KA ")
+    fname=TMPDIR+'Karnataka_elderly_vaccinations.jpg'
+    pylab.savefig(fname);pylab.close();print('saved fig to %s' %(fname))
+    
+    
+    sp,ax=pylab.subplots()
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
+
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Percent of 45+ vaccinated in KA  (7-day MA)')
+    ax.plot_date(pylab.date2num(dates),percent_over45_vaccinated,label='Percent of 45+ vaccinated')      
+    ax.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(percent_elderly_vaccinated)-0.5,max(percent_elderly_vaccinated)+0.5,label='Elderly vaccinations begin',color='green',linestyles='dashed',linewidth=4)
+    ax.legend(fontsize=8);pylab.title("Percent of 45+ vaccinated in KA ")
+    fname=TMPDIR+'Karnataka_over45_vaccinations.jpg'
+    pylab.savefig(fname);pylab.close();print('saved fig to %s' %(fname))
+      
+  return out2
 def tamil_nadu_parse_cases(analysis=False,plot=True):
   r=csv.reader(open('csv_dumps/TN_cases.csv'))
   info=[]
@@ -2243,8 +2299,8 @@ def tamil_nadu_parse_cases(analysis=False,plot=True):
     a60=np.diff(a60)#[-1*len(dates):]
     c=np.diff(c)[-1*len(a60):]#[-1*len(dates):]
     
-    frac=100*(np.array(moving_average(a60))/np.array(moving_average(c)))
-    # ~ frac=100*np.array(moving_average(a60/c))
+    # ~ frac=100*(np.array(moving_average(a60))/np.array(moving_average(c)))
+    frac=100*np.array(moving_average(a60/c,window_size=7))
     
     # ~ dates=[i for i in dates if i>= datetime.datetime(2021, 2, 1, 0, 0)]
     dates=dates[7:]
@@ -2300,15 +2356,19 @@ def kerala_parse_csv():
   return y
  
   
-def get_pfr(state='Tamil Nadu',start='',end='',do_moving_average=False,ma_size=2,plot=False):
+def get_pfr(state='Tamil Nadu',start='',end='',date_type='',do_moving_average=False,ma_size=2,plot=False):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   if state=='Tamil Nadu':    deaths=tamil_nadu_parse_csv()
   elif state=='Kerala':    deaths=kerala_parse_csv()
   dd={}
   if start:
     deaths=[i for i in deaths if i.date_of_death>=start]
+    if date_type=='admission':
+      deaths=[i for i in deaths if i.date_of_admission>=start]
   if end:
     deaths=[i for i in deaths if i.date_of_death<=end]
+    if date_type=='admission':
+      deaths=[i for i in deaths if i.date_of_admission<=end]
   allages=[i.age for i in deaths]
   for i in deaths:
     age=i.age
@@ -2626,7 +2686,7 @@ def karnataka_bulletin_get_margins_confirmed(bulletin='06_18_2020.pdf',page_rang
 def karnataka_bulletin_get_margins(bulletin='09_09_2020.pdf',page_range=(19,23),debug_clip='',debug=False):
   cmd='pdftotext -x 0 -y 0 -W 1000 -H 2000 -bbox-layout -nopgbrk -layout -f '+str(page_range[0])+' -l '+str(page_range[1])+' "'+bulletin+'" tmp.txt';os.system(cmd)
   from bs4 import BeautifulSoup
-  soup=BeautifulSoup(open('tmp.txt').read(),'lxml')
+  soup=BeautifulSoup(open('tmp.txt').read(),'html.parser')
   d_idx=[i for i in range(len(soup('block'))) if soup('block')[i]('word')[0].text.strip().lower()=='district']  
   if not d_idx:
     print(('could not find "block" for District in '+bulletin+' with range '+str(page_range)))
@@ -3406,9 +3466,10 @@ def mumbai_analysis():
 
   
   
-def karnataka_read_csv():
+def karnataka_parse_csv():
   import csv;info=[]
-  r=csv.reader(open('csv_dumps/karnataka_fatalities_details_jul16_sep10.csv'))
+  # ~ r=csv.reader(open('csv_dumps/karnataka_fatalities_details_jul16_sep10.csv'))
+  r=csv.reader(open('csv_dumps/karnataka_fatalities_truncated_Feb15_May05.csv'))
   for i in r: info.append(i);
   info=info[1:];fatalities=[]
   for row in info[2:]:
@@ -3441,10 +3502,45 @@ def simplify_json():
   a=open('simplified.json','w')
   json.dump(x,a);a.close()
   print('wrote simplified.json from state_test_data.json removing empty fields')
-def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,1,20),enddate=datetime.date(2021,4,30),use_median=False,ignore_capital=True):
+
+def karnataka_predict_vaccination_perct_45plus(base=85,delay=7,pop_multiple=1.15):
+  y=helper_get_mean_deaths(filter_type='percent45plus',date_type='admission',state='Karnataka')#,startdate=datetime.date(2021,3,1,0,0))
+  datesd,pd45plus=zip(*y)
+  dates,v,v2,p60plus,p45plus=zip(*karnataka_parse_vaccination(multiple=pop_multiple))
+  puv=100-np.array(p45plus)
+  
+  rem=100-base
+  baserem=puv*0.01*base
+  predicted_pd=100*(baserem/(baserem+rem))
+  #add delay
+  orig_len=len(predicted_pd)  
+  predicted_pd=np.concatenate((np.ones(delay)*base,predicted_pd))[:orig_len]
+  
+  # ~ plot2(datesd,pd45plus,dates,predicted_pd,label1='percent of 45+ in daily deaths',label2='PREDICTION for percent of 45+ in daily deaths',color2='cyan',draw_vline=True)
+  sp,ax=pylab.subplots()
+  
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7);  formatter = mdates.ConciseDateFormatter(locator)
+  ax.xaxis.set_major_locator(locator);  ax.xaxis.set_major_formatter(formatter) 
+  
+  ax.set_xlabel('Date');ax.set_ylabel('percent of 45+ in daily deaths')
+  #HACK
+  datesd=datesd[:-4];pd45plus=pd45plus[:-4]
+  ax.plot_date(datesd,pd45plus,color='blue',label='percent of 45+ in daily deaths')
+  
+  ax.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(pd45plus)-0.5,max(pd45plus)+0.5,label='Elderly vaccinations begin',color='green',linestyles='dashed',linewidth=4)
+  
+  ax.plot_date(dates,predicted_pd,color='cyan',label='PREDICTIOn for percent of 45+ in daily deaths')
+  ax.legend()
+  title='Prediction vs Actual for Karnataka daily deaths'
+  pylab.title(title);  pylab.savefig(TMPDIR+title+'.jpg',dpi=100);pylab.close();print('saved '+TMPDIR+title+'.jpg')
+  
+  
+def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,3,1),enddate=datetime.date(2021,5,5),use_median=False,ignore_capital=True):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   if not deaths:
     if state=='Tamil Nadu': deaths=tamil_nadu_parse_csv() ;print('loaded TN fatality data from csv')
     elif state=='Kerala': deaths=kerala_parse_csv();print('loaded KL fatality data from csv')
+    elif state=='Karnataka': deaths=karnataka_parse_csv();print('loaded KA fatality data from csv')
     else: print('State is not TN/KL and no deaths data given to function');return
       
   d1=startdate
@@ -3459,6 +3555,7 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
   ma_delta=datetime.timedelta(days=ma_size)
   if state=='Tamil Nadu':capital='chennai';outside='RoTN'
   elif state=='Kerala':capital='Thiruvananthapuram';outside='RoKL'
+  elif state=='Karnataka':capital='Bengaluru';outside='RoKA'
 
   for dd in datetimes:
     d='';d1='';d2=''
@@ -3511,6 +3608,31 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
         if d1: d1=100*float(len([i for i in d1 if i.age>=60]))/len(d1)
         else: d1=0
         if d2: d2=100*float(len([i for i in d2 if i.age>=60]))/len(d2)
+        else: d2=0
+    elif filter_type=='percent45plus': #find fraction of SARI/ILI in daily deaths on date
+      if d: d=100*float(len([i for i in d if i.age>=45]))/len(d)
+      else: d=0
+      if not ignore_capital:
+        if d1: d1=100*float(len([i for i in d1 if i.age>=45]))/len(d1)
+        else: d1=0
+        if d2: d2=100*float(len([i for i in d2 if i.age>=45]))/len(d2)
+        else: d2=0
+    elif filter_type=='percentupto45': #find fraction of SARI/ILI in daily deaths on date
+      if d: d=100*float(len([i for i in d if i.age<45]))/len(d)
+      else: d=0
+      if not ignore_capital:
+        if d1: d1=100*float(len([i for i in d1 if i.age<45]))/len(d1)
+        else: d1=0
+        if d2: d2=100*float(len([i for i in d2 if i.age<45]))/len(d2)
+        else: d2=0
+    elif filter_type=='percent45to60': #find fraction of SARI/ILI in daily deaths on date
+      if d: d=100*float(len([i for i in d if i.age>=45 and i.age<60]))/len(d)
+      # ~ if d: d=100*float(len([i for i in d if i.age>=45 and i.age<60]))/len([i for i in d if i.age<60])
+      else: d=0
+      if not ignore_capital:
+        if d1: d1=100*float(len([i for i in d1 if i.age>=45 and i.age<60]))/len(d1)
+        else: d1=0
+        if d2: d2=100*float(len([i for i in d2 if i.age>=45 and i.age<60]))/len(d2)
         else: d2=0
     elif filter_type=='comorb': #find fraction of SARI/ILI in daily deaths on date
       d=100*float(len([i for i in d if i.comorbidities!=['']]))/len(d)
@@ -3617,6 +3739,9 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
     if filter_type=='admission_death':      label='Admission-Death interval'
     if filter_type=='death_reporting':      label='Death-Reporting interval'
     if filter_type=='percent60plus':      label='Percent of deaths that were 60+yrs'
+    if filter_type=='percent45to60':      label='Percent of deaths that were 45-60 yrs'
+    if filter_type=='percent45plus':      label='Percent of deaths that were 45+ yrs'
+    if filter_type=='percentupto45':      label='Percent of deaths that were upto 45 yrs'
     if filter_type=='raw_number':      label='Raw number of deaths'
     label+=' (7-day MA)'
     #mean age vs time
@@ -3729,7 +3854,7 @@ def kerala_parse_deaths(format_type='new'):
       if gender.lower()=='female': gender='F'
       else: gender='M'
   
-      dod=entry.split()[-2].strip().replace('267.09.2020','26.09.2020').replace('.','/').replace('-','/')
+      dod=entry.split()[-2].strip().replace('267.09.2020','26.09.2020').replace('.','/').replace('-','/').replace('202I','2021')
       if dod.count('/')==2:
         if dod.endswith('/20'):dod+='20'
         elif dod.endswith('/21'):dod=dod.replace('/21','/2021')
@@ -4046,6 +4171,168 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
   return fatalities
       
   
+def karnataka_parse_deaths_restricted(bulletin='09_09_2020.pdf',bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range='',stop_debug=''):
+  if stop_debug and (not page_range): #means coming from debug
+    (bulletin_date,annex_range)=karnataka_bulletin_parser(bulletin,return_date_only=True)
+    page_range=annex_range['deaths']
+    
+  start_page=str(page_range[0])
+  end_page=str(page_range[1])
+
+  margins=karnataka_bulletin_get_margins(bulletin,page_range)
+  if not margins and stop_debug:
+    print(('no margins found with page_range: '+str(page_range)))
+
+  format_type=1;#means place column exists
+  if 'place' not in margins: format_type=0;#place colum does not exist
+
+  #get districts name
+  # ~ districts=[]
+  # ~ x=str(margins['district'][0]);w=str(margins['district'][1]); #for new
+  # ~ cmd='pdftotext -x '+x+'  -W '+w+' -y 0 -H 1000  -nopgbrk -layout -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  # ~ b=[i.strip() for i in open('tmp.txt').readlines() if i.strip().lower().startswith(tuple(karnataka_districts_map.keys()))]
+
+  # ~ districts=[helper_map_district_start_char_to_fullname(i) for i in b]
+
+  # ~ if stop_debug=='district':
+    # ~ print('stopping after getting district info')
+    # ~ return districts,b
+
+  #p.no,gender,age,origin
+  x=str(margins['spnotodesc'][0]);w=str(margins['spnotodesc'][1]); #for new
+  cmd='pdftotext -x '+x+'  -W '+w+' -y 0 -H 1000  -nopgbrk -layout -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  b0=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+  b=[i.strip() for i in b0 if i.strip()[0].isdigit()]
+  b=[i for i in b if len(i)>6];#check for minimum length
+
+  patient_numbers=[];ages=[];genders=[];origins=[];idx=-1
+  for i in b:
+    idx+=1
+    if len(i.split())<4:      
+      #HACK for error for "contact of P-18548" etc
+      last_entry=b0[b0.index(i)-1]
+      if stop_debug=='origin':
+        print(('when parsing origin, field in b was less than 4 for: '+i+' last_entr: '+last_entry))
+        
+      if last_entry.lower().startswith(('contact','ct of','asymp','under','sari','ili','e from')):
+        patient_number=i.split()[0];age=i.split()[1];gender=i.split()[2]
+        if last_entry.lower().startswith(('contact','ct of','e from')): origin='CONT'
+        elif last_entry.lower().startswith('asymp'): origin='ASYM'
+        elif last_entry.lower().startswith('under'): origin='UNKN'
+        elif last_entry.lower().startswith('sari'): origin='SARI'
+        elif last_entry.lower().startswith('ILI'): origin='ILI'
+        if age.lower().startswith('mont'):age='1'
+        patient_numbers.append(patient_number);ages.append(age);genders.append(gender);origins.append(origin)
+      
+      elif last_entry.lower().startswith('mo'):#age is in months
+        patient_number=i.split()[0];gender=i.split()[1]
+        origin=i.split()[2];age='1'
+        patient_numbers.append(patient_number);ages.append(age);genders.append(gender);origins.append(origin)
+      elif last_entry.lower().startswith(('mal','fem','ma')):#malformed gender data
+        patient_number=i.split()[0];age=i.split()[1]
+        origin=i.split()[2];
+        if last_entry.lower().startswith('ma'): gender='M'
+        elif last_entry.lower().startswith('fem'): gender='F'
+        patient_numbers.append(patient_number);ages.append(age);genders.append(gender);origins.append(origin)
+      
+      continue; #need all fields
+    patient_number=i.split()[0];age=i.split()[1]
+    gender=i.split()[2];origin=i.split()[3]
+    if 'under' in origin or 'contact' in origin or 'trac' in origin: origin='CONT'
+    if age.lower().startswith('mont'):age='1'
+    patient_numbers.append(patient_number);ages.append(age);genders.append(gender);origins.append(origin)
+
+  if stop_debug=='origin':
+    print('stopping after getting origin info')
+    return districts,patient_numbers,ages,genders,origins,b
+    
+
+
+  #DOA,DOD
+  x=str(margins['doadod'][0]);w=str(margins['doadod'][1]); #for new
+  cmd='pdftotext -x '+x+'  -W '+w+' -y 0 -H 1000  -nopgbrk -layout -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+
+  b=[i.lower().replace('hospital','').replace('at ','') for i in open('tmp.txt').readlines()]
+  b=[i.strip() for i in b if i.strip() and not ('page' in i and 'of' in i) and i.strip()[0].isnumeric() and ('-' in i or '/' in i) ]
+  b=[i.replace('-21','-2021').replace('26/4/21','26-04-2021').replace('25/4/21','25-04-2021').replace('4/18/','18-04-').replace('4/16/','16-04-').replace('4/19/','19-04-').replace('4/17/','17-04-').replace('4/20/','20-04-').replace('4/28/','28-04-').replace('4/21/','21-04-').replace('4/22/','22-04-').replace('4/24/','24-04-').replace('4/23/','23-04-').replace('4/25/','25-04-').replace('4/26/','26-04-').replace('4/27/','27-04-').replace('4/28/','28-04-').replace('4/30/','30-04-').replace('27/04/21','27-04-2021') for i in b];#correct common errors
+  # ~ doubles=[i.split() for i in b if len(i.split())>1]
+  # ~ singles=[i.split() for i in b if len(i.split())==1]
+   
+  dates_of_admission=[];dates_of_death=[]
+  for i in b:
+    i=i.split()
+    if len(i)==1:
+      try:
+        doa=datetime.datetime.strptime(i[0],'%d-%m-%Y')
+      except:
+        print('error converting doa '+i[0])
+        return
+      dates_of_admission.append(doa);dates_of_death.append(doa)
+    else:
+      try:
+        doa=datetime.datetime.strptime(i[0],'%d-%m-%Y')
+      except:
+        print('error converting doa '+i[0])
+        return
+      try:
+        dod=datetime.datetime.strptime(i[1],'%d-%m-%Y')
+      except:
+        print('error converting dod '+i[1])
+        return
+      dates_of_admission.append(doa);dates_of_death.append(dod)
+   #HACK
+  if bulletin=='04_10_2021.pdf':
+    dates_of_admission.insert(13,datetime.datetime(2021, 4,5,0,0))
+    dates_of_death.insert(13,datetime.datetime(2021, 4,5,0,0))
+
+  if stop_debug=='doadod': #prelim
+    print('stopping at end of doadod proc')
+    # ~ return districts,patient_numbers,ages,genders,origins,dates_of_admission,dates_of_death,b
+    return patient_numbers,ages,genders,origins,dates_of_admission,dates_of_death,b
+
+  # ~ cmd='pdftotextx -marginl 500 -marginr 20 -margint 10 -marginb 40 -nopgbrk -layout -table -f '+start_page+' -l '+end_page+' '+bulletin+' tmp.txt';os.system(cmd);
+  # ~ b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() if ('private' in i.strip().lower() or 'designated' in i.strip().lower())]
+
+  # ~ hospital_types=[]
+  # ~ for i in b:    hospital_types.append(i.lower())
+
+  fatalities=[]
+
+  for j in range(len(ages)):
+
+    try:
+      # ~ district=districts[j]
+      district=''
+  
+      patient_number=patient_numbers[j]
+      age=ages[j]
+      gender=genders[j]
+      origin=origins[j]
+      # ~ comorbidity=comorbidities[j]
+      comorbidity=''
+      
+      date_of_admission=dates_of_admission[j]
+      date_of_death=dates_of_death[j]
+      # ~ hospital_type=hospital_types[j]
+    except IndexError: #some index was incomplete
+      print('---')
+      # ~ print(('districts',len(districts)))
+      print(('patient_numbers',len(patient_numbers)))
+      print(('ages',len(ages)))
+      print(('genders',len(genders)))
+      print(('origins',len(origins)))
+      # ~ print(('comorbidities',len(comorbidities)))
+      print(('dates_of_admission',len(dates_of_admission)))
+      print(('dates_of_death',len(dates_of_death)))
+      # ~ print 'hospital_types',len(hospital_types)
+      continue
+
+    fatality=generic_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date)
+    fatalities.append(fatality)
+      
+  return fatalities
+      
+  
   
 def karnataka_parse_icu_usage(bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),dump_only=True):
   b=[i.strip() for i in open('tmp.txt').readlines() if i.strip() and i.strip().split()[0].isdigit()]
@@ -4263,7 +4550,7 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False,return_specific
   if not os.path.exists(bulletin):
     print(('%s does not exist. Please give pdf bulletin file as input' %(bulletin)))
     return -1
-  cmd='pdftotextx -nopgbrk -layout -table "'+bulletin+'" tmp.txt';os.system(cmd);
+  cmd='pdftotext -nopgbrk -layout "'+bulletin+'" tmp.txt';os.system(cmd);
   b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
 
   #find date of bulletin
@@ -4323,14 +4610,17 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False,return_specific
   else:
     if bulletin=='08_05_2020.pdf': annex_range=[('discharges',5,16),('deaths',17,22),('icu',23,23)]
     elif bulletin=='08_07_2020.pdf': annex_range=[('discharges',5,16),('deaths',17,21),('icu',22,22)]    
-  # ~ print annex_range
+  # ~ print(annex_range)
   #convert to dict
   dc={}
   for i in range(len(annex_range)):
     if i<(len(annex_range)-1):
       dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i+1][1]-1)
     else:
-      dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i][1]+2)
+      if bulletin_date>=datetime.datetime(2021, 4, 30, 0, 0):
+        dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i][1]+20)
+      else:
+        dc[annex_range[i][0]]=(annex_range[i][1],annex_range[i][1]+2)
   annex_range=dc
   if bulletin=='07_18_2020.pdf': annex_range={'discharges':(4,5),'deaths':(311,314),'icu':(315,315)}
   if return_date_only:    return (bulletin_date,annex_range)
@@ -4347,13 +4637,16 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False,return_specific
   
   #get deaths info
   if (not return_specific) or (return_specific and return_specific=='deaths'):
-    deaths=karnataka_parse_deaths(bulletin,bulletin_date,annex_range['deaths'])
+    # ~ deaths=karnataka_parse_deaths(bulletin,bulletin_date,annex_range['deaths'])
+    deaths=karnataka_parse_deaths_restricted(bulletin,bulletin_date,annex_range['deaths'])
 
  
   
   if return_specific:
     if return_specific=='icu':
       return icu_usage
+    elif return_specific=='deaths':
+      return deaths
   else:
     return (discharges,icu_usage,deaths)
 
