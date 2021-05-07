@@ -13,6 +13,7 @@ np=lazy_import.lazy_module('numpy')
 numpy=np
 colorama=lazy_import.lazy_module('colorama')
 mdates=lazy_import.lazy_module('matplotlib.dates')
+BASEDIR=os.path.abspath('.').split('covid19india_data_parser')[0]+'covid19india_data_parser/'
 
 import json,datetime
 # ~ import matplotlib.dates as mdates
@@ -53,6 +54,9 @@ karnataka_districts_map={'bagal':'bagalkote','balla':'ballari','chikkam':'chikka
   'raman':'ramanagara','shiva':'shivamogga','tuma':'tumakuru','udup':'udupi','uttar':'uttarakannada',
   'vija':'vijayapura','yadag':'yadagiri'};
 
+pop_growth_multiples={'Chhattisgarh': 1.15, 'Karnataka': 1.15,'Tamil Nadu': 1.07,
+                      'Kerala': 1.043,'Delhi': 1.23,'Maharashtra':1.114,'Uttar Pradesh':1.201,
+                      'Rajasthan': 1.207,'Gujarat': 1.19,'West Bengal': 1.06,}
 def parse_census_district(state='Karnataka',district='Bengaluru Urban',metric='urban'):
     import csv;r=csv.reader(open('india-districts-census-2011.csv'));info=[]
     for i in r :info.append(i)
@@ -79,11 +83,28 @@ def vaccination_state(state='Delhi',mohfw=True,check=False):
     dates=[datetime.datetime.strptime(i,'%d/%m/%Y') for i in info[0][1:]]
     info=info[1:]
     info=[i[1:] for i in info if i[0]==state]
+    # ~ print(info[0])
+    # ~ return info[0]    
+    
     if info:
-      info=[int(i) for i in info[0]]
+      #fix empty point
+      info=info[0]
+      xx=[];last=info[0]
+      for i in info:
+        if i: xx.append(i);last=i
+        else: xx.append(last)
+      
+      # ~ try:
+      info=list(np.int_(xx))
+      #add interpolated data for 17Feb
+      dates.insert(1,datetime.datetime(2021, 1, 17, 0, 0))
+      info.insert(1,int((info[0]+info[1])/2))
+      # ~ except:
+      
+        # ~ print('int conversion failed for '+str(info[0]))
       info2=[info[0]]
       info2.extend(np.diff(info))
-      return list(zip(dates,info2))
+      return list(zip(dates,info2,info))
     else:
       return
 
@@ -225,6 +246,7 @@ def vaccination_national():
   firstdoses=[];seconddoses=[];dates=[]
   frontlinefirstdoses=[];frontlineseconddoses=[];hcwfirstdoses=[];hcwseconddoses=[]
   over60firstdoses=[];over60seconddoses=[];upto60firstdoses=[];upto60seconddoses=[]
+  upto60comorbfirstdoses=[];upto60comorbseconddoses=[]
   for i in x:
     if i['firstdoseadministered']:firstdoses.append(int(i['firstdoseadministered']))
     else: firstdoses.append(0)
@@ -242,10 +264,18 @@ def vaccination_national():
     else: over60firstdoses.append(0)
     if i['over60years2nddose']:over60seconddoses.append(int(i['over60years2nddose']))
     else: over60seconddoses.append(0)
-    if i['to60yearswithco-morbidities1stdose']:upto60firstdoses.append(int(i['to60yearswithco-morbidities1stdose']))
+    # ~ if i['to60yearswithco-morbidities1stdose']:upto60firstdoses.append(int(i['to60yearswithco-morbidities1stdose']))
+    if i['over45years1stdose']:upto60firstdoses.append(int(i['over45years1stdose']))
     else: upto60firstdoses.append(0)
-    if i['to60yearswithco-morbidities2nddose']:upto60seconddoses.append(int(i['to60yearswithco-morbidities2nddose']))
+    # ~ if i['to60yearswithco-morbidities2nddose']:upto60seconddoses.append(int(i['to60yearswithco-morbidities2nddose']))
+    if i['over45years2nddose']:upto60seconddoses.append(int(i['over45years2nddose']))
     else: upto60seconddoses.append(0)
+    
+    if i['to60yearswithco-morbidities1stdose']:upto60comorbfirstdoses.append(int(i['to60yearswithco-morbidities1stdose']))
+    else: upto60comorbfirstdoses.append(0)
+    if i['to60yearswithco-morbidities2nddose']:upto60comorbseconddoses.append(int(i['to60yearswithco-morbidities2nddose']))
+    else: upto60comorbseconddoses.append(0)
+    
     date=datetime.datetime.strptime(i['testedasof'],'%d/%m/%Y')
     dates.append(date)
     
@@ -255,7 +285,9 @@ def vaccination_national():
   hcwfirstdoses=diffdata(hcwfirstdoses);hcwseconddoses=diffdata(hcwseconddoses);
   over60firstdoses=diffdata(over60firstdoses);over60seconddoses=diffdata(over60seconddoses);
   upto60firstdoses=diffdata(upto60firstdoses);upto60seconddoses=diffdata(upto60seconddoses)
-  return list(zip(dates,firstdoses,seconddoses,frontlinefirstdoses,frontlineseconddoses,hcwfirstdoses,hcwseconddoses,over60firstdoses,over60seconddoses,upto60firstdoses,upto60seconddoses))
+  upto60comorbfirstdoses=diffdata(upto60comorbfirstdoses);upto60comorbseconddoses=diffdata(upto60comorbseconddoses)
+  return list(zip(dates,firstdoses,seconddoses,frontlinefirstdoses,frontlineseconddoses,hcwfirstdoses,hcwseconddoses,over60firstdoses,over60seconddoses,upto60firstdoses,upto60seconddoses,upto60comorbfirstdoses,upto60comorbseconddoses))
+  # ~ return list(zip(dates,firstdoses,seconddoses,frontlinefirstdoses,frontlineseconddoses,hcwfirstdoses,hcwseconddoses,over60firstdoses,over60seconddoses,upto60firstdoses,upto60seconddoses))
 
 def vaccination_national_csv():
   x=csv.reader(open('tested_numbers_icmr_data.csv'));  info=[]
@@ -297,6 +329,92 @@ def vaccination_national_csv():
   over60firstdoses=diffdata(over60firstdoses);over60seconddoses=diffdata(over60seconddoses);
   upto60firstdoses=diffdata(upto60firstdoses);upto60seconddoses=diffdata(upto60seconddoses)
   return list(zip(dates,firstdoses,seconddoses,frontlinefirstdoses,frontlineseconddoses,hcwfirstdoses,hcwseconddoses,over60firstdoses,over60seconddoses,upto60firstdoses,upto60seconddoses))
+def kerala_parse_vaccination(bulletin='',dump=False):
+  if dump:
+    cmd='pdftotext -layout "'+bulletin+'" tmp.txt';os.system(cmd)
+    b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
+    find=[i for i in b if 'Age-Appropriate Group First Dose' in i]
+    if find:
+      b=b[b.index(find[0]):]
+      date=b[0].replace('midnight','').strip().split()[-1].strip().replace('/21','')
+    else:
+      find=[i for i in b if 'Ageappropriategroup' in i]
+      if not find: find=[i for i in b if 'Age-AppropriateGroupFirstDoseCoverageas' in i]
+      if find:
+        b=b[b.index(find[0]):]
+        date=b[0].replace('midnight','').strip().split()[-1].strip().replace('/21','')
+      
+        
+    x=[i for i in b if 'GrandTotal' in i]
+    if x: x=x[0].split()
+    else:
+      x=[i for i in b if 'Grand Total' in i]
+      if x: x=x[0].split()
+    target=x[1];coverage=x[2]
+    
+    a=open('tmp.csv','a');  a.write(date+' , '+target+' , '+coverage+'\n');a.close()
+    print('wrote vaccination data for '+date)
+    return
+  
+  #read
+  r=csv.reader(open('csv_dumps/kerala_vaccination.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info=info[1:]
+  out=[]
+  for i in info:
+    date,a45target,a45vaccinated=i
+    date=datetime.datetime.strptime(date.strip()+'/2021','%d/%m/%Y')
+    out.append((date,int(a45target),int(a45vaccinated)))
+  dates,t,a=zip(*out)
+  percent=100*(np.array(a)/np.array(t))
+  return list(zip(dates,t,a,percent))
+def estimate_state_vaccination_timeseries(state='ct',vaccination_type='over60firstdoses',pop_multiple=''):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
+  
+  if not pop_multiple:
+    if state in pop_growth_multiples:
+      pop_multiple=pop_growth_multiples[state]
+    else:
+      pop_multiple=1.10;print('no growth mutiple known for %s. Using standard 10% growth estimate (post 2011)' %(state))
+  r=csv.reader(open('csv_dumps/national_vaccination_timeseries.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info=info[1:]
+  
+  dates=[];over60firstdoses=[];over45firstdoses=[];totdoses=[]
+  for i in info:
+    date=datetime.datetime.strptime(i[0]+'/2021','%d/%m/%Y')
+    dates.append(date)
+    over60firstdoses.append(int(i[1]))
+    over45firstdoses.append(int(i[2]))
+    totdoses.append(int(i[3]))
+  
+  totdoses=np.array(totdoses);dates=np.array(dates)
+  over60firstdoses=np.array(over60firstdoses);over45firstdoses=np.array(over45firstdoses)
+  
+  frac=0
+  if vaccination_type=='over60firstdoses':
+    frac=over60firstdoses/totdoses
+  elif vaccination_type=='over45firstdoses':
+    frac=over45firstdoses/totdoses
+    
+  #Fraction is obtained nationally above, now apply to state-specific timeseries to get estimate
+  
+  dates2,xx,cumstatedoses=zip(*vaccination_state(state))
+  
+  predict=np.int_(frac*np.array(cumstatedoses))
+  
+  predict_percent=0
+  
+  if vaccination_type=='over60firstdoses':
+    predict_percent=100*(np.float_(predict)/(parse_census(state,'above60')[0]*pop_multiple))
+  elif vaccination_type=='over45firstdoses':
+    predict_percent=100*(np.float_(predict)/(parse_census(state,'above45')[0]*pop_multiple))
+  
+  
+  return list(zip(dates2,predict,predict_percent))
+  
 
   
 def parse_mohfw_bulletin(bulletin=''):
@@ -710,12 +828,18 @@ def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/
     for i in returned:
       if i[1]>=30: return i[0]
   return returned
-def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',color='blue',color2='red',state='',linear_fit=False,plot_days='',extrapolate=''):
+def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',color='blue',color2='red',state='',linear_fit=False,plot_days='',extrapolate='',date_label=''):
+  
+  if type(dates[0])==datetime.datetime: dates=pylab.date2num(dates)
+  if dates2: dates2=np.array(dates2);data2=np.array(data2)
+  if dates2.any() and type(dates2[0])==datetime.datetime: 
+    dates2=pylab.date2num(dates2)
+    if plot_days: 
+      dates2=dates2[-1*plot_days:]
+      data2=data2[-1*plot_days:]
   if plot_days:
     dates=dates[-1*plot_days:]
     data=data[-1*plot_days:]
-  if type(dates[0])==datetime.datetime: dates=pylab.date2num(dates)
-  if dates2.any() and type(dates2[0])==datetime.datetime: dates2=pylab.date2num(dates2)
   ax=pylab.axes()
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
   formatter = mdates.ConciseDateFormatter(locator)
@@ -723,7 +847,9 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',
   ax.xaxis.set_major_locator(locator)
   ax.xaxis.set_major_formatter(formatter) 
 
-  ax.set_xlabel('Date');ax.set_ylabel(label)
+  ax.set_xlabel('Date');
+  if date_label: ax.set_xlabel(date_label)
+  ax.set_ylabel(label)
   ax.plot_date(dates,data,color=color,label=label)
   #ax.tick_params(axis='y', labelcolor=color)
 
@@ -860,7 +986,7 @@ def wb_analysis(plot=False,plot_days=''):
 
 def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full_series=False,verbose=False):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
-  x=json.load(open('states_daily.json'))['states_daily']
+  x=json.load(open(BASEDIR+'states_daily.json'))['states_daily']
 
   target_datetime=datetime.datetime.strptime(date,'%d/%m/%Y')
   state_code=state_name_to_code[state]
@@ -1358,6 +1484,32 @@ def vaccination_chloropleth(upto='apr29',multiple=1):
     if i in vd0: dc[i]=(vd[i],vd0[i])
   
   chloropleth(vd,'','Percent of 45+ vaccinated(restricted set of states)',reverse_colormap=True,no_print_error=True)
+  
+  vd={}
+  failed=[]
+  for state in state_name_to_code:
+    try: vd[state]=int(multiple*(end[state]-mar1[state]))
+    except: failed.append(state)
+  print('failed for %s' %(str(failed)))
+  vd0=vd.copy()
+  chloropleth(vd,'','Number of 60+ vaccinated',reverse_colormap=True,no_print_error=True)
+  
+  vd={};failed=[]
+  for state in state_name_to_code:
+    try: vd[state]=100*(multiple*(end[state]-mar1[state])/parse_census(state,'above60')[0])
+    except: failed.append(state)
+  print('failed for %s' %(str(failed)))
+  
+  for i in ['Sikkim','Arunachal Pradesh','Tripura','Mizoram']:
+    if i in vd: vd.pop(i)  
+  vi2=list(vd.items());vi2.sort(key=lambda ff: ff[1])
+  
+  dc={}
+  for i in vd:
+    if i in vd0: dc[i]=(vd[i],vd0[i])
+  
+  chloropleth(vd,'','Percent of 60+ vaccinated(restricted set of states)',reverse_colormap=True,no_print_error=True)
+  # ~ vi2=list(vd.items());vi2.sort(key=lambda ff: ff[1])
 
   vd={};failed=[]
   for state in state_name_to_code:
@@ -1368,8 +1520,8 @@ def vaccination_chloropleth(upto='apr29',multiple=1):
   for i in ['Sikkim','Arunachal Pradesh','Tripura']:
     if i in vd: vd.pop(i)  
   chloropleth(vd,'','Percent of total pop. vaccinated(restricted set of states)',reverse_colormap=True,no_print_error=True)
-  vi2=list(vd.items());vi2.sort(key=lambda ff: ff[1])
-  return vi,vi2
+  vi3=list(vd.items());vi3.sort(key=lambda ff: ff[1])
+  return vi,vi2,vi3
   
 def norm_cmap(values, cmap='YlGn', vmin=None, vmax=None):
   import matplotlib.pyplot as plt
@@ -2018,11 +2170,13 @@ class generic_fatality():
         self.detection_admission_interval=(self.date_of_death-self.date_of_detection).days    
     else:
       if self.date_of_admission:
-        self.admission_death_interval=(self.date_of_death-self.date_of_admission).days
+        if self.date_of_death:
+          self.admission_death_interval=(self.date_of_death-self.date_of_admission).days
         if self.date_of_detection:
           self.detection_admission_interval=(self.date_of_admission-self.date_of_detection).days    
     if self.date_of_detection:
-      self.detection_death_interval=(self.date_of_death-self.date_of_detection).days
+      if self.date_of_death:
+        self.detection_death_interval=(self.date_of_death-self.date_of_detection).days
     if self.date_of_reporting:
       try:
         self.death_reporting_interval=(self.date_of_reporting-self.date_of_death).days
@@ -2037,11 +2191,11 @@ class generic_fatality():
     dod='N/A'
     if self.date_of_detection:
       dod=self.date_of_detection.strftime('%d/%m/%Y')
-    doa='';dor='';
+    doa='';dor='';dode=''
     if self.date_of_admission: doa=self.date_of_admission.strftime('%d/%m/%Y')
     if self.date_of_reporting: dor=self.date_of_reporting.strftime('%d/%m/%Y')
-    
-    info_str+='Detected: %s Admitted: %s Died: %s Reported: %s\n' %(dod,doa,self.date_of_death.strftime('%d/%m/%Y'),dor)
+    if self.date_of_death: dode=self.date_of_death.strftime('%d/%m/%Y')
+    info_str+='Detected: %s Admitted: %s Died: %s Reported: %s\n' %(dod,doa,dode,dor)
     if self.admission_death_interval: info_str+='admission_death_interval: %d\n' %(self.admission_death_interval)
     if self.detection_admission_interval: info_str+='detection_admission_interval: %d\n' %(self.detection_admission_interval)    
     if self.detection_death_interval: info_str+='detection_death_interval: %d\n' %(self.detection_death_interval)
@@ -3022,7 +3176,8 @@ class mumbaihosp():
 def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=False,plot_days=''):
     if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
     import csv;info=[]
-    r=csv.reader(open('2020_IN_Region_Mobility_Report.csv'))
+    # ~ r=csv.reader(open('2020_IN_Region_Mobility_Report.csv'))
+    r=csv.reader(open('2021_IN_Region_Mobility_Report.csv'))
     for i in r: info.append(i);
     x=[i for i in info if i[2]==state and i[3]==district]
     y=[]
@@ -3466,10 +3621,12 @@ def mumbai_analysis():
 
   
   
-def karnataka_parse_csv():
+def karnataka_parse_csv(old=False):
   import csv;info=[]
-  # ~ r=csv.reader(open('csv_dumps/karnataka_fatalities_details_jul16_sep10.csv'))
-  r=csv.reader(open('csv_dumps/karnataka_fatalities_truncated_Feb15_May05.csv'))
+  if old:
+    r=csv.reader(open('csv_dumps/karnataka_fatalities_details_jul16_sep10.csv'))
+  else:
+    r=csv.reader(open('csv_dumps/karnataka_fatalities_truncated_Feb15_May05.csv'))
   for i in r: info.append(i);
   info=info[1:];fatalities=[]
   for row in info[2:]:
@@ -3535,12 +3692,13 @@ def karnataka_predict_vaccination_perct_45plus(base=85,delay=7,pop_multiple=1.15
   pylab.title(title);  pylab.savefig(TMPDIR+title+'.jpg',dpi=100);pylab.close();print('saved '+TMPDIR+title+'.jpg')
   
   
-def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,3,1),enddate=datetime.date(2021,5,5),use_median=False,ignore_capital=True):
+def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,3,1),enddate=datetime.date(2021,5,5),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   if not deaths:
     if state=='Tamil Nadu': deaths=tamil_nadu_parse_csv() ;print('loaded TN fatality data from csv')
     elif state=='Kerala': deaths=kerala_parse_csv();print('loaded KL fatality data from csv')
     elif state=='Karnataka': deaths=karnataka_parse_csv();print('loaded KA fatality data from csv')
+    elif state=='Chhattisgarh': deaths=chhattisgarh_parse_csv();print('loaded CT fatality data from csv')
     else: print('State is not TN/KL and no deaths data given to function');return
       
   d1=startdate
@@ -3548,6 +3706,8 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
   delta=d2-d1
   datetimes=[(d1 + datetime.timedelta(days=i)) for i in range(delta.days + 1)]
   datetimes=[datetime.datetime.combine(i,datetime.time(0, 0)) for i in datetimes]
+  if skip_plot_date:
+    skip_plot_date=datetime.datetime.combine(skip_plot_date,datetime.time(0, 0))
   # ~ return datetimes
 
   mean_values=[];capital='bengaluru';outside=''
@@ -3661,7 +3821,23 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
       if not ignore_capital:
         d1=[i.death_reporting_interval for i in d1 if i.death_reporting_interval and i.death_reporting_interval>=0]
         d2=[i.death_reporting_interval for i in d2 if i.death_reporting_interval and i.death_reporting_interval>=0]
-    elif filter_type=='raw_number': #find fraction of SARI/ILI in daily deaths on date
+    elif filter_type=='raw_number': #find raw_number of deaths
+      if moving_average:
+        d=float(len(d))/(ma_size)
+        if not ignore_capital:
+          d1=float(len(d1))/(ma_size)
+          d2=float(len(d2))/(ma_size)
+      else:
+        d=float(len(d))
+        if not ignore_capital:
+          d1=float(len(d1))
+          d2=float(len(d2))
+    elif filter_type=='raw_number_under45': #find raw_number of deaths
+      d=[i for i in d if i.age<45]
+      if not ignore_capital:
+        d1=[i for i in d1 if i.age<45]
+        d2=[i for i in d2 if i.age<45]
+        
       if moving_average:
         d=float(len(d))/(ma_size)
         if not ignore_capital:
@@ -3743,12 +3919,20 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
     if filter_type=='percent45plus':      label='Percent of deaths that were 45+ yrs'
     if filter_type=='percentupto45':      label='Percent of deaths that were upto 45 yrs'
     if filter_type=='raw_number':      label='Raw number of deaths'
+    if filter_type=='raw_number_under45':      label='Raw number of deaths (under 45 yrs)'
     label+=' (7-day MA)'
+    
+    if skip_plot_date:
+      xx=list(zip(dates,m))
+      xx=[i for i in xx if i[0]>=skip_plot_date]
+      # ~ print(xx);print(skip_plot_date)
+      dates,m=zip(*xx)
     #mean age vs time
     ax.plot_date(pylab.date2num(dates),m,label=label);
     title=label+' for '+state
     pylab.xlabel(xlabel);pylab.ylabel(label);pylab.title(title);
-    helper_plot_linear_fit(pylab.date2num(dates),m);
+    if plot_linear_fit:
+      helper_plot_linear_fit(pylab.date2num(dates),m);
     
     
     if draw_vline:
@@ -3756,6 +3940,7 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
 
     ax.legend(fontsize=7)
     pylab.savefig(TMPDIR+title+'.jpg');#pylab.show();
+    print('saved '+TMPDIR+title+'.jpg')
     pylab.close()
     
     if not ignore_capital:
@@ -3854,7 +4039,7 @@ def kerala_parse_deaths(format_type='new'):
       if gender.lower()=='female': gender='F'
       else: gender='M'
   
-      dod=entry.split()[-2].strip().replace('267.09.2020','26.09.2020').replace('.','/').replace('-','/').replace('202I','2021')
+      dod=entry.split()[-2].strip().replace('267.09.2020','26.09.2020').replace('.','/').replace('2021','2021').replace('2O21','2021').replace('-','/').replace('202I','2021')
       if dod.count('/')==2:
         if dod.endswith('/20'):dod+='20'
         elif dod.endswith('/21'):dod=dod.replace('/21','/2021')
@@ -3878,7 +4063,25 @@ def kerala_parse_deaths(format_type='new'):
   
   return comm,fatalities,critical
   
-  
+def chhattisgarh_parse_csv():
+  r=csv.reader(open('csv_dumps/CT_fatalities_Feb_May_2021.csv'))
+  info=[];
+  for i in r: 
+    if i: info.append(i)
+  info=info[1:]
+  x=[]
+  for entry in info:
+    try:
+      date_of_admission=datetime.datetime.strptime(entry[1].strip()+'/2021','%d/%m/%Y')
+    except:
+      print('unable to get doa from '+str(entry))
+      return
+    age=entry[0].strip()
+    
+    f=generic_fatality('','',age,'','','',date_of_admission,'','')
+    x.append(f)
+    
+  return x
 def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range='',stop_debug=''):
   if stop_debug and (not page_range): #means coming from debug
     (bulletin_date,annex_range)=karnataka_bulletin_parser(bulletin,return_date_only=True)
@@ -4244,7 +4447,8 @@ def karnataka_parse_deaths_restricted(bulletin='09_09_2020.pdf',bulletin_date=da
 
   if stop_debug=='origin':
     print('stopping after getting origin info')
-    return districts,patient_numbers,ages,genders,origins,b
+    # ~ return districts,patient_numbers,ages,genders,origins,b
+    return patient_numbers,ages,genders,origins,b
     
 
 
@@ -4254,7 +4458,7 @@ def karnataka_parse_deaths_restricted(bulletin='09_09_2020.pdf',bulletin_date=da
 
   b=[i.lower().replace('hospital','').replace('at ','') for i in open('tmp.txt').readlines()]
   b=[i.strip() for i in b if i.strip() and not ('page' in i and 'of' in i) and i.strip()[0].isnumeric() and ('-' in i or '/' in i) ]
-  b=[i.replace('-21','-2021').replace('26/4/21','26-04-2021').replace('25/4/21','25-04-2021').replace('4/18/','18-04-').replace('4/16/','16-04-').replace('4/19/','19-04-').replace('4/17/','17-04-').replace('4/20/','20-04-').replace('4/28/','28-04-').replace('4/21/','21-04-').replace('4/22/','22-04-').replace('4/24/','24-04-').replace('4/23/','23-04-').replace('4/25/','25-04-').replace('4/26/','26-04-').replace('4/27/','27-04-').replace('4/28/','28-04-').replace('4/30/','30-04-').replace('27/04/21','27-04-2021') for i in b];#correct common errors
+  b=[i.replace('-21','-2021').replace('26/4/21','26-04-2021').replace('25/4/21','25-04-2021').replace('4/18/','18-04-').replace('4/16/','16-04-').replace('4/19/','19-04-').replace('4/17/','17-04-').replace('4/20/','20-04-').replace('4/28/','28-04-').replace('4/21/','21-04-').replace('4/22/','22-04-').replace('4/24/','24-04-').replace('4/23/','23-04-').replace('4/25/','25-04-').replace('4/26/','26-04-').replace('4/27/','27-04-').replace('4/28/','28-04-').replace('4/30/','30-04-').replace('27/04/21','27-04-2021').replace('gàazàä','').replace('ªàägàtzà','').replace('¸àéuàèºàzà°','') for i in b];#correct common errors
   # ~ doubles=[i.split() for i in b if len(i.split())>1]
   # ~ singles=[i.split() for i in b if len(i.split())==1]
    
@@ -4564,6 +4768,9 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False,return_specific
       elif '/' in date_string:
         bulletin_date=datetime.datetime.strptime(date_string,'%d/%m/%Y')
       break
+  if bulletin=='04_18_2021_Kannada.pdf':
+    bulletin_date=datetime.datetime(2021,4,18,0,0)
+    
   # ~ if return_date_only:    return bulletin_date
 
   #find pages for Annexure 1(discharges),2(deaths),3(icu_usage)
@@ -4574,7 +4781,7 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False,return_specific
   annex_range=[];lastpage=0
 
   #HACKS FOR MISFORMED BULLETINS
-  misformed_bulletins=['08_05_2020.pdf','08_07_2020.pdf','07_18_2020.pdf']
+  misformed_bulletins=['08_05_2020.pdf','08_07_2020.pdf','07_18_2020.pdf','04_18_2021_Kannada.pdf']
       
   if bulletin not in misformed_bulletins:
     for annexure_index in annexures_indices:
@@ -4610,6 +4817,7 @@ def karnataka_bulletin_parser(bulletin='',return_date_only=False,return_specific
   else:
     if bulletin=='08_05_2020.pdf': annex_range=[('discharges',5,16),('deaths',17,22),('icu',23,23)]
     elif bulletin=='08_07_2020.pdf': annex_range=[('discharges',5,16),('deaths',17,21),('icu',22,22)]    
+    elif bulletin=='04_18_2021_Kannada.pdf': annex_range=[('discharges',6,14),('deaths',15,18),('icu',19,19)]    
   # ~ print(annex_range)
   #convert to dict
   dc={}
