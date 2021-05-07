@@ -1076,9 +1076,9 @@ def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full
 
 
 #cache this to avoid repeated file reads
-global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
-global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
-global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
+# ~ global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+# ~ global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
+# ~ global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
   
 def highlight(text):
   highlight_begin=colorama.Back.BLACK+colorama.Fore.WHITE+colorama.Style.BRIGHT
