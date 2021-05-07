@@ -1099,7 +1099,8 @@ def helper_download_karnataka_bulletin(twitter_link,debug=False):
     download_cmd='wget -q --no-check-certificate "'+google_drive_url+'" -O tmp.pdf'
     if debug: print(download_cmd)
     os.system(download_cmd)
-    (bulletin_date,annex_range)=karnataka_bulletin_parser('tmp.pdf',return_date_only=True)
+    try:(bulletin_date,annex_range)=karnataka_bulletin_parser('tmp.pdf',return_date_only=True)
+    except:bulletin_date='';print('could not find bulletin date')
     if debug: print(('bulletin_date: '+str(bulletin_date)))
     if not bulletin_date:
       print('could not find date for bulletin. Using tmp format')
