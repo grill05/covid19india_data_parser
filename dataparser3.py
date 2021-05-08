@@ -3631,16 +3631,19 @@ def karnataka_parse_csv(old=False):
   for i in r: info.append(i);
   info=info[1:];fatalities=[]
   for row in info[2:]:
-    patient_number=row[0]
-    district=row[1];
-    age=row[2];gender=row[3];origin=row[4];date_of_detection=row[5];date_of_admission=row[6];date_of_death=row[7];
-    bulletin_date=row[8];comorbidity=','.join(row[9:])
-    # ~ print comorbidity
-    date_of_admission=datetime.datetime.strptime(date_of_admission,'%Y-%m-%d')
-    date_of_death=datetime.datetime.strptime(date_of_death,'%Y-%m-%d')
-    bulletin_date=datetime.datetime.strptime(bulletin_date,'%Y-%m-%d')
-    fatality=generic_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date)
-    fatalities.append(fatality)
+    try:
+      patient_number=row[0]
+      district=row[1];
+      age=row[2];gender=row[3];origin=row[4];date_of_detection=row[5];date_of_admission=row[6];date_of_death=row[7];
+      bulletin_date=row[8];comorbidity=','.join(row[9:])
+      # ~ print comorbidity
+      date_of_admission=datetime.datetime.strptime(date_of_admission,'%Y-%m-%d')
+      date_of_death=datetime.datetime.strptime(date_of_death,'%Y-%m-%d')
+      bulletin_date=datetime.datetime.strptime(bulletin_date,'%Y-%m-%d')
+      fatality=generic_fatality(district,patient_number,age,gender,origin,comorbidity,date_of_admission,date_of_death,bulletin_date)
+      fatalities.append(fatality)
+    except:
+      print('could not process csv_row '+str(row));return
   return fatalities
 
 def mode1(x):
@@ -3693,7 +3696,7 @@ def karnataka_predict_vaccination_perct_45plus(base=85,delay=7,pop_multiple=1.15
   pylab.title(title);  pylab.savefig(TMPDIR+title+'.jpg',dpi=100);pylab.close();print('saved '+TMPDIR+title+'.jpg')
   
   
-def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,3,1),enddate=datetime.date(2021,5,5),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True):
+def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,3,1),enddate=datetime.date(2021,5,7),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   if not deaths:
     if state=='Tamil Nadu': deaths=tamil_nadu_parse_csv() ;print('loaded TN fatality data from csv')
@@ -4480,7 +4483,7 @@ def karnataka_parse_deaths_restricted(bulletin='09_09_2020.pdf',bulletin_date=da
         print('error converting doa '+i[0])
         return
       try:
-        dod=datetime.datetime.strptime(i[1],'%d-%m-%Y')
+        dod=datetime.datetime.strptime(i[1].replace('.','-'),'%d-%m-%Y')
       except:
         print('error converting dod '+i[1])
         return

@@ -13447,3 +13447,562 @@ State P no,District,Age,Sex,Origin,Date of Detection,Date of Admission,Date of D
 14610,trichy,84,M,,,2021-04-27,2021-04-30,2021-05-04,"HTN, Old CVA"
 14611,chennai,80,M,,,2021-05-01,2021-05-03,2021-05-04,"DM,HTN"
 14612,cuddalore,31,M,,,2021-04-27,2021-05-01,2021-05-04,"Type 2 DM,SHTN"
+14613,chennai,36,M,,,2021-05-01,2021-05-03,2021-05-05,
+14614,chennai,51,M,,,2021-04-26,2021-05-03,2021-05-05,
+14615,villupuram,52,M,,,2021-05-01,2021-05-03,2021-05-05,
+14616,kancheepuram,37,M,,,2021-05-03,2021-05-03,2021-05-05,
+14617,chengalpattu,56,F,,,2021-04-30,2021-05-03,2021-05-05,
+14618,krishnagiri,50,M,,,2021-05-03,2021-05-03,2021-05-05,
+14619,coimbatore,30,M,,,2021-04-28,2021-05-03,2021-05-05,
+14620,cuddalore,45,F,,,2021-04-30,2021-05-01,2021-05-05,
+14621,cuddalore,48,M,,,2021-04-24,2021-05-04,2021-05-05,
+14622,villupuram,58,M,,,2021-05-03,2021-05-03,2021-05-05,
+14623,chengalpattu,29,M,,,2021-04-26,2021-05-03,2021-05-05,
+14624,kanyakumari,60,M,,,2021-04-29,2021-05-03,2021-05-05,
+14625,tirunelveli,48,M,,,2021-05-03,2021-05-03,2021-05-05,
+14626,ranipet,63,F,,,2021-05-03,2021-05-03,2021-05-05,
+14627,chennai,25,M,,,2021-05-01,2021-05-04,2021-05-05,
+14628,chennai,50,F,,,2021-04-30,2021-05-03,2021-05-05,
+14629,kanyakumari,42,M,,,2021-05-01,2021-05-03,2021-05-05,
+14630,chengalpattu,50,F,,,2021-05-02,2021-05-03,2021-05-05,
+14631,chennai,57,F,,,2021-04-28,2021-05-03,2021-05-05,
+14632,chennai,70,M,,,2021-05-03,2021-05-04,2021-05-05,
+14633,chengalpattu,65,M,,,2021-04-30,2021-05-03,2021-05-05,
+14634,thiruvannamalai,69,M,,,2021-05-02,2021-05-03,2021-05-05,
+14635,kanyakumari,82,M,,,2021-04-29,2021-05-02,2021-05-05,
+14636,chennai,65,M,,,2021-05-01,2021-05-03,2021-05-05,
+14637,theni,72,M,,,2021-05-03,2021-05-04,2021-05-05,
+14638,thanjavur,78,M,,,2021-04-30,2021-05-03,2021-05-05,
+14639,chennai,58,M,,,2021-05-02,2021-05-02,2021-05-05,Diabetes Mellitus, Old Pulmonary Tuberculosis
+14640,vellore,75,F,,,2021-05-01,2021-05-02,2021-05-05,Diabetes Mellitus, Systemic Hypertension
+14641,thanjavur,77,M,,,2021-04-27,2021-05-03,2021-05-05,Systemic Hypertension
+14642,thiruvarur,68,M,,,2021-05-02,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus, Systemic Hypertension
+14643,chennai,60,F,,,2021-04-29,2021-05-04,2021-05-05,Type 2 Diabetes Mellitus, Systemic Hypertension, Tuberculosis, Bronchial Asthma, Seizure Disorder, Coronary Artery Disease, Chronic Kidney Disease
+14644,salem,57,M,,,2021-05-02,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus
+14645,chennai,68,F,,,2021-04-24,2021-05-03,2021-05-05,Diabetes Mellitus, Systemic Hypertension
+14646,chennai,45,F,,,2021-05-03,2021-05-03,2021-05-05,Morbid Obesity
+14647,chennai,68,M,,,2021-05-02,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus
+14648,chengalpattu,67,M,,,2021-04-30,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus
+14649,thanjavur,50,F,,,2021-04-30,2021-05-03,2021-05-05,Type 2 Diabetes           Mellitus, Systemic Hypertension
+14650,kancheepuram,61,F,,,2021-04-30,2021-05-03,2021-05-05,Chronic Depression
+14651,thiruvallur,60,F,,,2021-05-01,2021-05-03,2021-05-05,Systemic Hypertension
+14652,dharmapuri,72,M,,,2021-05-02,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus, Systemic Hypertension
+14653,krishnagiri,50,F,,,2021-04-30,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus
+14654,tiruppur,35,M,,,2021-05-04,2021-05-04,2021-05-05,Type 2 Diabetes Mellitus
+14655,coimbatore,73,F,,,2021-04-28,2021-05-03,2021-05-05,Broncial Asthma
+14656,coimbatore,54,M,,,2021-04-30,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus
+14657,theni,53,M,,,2021-05-03,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus, PLHA
+14658,theni,56,F,,,2021-05-01,2021-05-04,2021-05-05,Type 2 Diabetes Mellitus
+14659,cuddalore,67,M,,,2021-04-26,2021-05-03,2021-05-05,Acute Kidney Injury
+14660,villupuram,70,M,,,2021-05-02,2021-05-02,2021-05-05,Type 2 Diabetes Mellitus, Systemic Hypertension, Coronary Artery Disease
+14661,kanyakumari,71,M,,,2021-04-27,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus, Systemic Hypertension, Coronary Artery Disease
+14662,kanyakumari,62,M,,,2021-04-27,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus, Chronic Kidney Disease
+14663,tirunelveli,65,F,,,2021-04-30,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus
+14664,kanyakumari,60,F,,,2021-04-25,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus
+14665,chennai,78,M,,,2021-05-03,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus, Systemic Hypertension, Chronic Kidney Disease
+14666,chennai,74,M,,,2021-05-01,2021-05-03,2021-05-05,Coronary Artery Disease, Diabetes Mellitus, Hypothyroidism
+14667,chengalpattu,62,M,,,2021-04-29,2021-05-03,2021-05-05,Diabetes Mellitus, Systemic Hypertension
+14668,chennai,65,M,,,2021-04-29,2021-05-03,2021-05-05,Coronary Artery Disease, Diabetes Mellitus, Systemic Hypertension
+14669,chennai,45,F,,,2021-05-01,2021-05-03,2021-05-05,Diabetes Mellitus, Systemic Hypertension
+14670,chennai,67,F,,,2021-05-01,2021-05-03,2021-05-05,Diabetes Mellitus, Systemic Hypertension
+14671,chennai,47,F,,,2021-05-02,2021-05-03,2021-05-05,Morbid Obesity
+14672,thiruvallur,58,M,,,2021-04-30,2021-05-04,2021-05-05,Type 2 Diabetes Mellitus
+14673,chennai,74,F,,,2021-05-02,2021-05-04,2021-05-05,Type 2 Diabetes Mellitus, Systemic Hypertension, Hypothyroidism
+14674,chengalpattu,68,M,,,2021-05-02,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus
+14675,chennai,42,F,,,2021-04-27,2021-05-03,2021-05-05,Systemic Hypertension, Hypothyroidism
+14676,chennai,51,F,,,2021-04-27,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus
+14677,vellore,64,M,,,2021-05-03,2021-05-04,2021-05-05,Diabetes Mellitus, Systemic Hypertension/Cerebrovascular Accident
+14678,chengalpattu,47,F,,,2021-05-02,2021-05-03,2021-05-05,Type 2 Diabetes Mellitus, Systemic Hypertension
+14679,chengalpattu,70,M,,,2021-05-01,2021-05-03,2021-05-05,Chronic Kidney Disease
+14680,chengalpattu,85,F,,,2021-04-29,2021-05-03,2021-05-05,Systemic Hypertension, Coronary Artery Disease
+14681,kanyakumari,74,M,,,2021-04-26,2021-04-26,2021-05-05,Type 2 Diabetes Mellitus, Systemic Hypertension
+14682,chennai,51,M,,,2021-04-30,2021-05-03,2021-05-05,
+14683,tirunelveli,48,M,,,2021-04-27,2021-05-03,2021-05-05,
+14684,chennai,30,F,,,2021-04-28,2021-05-03,2021-05-05,
+14685,kancheepuram,45,M,,,2021-05-02,2021-05-02,2021-05-05,
+14686,chennai,47,M,,,2021-04-22,2021-05-02,2021-05-05,
+14687,salem,60,F,,,2021-04-16,2021-05-01,2021-05-05,
+14688,madurai,52,F,,,2021-04-25,2021-05-01,2021-05-05,
+14689,nagapattinam,29,M,,,2021-04-25,2021-05-01,2021-05-05,
+14690,chennai,82,M,,,2021-05-01,2021-05-02,2021-05-05,"Type-II DM, CAD"
+14691,chennai,62,F,,,2021-05-02,2021-05-02,2021-05-05,SHTN
+14692,ranipet,68,M,,,2021-04-30,2021-05-01,2021-05-05,"DM, CAD"
+14693,chennai,80,F,,,2021-04-24,2021-05-01,2021-05-05,DM and HTN
+14694,chennai,66,M,,,2021-04-18,2021-05-01,2021-05-05,"DM, HTN and CAD"
+14695,tenkasi,87,M,,,2021-05-01,2021-05-01,2021-05-05,"DM , HTN"
+14696,chennai,71,M,,,2021-04-30,2021-04-30,2021-05-05,DM
+14697,vellore,68,M,,,2021-04-28,2021-04-29,2021-05-05,
+14698,tirunelveli,59,M,,,2021-04-27,2021-05-03,2021-05-05,CAD
+14699,thiruvallur,64,F,,,2021-04-29,2021-05-03,2021-05-05,"CAD, Hypothyroidism"
+14700,chengalpattu,59,M,,,2021-04-19,2021-05-03,2021-05-05,"CKD, Type 2 DM"
+14701,chennai,78,M,,,2021-05-03,2021-05-03,2021-05-05,"DM, HTN"
+14702,trichy,73,M,,,2021-04-28,2021-05-02,2021-05-05,"DM, HTN"
+14703,chennai,43,M,,,2021-04-15,2021-05-02,2021-05-05,DM
+14704,krishnagiri,60,F,,,2021-04-24,2021-05-02,2021-05-05,Type 2 DM
+14705,thanjavur,83,M,,,2021-04-23,2021-05-02,2021-05-05,Type 2 DM/SHTN
+14706,madurai,58,M,,,2021-04-22,2021-05-02,2021-05-05,T2 DM/SHTN
+14707,chennai,81,M,,,2021-04-26,2021-05-02,2021-05-05,"DM,HTN"
+14708,chennai,85,M,,,2021-04-28,2021-05-02,2021-05-05,"HTN, DM, CAD"
+14709,chennai,70,F,,,2021-04-23,2021-05-02,2021-05-05,"CAD, SHTN and T2 DM"
+14710,chengalpattu,68,M,,,2021-04-24,2021-05-01,2021-05-05,Type II DM
+14711,madurai,63,M,,,2021-04-28,2021-05-01,2021-05-05,DM
+14712,madurai,70,F,,,2021-04-26,2021-05-01,2021-05-05,
+14713,ranipet,71,F,,,2021-04-23,2021-05-01,2021-05-05,"Type II DM, SHTN, Ischemic Heart disease"
+14714,chennai,61,M,,,2021-04-23,2021-05-01,2021-05-05,"DM, HTN,CAD"
+14715,madurai,88,M,,,2021-04-26,2021-05-01,2021-05-05,SHTN
+14716,madurai,62,M,,,2021-04-26,2021-05-01,2021-05-05,"DM,HTN,Hypothyroidism"
+14717,chennai,58,F,,,2021-04-16,2021-05-01,2021-05-05,"Type 2 DM, SHTN, CAD"
+14718,pudukottai,68,M,,,2021-04-25,2021-05-01,2021-05-05,T2 DM
+14719,thiruvallur,83,F,,,2021-04-21,2021-05-01,2021-05-05,"CAD, T2 DM"
+14720,chennai,65,M,,,2021-04-09,2021-04-30,2021-05-05,"DM, HTN,CKD"
+14721,madurai,70,M,,,2021-04-28,2021-04-29,2021-05-05,CVA
+14722,krishnagiri,38,M,,,2021-04-22,2021-05-02,2021-05-05,
+14723,salem,48,M,,,2021-04-19,2021-05-02,2021-05-05,
+14724,vellore,55,M,,,2021-04-26,2021-05-03,2021-05-05,Type II DM
+14725,thirupathur,79,M,,,2021-05-01,2021-05-01,2021-05-05,Type II DM
+14726,chennai,71,M,,,2021-04-29,2021-05-04,2021-05-05,"Type II DM, SHTN, CKD"
+14727,chennai,91,M,,,2021-05-01,2021-05-04,2021-05-05,DM
+14728,madurai,56,M,,,2021-04-30,2021-05-03,2021-05-05,SHTN
+14729,salem,50,F,,,2021-04-28,2021-05-03,2021-05-05,Type II DM
+14730,chennai,68,F,,,2021-04-29,2021-05-03,2021-05-05,"DM, SHTN"
+14731,chennai,45,M,,,2021-04-30,2021-05-03,2021-05-05,"DM, SHTN"
+14732,trichy,76,M,,,2021-04-22,2021-05-03,2021-05-05,"Type II DM, SHTN"
+14733,salem,51,M,,,2021-04-26,2021-05-02,2021-05-05,Type II DM
+14734,thirupathur,32,F,,,2021-04-24,2021-05-02,2021-05-05,SHTN
+14735,erode,56,M,,,2021-04-30,2021-05-02,2021-05-05,CAD
+14736,vellore,77,M,,,2021-04-30,2021-05-02,2021-05-05,"Type II DM, SHTN"
+14737,chennai,65,M,,,2021-04-24,2021-05-01,2021-05-05,"Hypothyroidism, COPD"
+14738,namakkal,62,M,,,2021-04-25,2021-05-01,2021-05-05,"DM, HTN, CAD"
+14739,chennai,64,M,,,2021-04-29,2021-05-01,2021-05-05,"Hypothyroidism, RHD, CAD"
+14740,theni,38,M,,,2021-04-29,2021-05-04,2021-05-05,
+14741,nagapattinam,62,M,,,2021-05-03,2021-05-03,2021-05-05,
+14742,ranipet,30,M,,,2021-04-30,2021-05-01,2021-05-05,
+14743,cuddalore,34,M,,,2021-04-29,2021-05-04,2021-05-05,Type 2 DM
+14744,kancheepuram,57,M,,,2021-05-02,2021-05-04,2021-05-05,"Type 2 DM,SHTN"
+14745,ranipet,70,F,,,2021-04-30,2021-05-01,2021-05-05,
+14746,ranipet,40,F,,,2021-04-28,2021-05-01,2021-05-05,hypothyroidism
+14747,vellore,55,F,,,2021-04-29,2021-05-01,2021-05-05,DM
+14748,chennai,68,M,,,2021-04-13,2021-05-04,2021-05-05,
+14749,chennai,67,M,,,2021-05-03,2021-05-04,2021-05-05,Hypertension
+14750,chennai,82,M,,,2021-04-30,2021-05-04,2021-05-05,Type 2 DM
+14751,chennai,79,M,,,2021-05-01,2021-05-04,2021-05-05,HTN
+14752,thoothukudi,68,M,,,2021-04-28,2021-05-04,2021-05-05,
+14753,chennai,89,M,,,2021-04-30,2021-05-04,2021-05-05,
+14754,salem,65,F,,,2021-04-28,2021-05-03,2021-05-05,Type 2 DM
+14755,chennai,52,F,,,2021-05-02,2021-05-03,2021-05-05,"DM, HTN,DLP"
+14756,chengalpattu,68,M,,,2021-04-22,2021-05-03,2021-05-05,"DM, Hypothyroid"
+14757,chengalpattu,71,M,,,2021-04-25,2021-05-02,2021-05-05,
+14758,chengalpattu,36,M,,,2021-04-30,2021-05-01,2021-05-05,SHTN
+14759,chennai,70,M,,,2021-04-30,2021-05-01,2021-05-05,"Type II DM, SHTN"
+14760,thiruppur,60,F,,,2021-04-27,2021-05-03,2021-05-05,
+14761,thiruvallur,49,F,,,2021-04-26,2021-05-03,2021-05-05,
+14762,ranipet,40,M,,,2021-04-30,2021-04-30,2021-05-05,
+14763,salem,46,M,,,2021-04-26,2021-04-30,2021-05-05,
+14764,chennai,37,M,,,2021-04-23,2021-04-28,2021-05-05,
+14765,chennai,55,M,,,2021-04-20,2021-04-22,2021-05-05,
+14766,chennai,59,F,,,2021-04-28,2021-05-01,2021-05-05,DM
+14767,chennai,67,M,,,2021-04-26,2021-05-01,2021-05-05,"DM, HTN,CAD"
+14768,chennai,70,F,,,2021-04-25,2021-05-01,2021-05-05,
+14769,ranipet,57,F,,,2021-04-28,2021-05-01,2021-05-05,DM
+14770,chennai,70,M,,,2021-04-25,2021-04-30,2021-05-05,HTN
+14771,kaniyakumari,54,F,,,2021-04-30,2021-05-04,2021-05-05,"Type 2 DM,HTN"
+14772,trichy,75,F,,,2021-04-30,2021-05-04,2021-05-05,"HTN, CAD"
+14773,dindigul,49,M,,,2021-05-01,2021-05-03,2021-05-05,Type 2DM
+14774,chennai,71,F,,,2021-04-27,2021-05-03,2021-05-05,
+14775,thanjavur,49,F,,,2021-05-01,2021-05-02,2021-05-05,hypothyroidism
+14776,krishnagiri,65,M,,,2021-04-22,2021-05-02,2021-05-05,"CKD,SHTN,T2DM"
+14777,dharmapuri,65,M,,,2021-04-26,2021-05-02,2021-05-05,SHTN/T2DM
+14778,chennai,75,M,,,2021-04-26,2021-04-30,2021-05-05,"DM,HTN"
+14779,chengalpattu,66,M,,,2021-05-03,2021-05-03,2021-05-05,"Type 2 DM, HTN, CKD"
+14780,tirunelveli,31,M,,,2021-04-30,2021-05-03,2021-05-06,
+14781,tirunelveli,40,M,,,2021-05-03,2021-05-03,2021-05-06,
+14782,coimbatore,42,M,,,2021-04-27,2021-05-04,2021-05-06,
+14783,tiruppur,61,F,,,2021-04-30,2021-05-04,2021-05-06,
+14784,chennai,63,F,,,2021-04-28,2021-05-04,2021-05-06,
+14785,virudhunagar,48,M,,,2021-05-01,2021-05-04,2021-05-06,
+14786,salem,50,M,,,2021-05-02,2021-05-04,2021-05-06,
+14787,thiruvallur,35,M,,,2021-05-03,2021-05-04,2021-05-06,
+14788,chennai,55,F,,,2021-05-01,2021-05-04,2021-05-06,
+14789,karur,35,M,,,2021-05-02,2021-05-03,2021-05-06,
+14790,karur,57,M,,,2021-04-29,2021-05-04,2021-05-06,
+14791,chennai,62,M,,,2021-04-25,2021-05-04,2021-05-06,
+14792,chennai,49,M,,,2021-05-04,2021-05-04,2021-05-06,
+14793,theni,31,M,,,2021-05-04,2021-05-05,2021-05-06,
+14794,dindugl,38,M,,,2021-05-01,2021-05-03,2021-05-06,
+14795,thiruvannamalai,64,M,,,2021-05-03,2021-05-04,2021-05-06,
+14796,thiruvannamalai,60,M,,,2021-05-04,2021-05-04,2021-05-06,
+14797,chengalpattu,55,F,,,2021-04-28,2021-05-04,2021-05-06,
+14798,kallakurichi,34,M,,,2021-04-29,2021-05-05,2021-05-06,
+14799,chennai,57,M,,,2021-04-30,2021-05-04,2021-05-06,
+14800,kancheepuram,48,F,,,2021-05-03,2021-05-04,2021-05-06,
+14801,thiruvallur,42,M,,,2021-05-04,2021-05-05,2021-05-06,
+14802,kanyakumari,57,F,,,2021-05-02,2021-05-05,2021-05-06,
+14803,kanyakumari,56,F,,,2021-04-30,2021-05-04,2021-05-06,
+14804,chennai,65,F,,,2021-04-23,2021-05-04,2021-05-06,
+14805,ranipet,70,M,,,2021-04-28,2021-05-05,2021-05-06,
+14806,kancheepuram,65,M,,,2021-05-02,2021-05-04,2021-05-06,
+14807,chennai,77,M,,,2021-05-01,2021-05-04,2021-05-06,
+14808,chengalpattu,69,M,,,2021-05-01,2021-05-05,2021-05-06,
+14809,chennai,65,M,,,2021-04-30,2021-05-05,2021-05-06,
+14810,thanjavur,76,M,,,2021-05-02,2021-05-05,2021-05-06,
+14811,chennai,70,M,,,2021-05-02,2021-05-04,2021-05-06,
+14812,chennai,45,M,,,2021-05-02,2021-05-03,2021-05-06,Type 2 Diabetes Mellitus
+14813,chengalpattu,50,M,,,2021-04-29,2021-05-03,2021-05-06,Systemic Hypertension
+14814,coimbatore,46,M,,,2021-04-30,2021-05-05,2021-05-06,Coronary Artery Disease, Systemic Hypertension
+14815,coimbatore,52,M,,,2021-05-03,2021-05-04,2021-05-06,Systemic Hypertension, Type 2 Diabetes Mellitus
+14816,pudukottai,54,M,,,2021-05-03,2021-05-04,2021-05-06,Systemic Hypertension, Type 2 Diabetes Mellitus
+14817,kancheepuram,59,F,,,2021-05-01,2021-05-03,2021-05-06,Diabetes Mellitus, Systemic Hypertension
+14818,chennai,59,M,,,2021-05-02,2021-05-05,2021-05-06,Diabetes Mellitus, Systemic Hypertension
+14819,kancheepuram,84,M,,,2021-05-01,2021-05-04,2021-05-06,Type 2 Diabetes Mellitus
+14820,chennai,66,M,,,2021-05-01,2021-05-03,2021-05-06,Systemic Hypertension, Diabetes Mellitus
+14821,chennai,68,M,,,2021-05-02,2021-05-04,2021-05-06,Diabetes Mellitus
+14822,salem,62,F,,,2021-05-04,2021-05-05,2021-05-06,Type 2 Diabetes Mellitus
+14823,karur,38,M,,,2021-05-02,2021-05-04,2021-05-06,Diabetes Mellitus
+14824,karur,43,M,,,2021-05-04,2021-05-05,2021-05-06,Diabetes Mellitus, Systemic Hypertension, Coronary Artery Disease, Renal Failure
+14825,thanjavur,72,M,,,2021-05-02,2021-05-05,2021-05-06,Type 2 Diabetes Mellitus
+14826,chennai,25,M,,,2021-05-01,2021-05-04,2021-05-06,Anemia, Morbid Obesity/ Autism
+14827,chennai,65,M,,,2021-05-03,2021-05-04,2021-05-06,Type 2 Diabetes Mellitus
+14828,madurai,55,F,,,2021-05-01,2021-05-03,2021-05-06,Type 2 Diabetes Mellitus
+14829,cuddalore,79,M,,,2021-05-03,2021-05-04,2021-05-06,Type 2 Diabetes Mellitus
+14830,cuddalore,30,F,,,2021-04-25,2021-05-03,2021-05-06,Type 2 Diabetes Mellitus, Diabetic Ketoacidosis
+14831,chennai,75,M,,,2021-05-03,2021-05-04,2021-05-06,Type 2 Diabetes Mellitus, Systemic Hypertension
+14832,chennai,55,M,,,2021-04-23,2021-05-04,2021-05-06,Systemic Hypertension, Paraxysmal Supraventricular Tachycardia
+14833,chennai,62,M,,,2021-05-02,2021-05-04,2021-05-06,Diabetes Mellitus
+14834,chennai,43,F,,,2021-05-04,2021-05-04,2021-05-06,Diabetes Mellitus, Hypertension
+14835,chennai,65,F,,,2021-05-02,2021-05-05,2021-05-06,Diabetes Mellitus
+14836,chengalpattu,68,F,,,2021-04-30,2021-05-04,2021-05-06,Systemic Hypertension, Diabetes Mellitus, Chronic Kidney Disease
+14837,chennai,52,M,,,2021-05-01,2021-05-04,2021-05-06,Diabetes Mellitus
+14838,kanyakumari,85,M,,,2021-05-04,2021-05-05,2021-05-06,Coronary Artery Disease
+14839,kanyakumari,47,M,,,2021-05-04,2021-05-05,2021-05-06,Type 2 Diabetes Mellitus
+14840,kanyakumari,80,F,,,2021-05-04,2021-05-04,2021-05-06,Chronic Kidney Disease
+14841,kanyakumari,79,M,,,2021-05-04,2021-05-05,2021-05-06,Coronary Artery Disease, COPD
+14842,kanyakumari,45,F,,,2021-05-03,2021-05-04,2021-05-06,Type 2 Diabetes Mellitus
+14843,kanyakumari,70,M,,,2021-04-26,2021-05-05,2021-05-06,Type 2 Diabetes Mellitus
+14844,kanyakumari,60,F,,,2021-04-29,2021-05-05,2021-05-06,Chronic Kidney Disease, Type 2 Diabetes Mellitus
+14845,chennai,40,M,,,2021-04-30,2021-05-04,2021-05-06,Type 2 Diabetus Mellitus
+14846,chengalpattu,38,F,,,2021-05-03,2021-05-04,2021-05-06,Diabetes Mellitus
+14847,kancheepuram,87,M,,,2021-05-01,2021-05-04,2021-05-06,Coronary Artery Disease, Diabetes Mellitus, Systemic Hypertension
+14848,chengalpattu,73,M,,,2021-05-04,2021-05-04,2021-05-06,Type 2 Diabetes Mellitus, Systemic Hypertension
+14849,chennai,50,M,,,2021-05-04,2021-05-05,2021-05-06,Type 2 Diabetes Mellitus
+14850,chennai,61,M,,,2021-05-02,2021-05-04,2021-05-06,Systemic Hypertension, Type 2 Diabetes Mellitus
+14851,chennai,86,M,,,2021-04-27,2021-05-02,2021-05-06,Type 2 Diabetes Mellitus
+14852,chennai,65,M,,,2021-04-27,2021-05-05,2021-05-06,Type 2 Diabetes Mellitus, Systemic Hypertension
+14853,kanyakumari,47,M,,,2021-04-27,2021-05-05,2021-05-06,Type 2 Diabetes Mellitus, Systemic Hypertension, Coronary Artery Disease, Lung Absess
+14854,kanyakumari,49,M,,,2021-04-27,2021-05-05,2021-05-06,Systemic Hypertension, Diabetes Mellitus
+14855,kancheepuram,52,F,,,2021-04-23,2021-05-01,2021-05-06,Complaints of Fever and Diarrhoea for 3 days died on 01.05.2021 at 07.15 PM due to ARDS/COVID 19 pneumonia.
+14856,chennai,48,M,,,2021-04-24,2021-05-03,2021-05-06,Complaints of Cough and breathing difficulty for 7 days died on 03.05.2021 at 06.57 AM due to ARDS/COVID 19 pneumonia.
+14857,tenkasi,55,M,,,2021-05-01,2021-05-03,2021-05-06,Complaints of Fever for 1 day died on 03.05.2021 at 01.45 PM due to COVID 19 Pneumonia.
+14858,madurai,55,M,,,2021-04-22,2021-05-03,2021-05-06,"Complaints of Fever and Cough for 5 days, Myalagia for 6 days died on 03.05.2021 at 11.45 pm due to ARDS/COVID-19 Pneumonia."
+14859,chengalpattu,43,M,,,2021-04-26,2021-05-03,2021-05-06,Complaints of Fever and Cough for 5 days died on 03.05.2021 at 04.27 pm due to COVID-19 Pneumonia.
+14860,trichy,60,M,,,2021-05-02,2021-05-03,2021-05-06,"Complaints of Fever, Cough for 3 days, Difficulty in breathing for 2 days died on 03.05.2021 at 11.25 pm due to COVID-19 Pneumonia."
+14861,kancheepuram,46,M,,,2021-04-24,2021-05-04,2021-05-06,"Complaints of Fever, Cough, Difficulty in breathing for 7 days died on 04.05.2021 at 08.16 AM due to COVID-19 Pneumonia."
+14862,ranipet,39,M,,,2021-04-23,2021-05-04,2021-05-06,"Complaints of Fever, Cough, Difficulty in breathing for 5 days died on 04.05.2021 at 05.55 AM due to COVID-19 Pneumonia. 24*7 Control Room: 044-29510400, 044-29510500, 9444340496, 8754448477 District Control Room – 1077. Toll Free Number – 1800 1205 55550 www.stopcorona.tn.gov.in"
+14863,nagapattinam,60,F,,,2021-05-01,2021-05-02,2021-05-06,"Complaints of Fever, Cough, Difficulty in breathing for 2 days died on 02.05.2021 at 02.30 PM due to COVID-19 Pneumonia."
+14864,tenkasi,55,F,,,2021-04-24,2021-05-03,2021-05-06,"Complaints of Fever,Difficulty in breathing- 1day died on 03.05.2021 at 04.15PM due to COVID-19 Pneumonia."
+14865,salem,42,M,,,2021-05-03,2021-05-04,2021-05-06,"Complaints of Fever, Cough and Difficulty in breathing for 1 day died on 04.05.2021 at 04.51 pm due to COVID-19 Pneumonia."
+14866,tirunelveli,61,M,,,2021-05-03,2021-05-03,2021-05-06,"Complaints of Fever, Cough, Difficulty in breathing died on 03.05.2021 at 02.15 PM due to COVID-19 Pneumonia."
+14867,chennai,51,F,,,2021-04-25,2021-05-03,2021-05-06,Complaints of Difficulty in Breathing for 4 days died on 03.05.2021 at 05.20 am due to COVID-19 Pneumonia.
+14868,chengalpattu,65,F,,,2021-04-28,2021-05-03,2021-05-06,T2DM
+14869,nagapattinam,75,F,,,2021-04-26,2021-05-02,2021-05-06,DM
+14870,chennai,72,M,,,2021-04-24,2021-05-03,2021-05-06,"Complaints of Fever for 6 days, cough and breathing difficulty for 2 days died on 03.05.2021 at 02.20 AM due to ARDS/COVID 19 pneumonia."
+14871,madurai,56,M,,,2021-04-30,2021-05-03,2021-05-06,HTN
+14872,kancheepuram,68,M,,,2021-04-19,2021-05-03,2021-05-06,HTN and DM
+14873,chennai,49,M,,,2021-04-28,2021-05-03,2021-05-06,DM
+14874,thiruvallur,64,F,,,2021-04-28,2021-05-03,2021-05-06,Type 2 DM and SHTN
+14875,ranipet,64,M,,,2021-04-28,2021-05-02,2021-05-06,DM and HTN
+14876,tenkasi,88,M,,,2021-05-01,2021-05-03,2021-05-06,"Complaints of Fever for 4 days died on 03.05.2021 at 01.30 PM due to COVID 19 Pneumonia. 24*7 Control Room: 044-29510400, 044-29510500, 9444340496, 8754448477 District Control Room – 1077. Toll Free Number – 1800 1205 55550 www.stopcorona.tn.gov.in"
+14877,chennai,83,F,,,2021-04-29,2021-05-02,2021-05-06,"DM, HTN and CAD"
+14878,thiruvallur,50,F,,,2021-05-01,2021-05-02,2021-05-06,DM and HTN
+14879,kancheepuram,44,M,,,2021-04-24,2021-05-04,2021-05-06,Obesity
+14880,chennai,79,M,,,2021-04-22,2021-05-03,2021-05-06,"DM, CAD-S/P CABG, HTN"
+14881,chennai,59,M,,,2021-04-29,2021-05-03,2021-05-06,"DM,HTN"
+14882,namakkal,70,M,,,2021-04-26,2021-05-03,2021-05-06,"DM,HTN"
+14883,villupuram,71,M,,,2021-04-30,2021-05-03,2021-05-06,"Type II DM, SHTN"
+14884,chennai,74,M,,,2021-04-26,2021-05-03,2021-05-06,SHTN
+14885,cuddalore,60,F,,,2021-04-28,2021-05-03,2021-05-06,"Type II DM, SHTN"
+14886,chengalpattu,68,F,,,2021-04-22,2021-05-03,2021-05-06,DM
+14887,chennai,78,M,,,2021-04-28,2021-05-03,2021-05-06,Complaints of Fever for 3 days died on 03.05.2021 at 06.25 pm due to COVID-19 Pneumonia.
+14888,kancheepuram,69,M,,,2021-04-30,2021-05-03,2021-05-06,Complaints of Fever and Cough for 2 days died on 03.05.2021 at 07.40 pm due to COVID-19 Pneumonia.
+14889,kancheepuram,60,M,,,2021-05-03,2021-05-03,2021-05-06,Type II DM
+14890,dharmapuri,82,M,,,2021-04-26,2021-05-03,2021-05-06,"Complaints of Fever,cough,difficulty inbreathing died on 03.05.2021 at 8.50pm due to COVID-19 Pneumonia. 24*7 Control Room: 044-29510400, 044-29510500, 9444340496, 8754448477 District Control Room – 1077. Toll Free Number – 1800 1205 55550 www.stopcorona.tn.gov.in"
+14891,chennai,67,M,,,2021-04-26,2021-05-03,2021-05-06,"Complaints of Fever, Cough and Difficulty in Breathing for 5 days, Myalgia died on 03.05.2021 at 12.05pm due to COVID-19 Pneumonia."
+14892,namakkal,55,F,,,2021-04-26,2021-05-04,2021-05-06,T2 DM
+14893,madurai,64,F,,,2021-04-30,2021-05-04,2021-05-06,"Type 2 DM,HTN and Hypothyroidism"
+14894,chennai,65,M,,,2021-04-24,2021-05-04,2021-05-06,Complaints of Fever died on 04.05.2021 at 02.45 PM due to COVID 19 Pneumonia.
+14895,chennai,56,M,,,2021-04-25,2021-05-03,2021-05-06,Type 2 DM and HTN
+14896,chennai,61,F,,,2021-05-01,2021-05-04,2021-05-06,DM
+14897,thiruvallur,63,F,,,2021-04-25,2021-05-03,2021-05-06,DM and HTN
+14898,thiruvallur,62,F,,,2021-04-30,2021-05-04,2021-05-06,DM and HTN
+14899,chennai,66,M,,,2021-04-26,2021-05-03,2021-05-06,HTN and CAD
+14900,chennai,86,M,,,2021-05-02,2021-05-03,2021-05-06,"DM, HTN"
+14901,chengalpattu,71,M,,,2021-04-30,2021-05-03,2021-05-06,"Type 2 DM, HTN"
+14902,chennai,85,M,,,2021-04-23,2021-05-02,2021-05-06,"DM, HTN, CAD"
+14903,chengalpattu,55,F,,,2021-05-02,2021-05-04,2021-05-06,"Type 2 DM, HTN"
+14904,chennai,71,M,,,2021-04-28,2021-05-02,2021-05-06,HTN
+14905,namakkal,54,M,,,2021-04-30,2021-05-04,2021-05-06,"Type 2 DM, SHTN"
+14906,kanyakumari,43,M,,,2021-05-01,2021-05-04,2021-05-06,DM
+14907,thanjavur,63,F,,,2021-04-30,2021-05-04,2021-05-06,HTN
+14908,theni,58,M,,,2021-04-14,2021-05-04,2021-05-06,"Type 2 DM, CAD"
+14909,chennai,83,F,,,2021-04-24,2021-05-04,2021-05-06,HTN
+14910,thiruvallur,83,M,,,2021-05-02,2021-05-04,2021-05-06,"DM, HTN"
+14911,chennai,60,M,,,2021-04-27,2021-05-04,2021-05-06,"DM, HTN"
+14912,ranipet,41,M,,,2021-04-20,2021-05-04,2021-05-06,DM
+14913,trichy,67,F,,,2021-05-01,2021-05-04,2021-05-06,"DM, HTN, Hypothyroidism, CKD"
+14914,trichy,78,M,,,2021-04-28,2021-05-04,2021-05-06,"Complaints of Fever for 3 days, Cough, Difficulty in breathing for 7 days died on 04.05.2021 at 12.40 PM due to COVID-19 Pneumonia."
+14915,chennai,56,M,,,2021-05-02,2021-05-04,2021-05-06,HTN
+14916,chennai,80,M,,,2021-04-20,2021-05-02,2021-05-06,"Type 2 DM,HTN"
+14917,kancheepuram,52,M,,,2021-05-01,2021-05-04,2021-05-06,Type 2DM/SHTN
+14918,chennai,76,M,,,2021-05-04,2021-05-04,2021-05-06,Old CVA
+14919,madurai,73,M,,,2021-04-26,2021-05-04,2021-05-06,Type2 DM
+14920,chennai,82,M,,,2021-04-23,2021-05-03,2021-05-06,"CKD,DM,HTN"
+14921,thiruvallur,73,M,,,2021-04-23,2021-05-03,2021-05-06,"DM,HTN,CAD"
+14922,chennai,69,F,,,2021-04-27,2021-05-03,2021-05-06,"DM,HTN,Hypothyroidism"
+14923,namakal,78,M,,,2021-05-01,2021-05-04,2021-05-06,"DM,SHTN"
+14924,trichy,82,F,,,2021-04-20,2021-05-04,2021-05-06,"CAD,Type 2 DM,SHTN"
+14925,salem,84,F,,,2021-04-28,2021-05-04,2021-05-06,"Type 2 DM,HTN"
+14926,chennai,63,F,,,2021-05-02,2021-05-02,2021-05-06,HTN
+14927,chennai,46,M,,,2021-05-04,2021-05-04,2021-05-06,"DM, SHTN"
+14928,chennai,72,M,,,2021-04-26,2021-05-03,2021-05-06,"Type 2 DM, SHTN"
+14929,thiruvallur,60,F,,,2021-04-25,2021-05-03,2021-05-06,Hypothyroidism
+14930,kanyakumari,72,M,,,2021-05-02,2021-05-04,2021-05-06,"Complaints of Fever for 7 days, Cough and breathing for 5 days died on 04.05.2021 at 03.30 pm due to COVID-19 Pneumonia."
+14931,kanyakumari,79,F,,,2021-04-26,2021-05-04,2021-05-06,"Type 2 DM, Bronchial Asthma"
+14932,vellore,60,M,,,2021-04-21,2021-05-03,2021-05-06,HTN
+14933,villupuram,51,F,,,2021-04-27,2021-05-03,2021-05-06,"CKD, Post Renal Transplant"
+14934,tirunelveli,52,F,,,2021-05-01,2021-05-04,2021-05-06,Type 2 DM
+14935,tirunelveli,77,F,,,2021-05-03,2021-05-04,2021-05-06,"Type 2 DM, CAD"
+14936,chennai,93,M,,,2021-04-30,2021-05-04,2021-05-06,HTN
+14937,kancheepuram,71,M,,,2021-05-01,2021-05-03,2021-05-06,"Type 2 DM, SHTN, CAD"
+14938,chennai,41,M,,,2021-04-15,2021-05-03,2021-05-06,SHTN
+14939,chennai,87,M,,,2021-04-28,2021-05-03,2021-05-06,"Complaints of Fever, Cough for 2 days died on 03.05.2021 at 05.40 pm due to COVID-19 Pneumonia."
+14940,chengalpattu,57,M,,,2021-04-24,2021-05-04,2021-05-06,DM
+14941,chennai,78,F,,,2021-04-23,2021-05-04,2021-05-06,Bronchial Asthma
+14942,chengalpattu,79,M,,,2021-04-29,2021-05-04,2021-05-06,"DM,SHTN, Hypothyroidism"
+14943,tirunelveli,65,M,,,2021-04-24,2021-05-04,2021-05-06,"Complaints of Fever, Cough and Difficulty in breathing died on 04.05.2021 at 11.15 am due to ARDS/COVID19 Pneumonia."
+14944,tenkasi,70,F,,,2021-04-30,2021-05-03,2021-05-06,"DM, HTN"
+14945,thiruvallur,78,F,,,2021-04-29,2021-04-30,2021-05-06,"DM, HTN"
+14946,chennai,64,M,,,2021-04-27,2021-05-04,2021-05-06,"CAD, CABG, HTN"
+14947,chengalpattu,71,M,,,2021-05-03,2021-05-04,2021-05-06,Complaints of Difficulty in breathing died on 04.05.2021 at 08.38 AM due to COVID-19 Pneumonia.
+14948,ranipet,69,M,,,2021-04-25,2021-05-03,2021-05-06,DM
+14949,chengalpattu,64,F,,,2021-04-22,2021-05-02,2021-05-06,"Type 2DM,Systemic Hypertension"
+14950,chennai,73,M,,,2021-04-26,2021-05-04,2021-05-06,Complaints of Cough for 3 days died on 04.05.2021 at 06.20 am due to COVID-19 Pneumonia.
+14951,chennai,59,F,,,2021-05-01,2021-05-04,2021-05-06,"Type 2 DM, HTN,Hypothyroidism, CAD"
+14952,chengalpattu,84,M,,,2021-04-19,2021-05-02,2021-05-06,"DM,HTN"
+14953,ranipet,64,M,,,2021-04-26,2021-05-03,2021-05-06,"CAD, DM, HTN, Hypothyroidism"
+14954,chennai,71,M,,,2021-04-18,2021-05-03,2021-05-06,"DM, HTN"
+14955,chennai,83,M,,,2021-04-19,2021-04-22,2021-05-06,"DM, HTN"
+14956,chennai,87,M,,,2021-04-15,2021-05-04,2021-05-06,"Complaints of Fever for 1 day, Cough for 2 days, Difficulty in breathing died on 04.05.2021 at 02.40 AM due to COVID-19 Pneumonia."
+14957,thirupathur,45,F,,,2021-04-29,2021-04-30,2021-05-06,"Complaints of Fever, Cough, Difficulty in breathing for 3 days died on 30.04.2021 at 06.50 PM due to COVID-19 Pneumonia. Death in Government health facilities (DME)"
+14958,dindugul,55,M,,,2021-04-24,2021-05-03,2021-05-06,Complaints of Fever for 2 days died on 03.05.2021 at 01.34 am due to COVID-19 Pneumonia.
+14959,thanjavur,66,F,,,2021-04-24,2021-05-05,2021-05-06,"DM, SHTN, CAD"
+14960,chennai,64,F,,,2021-04-28,2021-05-04,2021-05-06,"DM, SHTN"
+14961,thanjavur,56,F,,,2021-05-02,2021-05-05,2021-05-06,"T2DM, HTN"
+14962,chennai,56,M,,,2021-04-30,2021-05-05,2021-05-06,"T2DM, SHTN"
+14963,thiruvarur,51,M,,,2021-05-03,2021-05-05,2021-05-06,DM
+14964,chennai,59,M,,,2021-04-25,2021-05-04,2021-05-06,"Complaints of Cough and Difficulty in Breathing for 2 days died on 04.05.2021 at 05.15 pm due to COVID-19 Pneumonia. 24*7 Control Room: 044-29510400, 044-29510500, 9444340496, 8754448477 District Control Room – 1077. Toll Free Number – 1800 1205 55550 www.stopcorona.tn.gov.in COVID-19 Positive Deaths due to comorbidities – Total: 150 Death in Private health facilities due to comorbidities"
+14965,pudukottai,68,F,,,2021-04-28,2021-05-05,2021-05-06,T2DM
+14966,coimbatore,77,M,,,2021-04-28,2021-05-03,2021-05-06,"Complaints of Fever, Cough, Difficulty in breathing for 2 days died on 03.05.2021 at 10.10 PM due to COVID-19 Pneumonia."
+14967,thiruvallur,52,F,,,2021-04-24,2021-05-04,2021-05-06,"Complaints of Fever, Cough for 3 days died on 04.05.2021 at 10.34 PM due to COVID-19 Pneumonia."
+14968,thiruvallur,53,M,,,2021-04-15,2021-05-04,2021-05-06,Type 2 DM
+14969,trichy,84,M,,,2021-04-27,2021-05-04,2021-05-06,"Type 2 DM, SHTN, Hypothyroidism"
+14970,chennai,88,M,,,2021-04-28,2021-05-04,2021-05-06,"Complaints of Fever, Cough died on 04.05.2021 at 09.50 PM due to COVID-19 Pneumonia."
+14971,chennai,88,F,,,2021-04-30,2021-05-05,2021-05-06,DM
+14972,chennai,61,M,,,2021-05-02,2021-05-04,2021-05-06,SHTN
+14973,thanjavur,85,F,,,2021-04-30,2021-05-04,2021-05-06,SHTN
+14974,dindugul,61,F,,,2021-04-24,2021-05-05,2021-05-06,"Complaints of Fever, Cough for 3 days, Difficulty in breathing died on 05.05.2021 at 06.12 am due to COVID-19 Pneumonia. 24*7 Control Room: 044-29510400, 044-29510500, 9444340496, 8754448477 District Control Room – 1077. Toll Free Number – 1800 1205 55550 www.stopcorona.tn.gov.in Death in Government health facilities (DMS)"
+14975,villupuram,47,F,,,2021-05-05,2021-05-06,2021-05-07,
+14976,krishnagiri,43,M,,,2021-05-03,2021-05-04,2021-05-07,
+14977,virudhunagar,48,M,,,2021-05-03,2021-05-05,2021-05-07,
+14978,virudhunagar,60,M,,,2021-05-02,2021-05-05,2021-05-07,
+14979,chennai,61,M,,,2021-04-30,2021-05-05,2021-05-07,
+14980,chennai,50,F,,,2021-04-30,2021-05-05,2021-05-07,
+14981,thiruvallur,64,F,,,2021-05-03,2021-05-05,2021-05-07,
+14982,chennai,62,M,,,2021-05-02,2021-05-05,2021-05-07,
+14983,theni,33,M,,,2021-05-03,2021-05-05,2021-05-07,
+14984,thiruvallur,61,M,,,2021-04-26,2021-05-04,2021-05-07,
+14985,coimbatore,60,M,,,2021-05-02,2021-05-04,2021-05-07,
+14986,tirunelveli,17,M,,,2021-05-02,2021-05-04,2021-05-07,
+14987,madurai,53,M,,,2021-05-02,2021-05-04,2021-05-07,
+14988,dindigul,55,F,,,2021-04-30,2021-05-04,2021-05-07,
+14989,chennai,40,M,,,2021-05-01,2021-05-05,2021-05-07,
+14990,chennai,44,M,,,2021-05-01,2021-05-05,2021-05-07,
+14991,theni,43,F,,,2021-05-05,2021-05-06,2021-05-07,
+14992,tenkasi,26,F,,,2021-05-05,2021-05-05,2021-05-07,
+14993,cuddalore,53,M,,,2021-04-30,2021-05-04,2021-05-07,
+14994,chennai,46,F,,,2021-05-03,2021-05-05,2021-05-07,
+14995,chennai,55,F,,,2021-05-03,2021-05-05,2021-05-07,
+14996,kanyakumari,49,M,,,2021-05-03,2021-05-06,2021-05-07,
+14997,chennai,54,M,,,2021-05-04,2021-05-05,2021-05-07,
+14998,madurai,55,F,,,2021-05-01,2021-05-05,2021-05-07,
+14999,madurai,54,M,,,2021-05-03,2021-05-05,2021-05-07,
+15000,madurai,53,F,,,2021-05-05,2021-05-05,2021-05-07,
+15001,madurai,55,M,,,2021-05-04,2021-05-05,2021-05-07,
+15002,kanyakumari,80,M,,,2021-04-29,2021-05-04,2021-05-07,
+15003,chengalpattu,81,M,,,2021-04-28,2021-05-05,2021-05-07,
+15004,coimbatore,68,M,,,2021-04-29,2021-05-06,2021-05-07,
+15005,salem,65,F,,,2021-05-05,2021-05-05,2021-05-07,
+15006,chennai,74,F,,,2021-05-02,2021-05-05,2021-05-07,
+15007,chengalpattu,45,M,,,2021-05-04,2021-05-05,2021-05-07,Diabetes Mellitus
+15008,thiruvannamalai,73,M,,,2021-05-05,2021-05-05,2021-05-07,Diabetes Mellitus, Hypertension
+15009,chennai,69,M,,,2021-05-02,2021-05-06,2021-05-07,Diabetes Mellitus, Hypertension, Coronary Artery Disease
+15010,chennai,70,F,,,2021-05-04,2021-05-06,2021-05-07,Diabetes Mellitus, Hypertension, Coronary Artery Disease
+15011,kancheepuram,70,M,,,2021-05-03,2021-05-06,2021-05-07,Hypertension
+15012,thiruvallur,58,F,,,2021-05-04,2021-05-05,2021-05-07,Diabetes Mellitus, Coronary Artery Disease
+15013,chennai,47,M,,,2021-04-23,2021-05-04,2021-05-07,Diabetes Mellitus
+15014,thiruvallur,48,F,,,2021-04-26,2021-05-04,2021-05-07,Diabetes Mellitus, Systemic Hypertension
+15015,coimbatore,54,M,,,2021-04-30,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus
+15016,tirunelveli,21,F,,,2021-04-30,2021-05-04,2021-05-07,Post Natal Mother
+15017,pudukottai,40,F,,,2021-05-03,2021-05-05,2021-05-07,Diabetes Mellitus, Hypothyroidism
+15018,chennai,63,M,,,2021-05-05,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus
+15019,chennai,73,F,,,2021-05-04,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus
+15020,thiruvallur,72,M,,,2021-05-04,2021-05-06,2021-05-07,Type 2 Diabetes Mellitus, Systemic Hypertension
+15021,salem,65,M,,,2021-05-03,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus, Systemic Hypertension
+15022,kallakurichi,75,F,,,2021-05-02,2021-05-06,2021-05-07,Type 2 Diabetes Mellitus, Systemic Hypertension, Broncial Asthma
+15023,thanjavur,55,F,,,2021-05-03,2021-05-06,2021-05-07,Systemic Hypertension, Coronary Artery Disease
+15024,nagapattinam,75,F,,,2021-05-01,2021-05-03,2021-05-07,Diabetes Mellitus, Systemic Hypertension, Coronary Artery Disease
+15025,thiruvarur,49,M,,,2021-05-05,2021-05-05,2021-05-07,Systemic Hypertension, Type 2 Diabetes Mellitus
+15026,thiruvallur,48,M,,,2021-04-30,2021-05-03,2021-05-07,Diabetes Mellitus
+15027,chennai,52,M,,,2021-05-04,2021-05-04,2021-05-07,Diabetes Mellitus, Systemic Hypertension, Chronic Kidney Disease
+15028,thiruvallur,73,F,,,2021-05-04,2021-05-05,2021-05-07,Diabetes Mellitus, Systemic Hypertension
+15029,kancheepuram,35,F,,,2021-05-05,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus
+15030,coimbatore,63,F,,,2021-05-01,2021-05-06,2021-05-07,Type 2 Diabetes Mellitus
+15031,theni,55,F,,,2021-05-05,2021-05-06,2021-05-07,Type 2 Diabetes Mellitus
+15032,madurai,72,M,,,2021-05-04,2021-05-06,2021-05-07,Type 2 Diabetes Mellitus
+15033,thanjavur,55,M,,,2021-05-29,2021-05-06,2021-05-07,Systemic Hypertension
+15034,nagapattinam,62,F,,,2021-04-27,2021-05-04,2021-05-07,Diabetes Mellitus
+15035,theni,55,M,,,2021-05-04,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus, Systemic Hypertension
+15036,cuddalore,65,M,,,2021-05-01,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus
+15037,chengalpattu,70,M,,,2021-05-03,2021-05-05,2021-05-07,Systemic Hypertension, Type 2 Diabetes Mellitus
+15038,vellore,65,F,,,2021-05-04,2021-05-05,2021-05-07,Systemic Hypertension
+15039,ranipet,50,M,,,2021-05-04,2021-05-05,2021-05-07,Diabetes Mellitus, Systemic Hypertension
+15040,vellore,44,M,,,2021-05-04,2021-05-05,2021-05-07,Diabetes Mellitus, Systemic Hypertension
+15041,chennai,63,M,,,2021-04-29,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus, Systemic Hypertension
+15042,chengalpattu,43,F,,,2021-05-05,2021-05-05,2021-05-07,Hypothyroidism
+15043,chennai,70,F,,,2021-05-02,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus, Systemic Hypertension
+15044,chennai,61,M,,,2021-05-01,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus
+15045,chennai,33,M,,,2021-05-02,2021-05-05,2021-05-07,Bronchial asthma, Acute Kidney Injury
+15046,chennai,46,F,,,2021-05-04,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus
+15047,chennai,72,F,,,2021-05-04,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus, Coronary Artery Disease
+15048,chennai,60,M,,,2021-05-05,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus
+15049,chennai,63,F,,,2021-05-04,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus, Systemic Hypertension
+15050,kanyakumari,59,M,,,2021-05-01,2021-05-06,2021-05-07,Type 2 Diabetes Mellitus
+15051,kanyakumari,73,F,,,2021-04-25,2021-05-06,2021-05-07,Type 2 Diabetes Mellitus, Systemic Hypertension
+15052,tirunelveli,64,F,,,2021-05-03,2021-05-05,2021-05-07,Systemic Hypertension, Type 2 Diabetes Mellitus, Chronic Kidney Disease
+15053,chennai,72,F,,,2021-05-05,2021-05-05,2021-05-07,Diabetes Mellitus, Hypertension
+15054,thiruvannamalai,60,F,,,2021-05-04,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus, Systemic Hypertension
+15055,chennai,68,M,,,2021-05-04,2021-05-05,2021-05-07,Type 2 Diabetes Mellitus, Systemic Hypertension, Coronary Artery Disease
+15056,chennai,60,M,,,2021-04-30,2021-05-05,2021-05-07,Hypertension, Acute Kidney Injury
+15057,chennai,62,F,,,2021-04-24,2021-05-05,2021-05-07,Diabetes Mellitus, Hypertension
+15058,chennai,56,M,,,2021-05-02,2021-05-06,2021-05-07,Type 2 Diabetes Mellitus
+15059,virudhunagar,57,F,,,2021-05-04,2021-05-05,2021-05-07,Hypertension
+15060,thiruvallur,54,M,,,2021-05-01,2021-05-05,2021-05-07,Diabetes Mellitus, Systemic Hypertension, Coronary Artery Disease
+15061,thiruvallur,60,F,,,2021-04-29,2021-05-02,2021-05-07,Diabetes     Mellitus
+15062,thiruvallur,65,M,,,2021-05-01,2021-05-05,2021-05-07,Diabetes Mellitus
+15063,thiruvallur,53,F,,,2021-05-03,2021-05-05,2021-05-07,Diabetes Mellitus, Systemic Hypertension
+15064,madurai,58,F,,,2021-04-29,2021-05-05,2021-05-07,Complaints of Fever for 3 days died on 05.05.2021 at 01.40 AM due to COVID-19 Pneumonia.
+15065,virudhunagar,47,F,,,2021-05-02,2021-05-04,2021-05-07,"Complaints of Fever,cough for 7 days died on 04.05.2021 at 08.00 AM due to COVID-19 Pneumonia."
+15066,thirupathur,64,M,,,2021-04-26,2021-05-05,2021-05-07,"Complaints of Fever,Cough,Breathing difficulty for 3 days died on 05.05.2021 at 02.00 AM due to COVID-19 Pneumonia."
+15067,cuddalore,39,M,,,2021-04-29,2021-05-05,2021-05-07,"Complaints of Fever,cough for 6 days died on 05.05.2021 at 02.00 AM due to COVID-19 Pneumonia."
+15068,kancheepuram,28,M,,,2021-04-24,2021-05-02,2021-05-07,"Complaints of Fever,Cough,Difficulty in breathing for 4 days died on 02.05.2021 at 04.30 PM due to COVID-19 Pneumonia."
+15069,tirunelveli,59,M,,,2021-04-15,2021-05-04,2021-05-07,"Complaints of Fever for 5 days, Cough for 5 days died on 04.05.2021 at 03.30 AM due to COVID-19 Pneumonia."
+15070,trichy,54,M,,,2021-05-04,2021-05-05,2021-05-07,"Complaints of Fever for 4 days, Difficulty in breathing for 4 days died on 05.05.2021 at 12.35 AM due to COVID-19 Pneumonia."
+15071,chennai,59,M,,,2021-05-01,2021-05-05,2021-05-07,"Complaints of Fever for 12 days, Difficulty in breathing for 5 days died on 05.05.2021 at 12.15 AM due to COVID-19 Pneumonia."
+15072,kancheepuram,45,M,,,2021-05-02,2021-05-04,2021-05-07,"Complaints of Fever for 2 days, Cough for 2 days, Difficulty in breathing died on 04.05.2021 at 10.05 AM due to COVID-19 Pneumonia."
+15073,chennai,30,F,,,2021-04-29,2021-05-04,2021-05-07,Complaints of Difficulty in breathing died on 04.05.2021 at 05.30 PM due to COVID-19 Pneumonia.
+15074,chennai,47,F,,,2021-04-09,2021-05-05,2021-05-07,"Complaints of Fever and Cough for 8 days died on 05.05.2021 at 02.52 PM due to COVID-19 Pneumonia. 24*7 Control Room: 044-29510400, 044-29510500, 9444340496, 8754448477 District Control Room – 1077. Toll Free Number – 1800 1205 55550 www.stopcorona.tn.gov.in"
+15075,chennai,23,M,,,2021-04-28,2021-05-05,2021-05-07,"Complaints of Fever, Cougha nd Difficulty in breating for 5 days died on 05.05.2021 at 05.30 AM due to COVID-19 Pneumonia."
+15076,dindigul,46,M,,,2021-04-30,2021-05-05,2021-05-07,"Complaints of Fever, Difficulty in breathing, others for 9 days died on 05.05.2021 at 11.40 AM due to COVID-19 Pneumonia."
+15077,chennai,47,M,,,2021-04-21,2021-05-05,2021-05-07,Complaints of Cough and Difficulty in Breathing for 2 days died on 05.05.2021 at 01.37 PM due to COVID-19 Pneumonia.
+15078,salem,62,F,,,2021-04-28,2021-05-05,2021-05-07,"Complaints of Cough for 1 week, Difficulty in breathing for 3 days died on 05.05.2021 at 06.18 PM due to COVID-19 Pneumonia."
+15079,trichy,55,M,,,2021-05-03,2021-05-05,2021-05-07,"Complaints of Fever for 7 days, Cough for 4 days, Difficulty in breathing for 1 day died on 05.05.2021 at 09.05 PM due to COVID-19 Pneumonia."
+15080,thiruvallur,52,F,,,2021-04-27,2021-05-05,2021-05-07,Complaints of Fever and Vomiting for 7 days died on 05.05.2021 at 10.40 PM due to COVID-19 Pneumonia.
+15081,coimbatore,61,M,,,2021-04-19,2021-05-05,2021-05-07,"Complaints of Fever, Cough and Difficulty in breathing for 2 days died on 05.05.2021 at 02.05 PM due to COVID-19 Pneumonia. 24*7 Control Room: 044-29510400, 044-29510500, 9444340496, 8754448477 District Control Room – 1077. Toll Free Number – 1800 1205 55550 www.stopcorona.tn.gov.in Death in Government health facilities (DMS)"
+15082,kancheepuram,52,M,,,2021-04-24,2021-05-04,2021-05-07,"Complaints of Fever, Cough, Difficulty in breathing for 3 days died on 04.05.2021 at 03.15 PM due to COVID-19 Pneumonia. Death in Government health facilities (DME)"
+15083,thiruvannamalai,51,M,,,2021-04-19,2021-05-05,2021-05-07,Complaints of Cough for 7 days Difficulty in breathing for 7 days died on 05.05.2021 at 01.15 AM due to COVID-19 Pneumonia. COVID-19 Positive Deaths due to comorbidities – Total: 150 Death in Private health facilities due to comorbidities
+15084,kancheepuram,76,M,,,2021-05-04,2021-05-05,2021-05-07,"Complaints of Fever for 4 days,Cough for 5 days,Difficulty in breathing for 2 days died on 05.05.2021 at 01.30 AM due to COVID-19 Pneumonia."
+15085,theni,75,M,,,2021-05-01,2021-05-04,2021-05-07,"DM,HTN"
+15086,thirupathur,68,M,,,2021-04-30,2021-05-04,2021-05-07,"Complaints of Fever,Cough,Breathing difficulties for 2 days died on 04.05.2021 at 09.20 PM due to COVID-19 Pneumonia."
+15087,madurai,49,M,,,2021-04-29,2021-05-05,2021-05-07,DM
+15088,cuddalore,48,M,,,2021-04-29,2021-05-05,2021-05-07,"Type 2 DM,HTN"
+15089,tiruppur,68,F,,,2021-04-27,2021-05-04,2021-05-07,CAD
+15090,tiruppur,55,M,,,2021-04-30,2021-05-04,2021-05-07,DM
+15091,kanyakumari,62,F,,,2021-05-03,2021-05-04,2021-05-07,"Type 2 DM,HTN"
+15092,cuddalore,65,M,,,2021-05-02,2021-05-04,2021-05-07,"Type 2 DM,HTN"
+15093,trichy,57,M,,,2021-04-23,2021-05-04,2021-05-07,"Type 2 DM,HTN"
+15094,madurai,73,F,,,2021-05-02,2021-05-05,2021-05-07,Complaints of Loss of appetite died on 05.05.2021 at 01.35 PM due to COVID-19 Pneumonia.
+15095,kancheepuram,69,M,,,2021-05-05,2021-05-05,2021-05-07,"Complaints of Fever,Cough,Difficulty in breathing for6 days died on 05.05.2021 at 08.25 AM due to COVID-19 Pneumonia."
+15096,virudhunagar,70,M,,,2021-04-30,2021-05-04,2021-05-07,"Complaints of Fever for 3 days,Cough for 2 days died on 04.05.2021 at 07.52 PM due to COVID-19 Pneumonia."
+15097,krishnagiri,50,M,,,2021-04-26,2021-05-05,2021-05-07,Type 2 DM
+15098,chennai,64,M,,,2021-05-01,2021-05-03,2021-05-07,"DM,HTN"
+15099,chengalpattu,64,M,,,2021-04-29,2021-04-30,2021-05-07,CAD
+15100,coimbatore,75,M,,,2021-04-28,2021-05-04,2021-05-07,Type 2 DM
+15101,trichy,48,M,,,2021-05-02,2021-05-05,2021-05-07,"CKD, HTN"
+15102,erode,67,M,,,2021-04-25,2021-05-03,2021-05-07,"Complaints of Fever, Cough, Difficulty Breathing died on 03.05.2021 at 6.05 AM due to COVID-19 Pneumonia."
+15103,chennai,75,M,,,2021-02-24,2021-05-05,2021-05-07,HTN/DM
+15104,chennai,67,M,,,2021-04-30,2021-05-05,2021-05-07,Complaints of Difficulty in Breathing in 1 Day died on 05.05.2021 at 02.15 PM due to COVID-19 Pneumonia.
+15105,chennai,80,M,,,2021-04-27,2021-05-04,2021-05-07,Complaints of Difficulty in Breathing in 1 Day died on 04.05.2021 at 10.45 PM due to COVID-19 Pneumonia.
+15106,chennai,48,F,,,2021-04-26,2021-05-04,2021-05-07,HTN
+15107,trichy,72,M,,,2021-04-29,2021-05-05,2021-05-07,DM
+15108,thiruvannamalai,60,M,,,2021-04-27,2021-05-04,2021-05-07,"SHTN, Type 2 DM"
+15109,chennai,64,M,,,2021-05-04,2021-05-04,2021-05-07,Type 2 DM
+15110,chennai,82,M,,,2021-04-20,2021-05-05,2021-05-07,"HTN, CAD"
+15111,madurai,38,M,,,2021-04-23,2021-05-04,2021-05-07,"SHTN, Hypothyroidism"
+15112,ranipet,38,M,,,2021-05-01,2021-05-02,2021-05-07,DM
+15113,ranipet,68,M,,,2021-05-01,2021-05-02,2021-05-07,"HTN, DM"
+15114,salem,55,M,,,2021-04-28,2021-05-04,2021-05-07,Type 2 DM
+15115,chengalpattu,71,M,,,2021-04-27,2021-05-05,2021-05-07,Type 2 DM
+15116,chennai,58,M,,,2021-04-29,2021-05-05,2021-05-07,HTN
+15117,chennai,57,M,,,2021-04-19,2021-05-04,2021-05-07,CAD
+15118,kancheepuram,65,F,,,2021-05-02,2021-05-05,2021-05-07,Type II DM
+15119,dharmapuri,66,M,,,2021-04-26,2021-05-04,2021-05-07,DM
+15120,nagapattinam,75,M,,,2021-05-03,2021-05-04,2021-05-07,Complaints of Fever for 5 days died on 04.05.2021 at 08.45 PM due to COVID-19 Pneumonia.
+15121,salem,63,M,,,2021-04-30,2021-05-03,2021-05-07,"DM, SHTN"
+15122,chennai,72,F,,,2021-04-28,2021-05-02,2021-05-07,SHTN
+15123,erode,64,M,,,2021-04-20,2021-05-04,2021-05-07,"DM, SHTN"
+15124,salem,33,M,,,2021-05-01,2021-05-03,2021-05-07,"DM, SHTN"
+15125,chennai,77,F,,,2021-04-21,2021-05-04,2021-05-07,DM
+15126,madurai,78,M,,,2021-04-12,2021-04-24,2021-05-07,Type II DM
+15127,chennai,75,F,,,2021-05-01,2021-05-03,2021-05-07,"Type II DM, SHTN"
+15128,ranipet,52,M,,,2021-05-03,2021-05-04,2021-05-07,Obesity
+15129,madurai,56,F,,,2021-05-04,2021-05-05,2021-05-07,"DM, HTN, Obesity"
+15130,chennai,63,F,,,2021-04-21,2021-05-03,2021-05-07,DM
+15131,kancheepuram,83,M,,,2021-05-01,2021-05-04,2021-05-07,SHTN
+15132,chennai,65,F,,,2021-04-16,2021-05-05,2021-05-07,CAD
+15133,ranipet,68,F,,,2021-05-02,2021-05-05,2021-05-07,"DM, HTN"
+15134,namakkal,73,M,,,2021-05-01,2021-05-04,2021-05-07,"Complaints of Fever, Cough, Difficulty in breathing died on 04.05.2021 at 11.15 PM due to COVID-19 Pneumonia."
+15135,perambalur,75,M,,,2021-04-30,2021-05-05,2021-05-07,Complaints of Cough for 3 days died on 05.05.2021 at 06.05 AM due to COVID-19 Pneumonia.
+15136,tenkasi,72,M,,,2021-04-28,2021-05-04,2021-05-07,"HTN, COPD"
+15137,tenkasi,50,F,,,2021-04-29,2021-05-03,2021-05-07,Type 2 DM
+15138,salem,65,M,,,2021-05-02,2021-05-05,2021-05-07,"Complaints of Fever, Cough, Body pain died on 05.05.2021 at 11.15 AM due to COVID-19 Pneumonia."
+15139,tenkasi,59,M,,,2021-05-01,2021-05-04,2021-05-07,Type 2 DM
+15140,chennai,65,M,,,2021-04-30,2021-05-05,2021-05-07,Complaints of Difficulty in breathing died on 05.05.2021 at 01.00 AM due to COVID-19 Pneumonia.
+15141,tenkasi,97,M,,,2021-04-29,2021-05-05,2021-05-07,HTN
+15142,chennai,74,M,,,2021-04-28,2021-05-05,2021-05-07,"DM, CAD"
+15143,chennai,66,M,,,2021-05-03,2021-05-04,2021-05-07,"Type 2 DM, HTN"
+15144,chengalpattu,77,M,,,2021-04-24,2021-05-03,2021-05-07,Type II DM
+15145,villupuram,65,M,,,2021-05-02,2021-05-03,2021-05-07,"Type II DM, SHTN"
+15146,chennai,79,M,,,2021-04-22,2021-05-01,2021-05-07,"Complaints of Cough for 2 days, Difficulty in breathing for 5 days died on 01.05.2021 at 06.45 PM due to COVID-19 Pneumonia."
+15147,dindigul,75,M,,,2021-04-27,2021-05-05,2021-05-07,DM
+15148,thiruvallur,65,M,,,2021-05-01,2021-05-04,2021-05-07,"DM, CAD"
+15149,thirupathur,54,F,,,2021-04-27,2021-05-01,2021-05-07,SHTN
+15150,chennai,73,M,,,2021-04-22,2021-05-02,2021-05-07,Type II DM
+15151,chennai,87,M,,,2021-04-26,2021-05-05,2021-05-07,Old CVA
+15152,chennai,93,M,,,2021-04-25,2021-05-04,2021-05-07,"CAD, HTN,DM"
+15153,chennai,66,M,,,2021-04-29,2021-05-03,2021-05-07,Type II DM
+15154,chennai,68,M,,,2021-05-02,2021-05-03,2021-05-07,"Complaints of Fever for 7 days, Cough for 10 days, Difficulty in breathing for 6 days died on 03.05.2021 at 01.50 AM due to COVID-19 Pneumonia. 24*7 Control Room: 044-29510400, 044-29510500, 9444340496, 8754448477 District Control Room – 1077. Toll Free Number – 1800 1205 55550 www.stopcorona.tn.gov.in"
+15155,madurai,73,F,,,2021-04-29,2021-05-05,2021-05-07,"SHTN, CAD"
+15156,chennai,84,M,,,2021-04-21,2021-05-04,2021-05-07,"DM, HTN, Parkinsons disease, Hypothyroidism"
+15157,trichy,68,M,,,2021-04-20,2021-05-05,2021-05-07,"T2DM, SHTN"
+15158,kanyakumari,80,M,,,2021-04-28,2021-05-05,2021-05-07,"T2DM, OLD CVA"
+15159,thiruvallur,62,M,,,2021-04-15,2021-05-05,2021-05-07,"DM, HTN"
+15160,chengalpattu,83,F,,,2021-04-28,2021-05-05,2021-05-07,"DM, HTN,"
+15161,chengalpattu,86,M,,,2021-05-02,2021-05-05,2021-05-07,DM
+15162,thiruvallur,56,F,,,2021-05-03,2021-05-04,2021-05-07,"CAD, HTN,DM"
+15163,madurai,41,M,,,2021-04-28,2021-05-05,2021-05-07,HODGKIN's Lymphoma
+15164,salem,71,M,,,2021-04-28,2021-05-05,2021-05-07,Type II DM
+15165,namakkal,65,F,,,2021-05-01,2021-05-03,2021-05-07,Complaints of Difficulty in breathing for 4 days died on 03.05.2021 at 12.45 PM due to COVID-19 Pneumonia.
+15166,chennai,63,M,,,2021-05-03,2021-05-04,2021-05-07,Old CVA
+15167,karur,56,M,,,2021-04-30,2021-05-05,2021-05-07,"DM, SHTN"
+15168,erode,65,F,,,2021-04-28,2021-05-03,2021-05-07,"Complaints of Fever for 2 days and Difficulty in breating for 5 days died on 03.05.2021 at 11.25 PM due to COVID-19 Pneumonia. 24*7 Control Room: 044-29510400, 044-29510500, 9444340496, 8754448477 District Control Room – 1077. Toll Free Number – 1800 1205 55550 www.stopcorona.tn.gov.in Death in Government health facilities (Other Government Institutions like Railway Hospitals, ESI hospitals) due to comorbidities"
+15169,salem,63,M,,,2021-04-25,2021-05-06,2021-05-07,Type 2 DM
+15170,chennai,69,M,,,2021-04-23,2021-05-05,2021-05-07,"Type II DM, SHT, CAD, hypothyroid"
+15171,chennai,67,M,,,2021-04-24,2021-05-06,2021-05-07,HTN
