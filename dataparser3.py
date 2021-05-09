@@ -1076,9 +1076,9 @@ def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full
 
 
 #cache this to avoid repeated file reads
-# ~ global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
-# ~ global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
-# ~ global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
+global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
+global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
   
 def highlight(text):
   highlight_begin=colorama.Back.BLACK+colorama.Fore.WHITE+colorama.Style.BRIGHT
@@ -1416,46 +1416,20 @@ def cartogram_date(date='09_20_2020',window_size=3,plot_base=False,verbose=True,
 def chloropleth_data():
     data=[]
     states=list(state_name_to_code.keys());states.sort()
+    # ~ print(states)
+    for st in ['Sikkim','Dadra and Nagar Haveli and Daman and Diu','Ladakh','Mizoram','Tripura','Nagaland']: states.remove(st)
+    metric={}
     for state in tqdm.tqdm(states):
-        x=get_cases(state,case_type='active',return_full_series=True)
-        dates,active=zip(*x)
-        active=moving_average(active)
-        # ~ confirmed_delta=moving_average(np.diff(confirmed));dates=dates[1:]
-        # ~ x=confirmed_delta
-        x=active
-        for i in range(8,len(x)):#weekly change
-            last=x[i-7]
-            if last==0: continue
-            percent_change=(x[i]-x[i-7]) / float(x[i-7])
-            percent_change*=100
-            # ~ if state=='Andhra Pradesh' and dates[i]==datetime.datetime(2021, 2, 17, 0,0):
-              # ~ print(x[i],x[i-7],state,dates[i])
-        #    sstate=state.replace('Odisha','Orissa').replace('Uttarakhand','Uttaranchal').replace(' Islands','')
-            data.append((state,dates[i],percent_change))
-    d2={}
-    for i in data:
-        st,d,p=i
-        if d in d2:
-            d2[d][st]=p
-        else:
-            d2[d]={st:p}
-    d2_orig=d2.copy()
-    # ~ #normalize d2
-    for date in d2:
-        ddict=d2[date]
-        states,values=zip(*list(ddict.items()))
-        vmax=np.max(values)
-        vmin=np.abs(np.min(values))
-        values2=[]
-        for v in values:
-            if v>0: values2.append(v/vmax)
-            if v<0: values2.append(v/vmin)
-        values=values2
-        ddict2={}
-        for i,j in zip(states,values2):
-            ddict2[i]=j
-        d2[date]=ddict2
-    return data,d2,d2_orig
+        x=get_positivity(state)
+        try:
+          metric[state]=x[-1][1]/x[-11][1]
+        except:
+          print('failed for '+state)
+          continue
+        # ~ print(state)
+            # ~ data.append((state,dates[i],percent_change))
+  
+    return metric
 
 def vaccination_chloropleth(upto='apr29',multiple=1):  
   mar1=parse_mohfw_bulletin('bulletins/vaccination/mar01.pdf')[2]
@@ -2515,6 +2489,7 @@ def get_pfr(state='Tamil Nadu',start='',end='',date_type='',do_moving_average=Fa
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   if state=='Tamil Nadu':    deaths=tamil_nadu_parse_csv()
   elif state=='Kerala':    deaths=kerala_parse_csv()
+  elif state=='Karnataka':    deaths=karnataka_parse_csv();print('ka')
   dd={}
   if start:
     deaths=[i for i in deaths if i.date_of_death>=start]
