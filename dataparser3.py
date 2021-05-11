@@ -2453,7 +2453,7 @@ def tamil_nadu_parse_cases(analysis=False,plot=True):
     
   return out
 def tamil_nadu_parse_csv():
-  r=csv.reader(open('csv_dumps/TN_fatalities_Jul1_Mar13_2021.csv'))
+  r=csv.reader(open('csv_dumps/TN_fatalities_Jul1_May10_2021.csv'))
   info=[]
   for i in r: info.append(i)
   info=info[1:]
