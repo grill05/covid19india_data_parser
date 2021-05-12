@@ -3657,6 +3657,7 @@ def simplify_json():
   print('wrote simplified.json from state_test_data.json removing empty fields')
 
 def karnataka_predict_vaccination_perct_45plus(base=85,delay=7,pop_multiple=1.15):
+  
   y=helper_get_mean_deaths(filter_type='percent45plus',date_type='admission',state='Karnataka')#,startdate=datetime.date(2021,3,1,0,0))
   datesd,pd45plus=zip(*y)
   dates,v,v2,p60plus,p45plus=zip(*karnataka_parse_vaccination(multiple=pop_multiple))
@@ -3688,7 +3689,7 @@ def karnataka_predict_vaccination_perct_45plus(base=85,delay=7,pop_multiple=1.15
   pylab.title(title);  pylab.savefig(TMPDIR+title+'.jpg',dpi=100);pylab.close();print('saved '+TMPDIR+title+'.jpg')
   
   
-def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,2,20),enddate=datetime.date(2021,5,10),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True,capital_district=''):
+def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,2,20),enddate=datetime.date(2021,5,10),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True,capital_district='',find_cis=False):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   if not deaths:
     if state=='Tamil Nadu': deaths=tamil_nadu_parse_csv() ;print('loaded TN fatality data from csv')
@@ -3696,7 +3697,7 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
     elif state=='Karnataka': deaths=karnataka_parse_csv();print('loaded KA fatality data from csv')
     elif state=='Chhattisgarh': deaths=chhattisgarh_parse_csv();print('loaded CT fatality data from csv')
     else: print('State is not TN/KL and no deaths data given to function');return
-      
+  import scipy.stats as st    
   d1=startdate
   d2=enddate
   delta=d2-d1
@@ -3873,12 +3874,22 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
         if not ignore_capital:
           if d1: m1=numpy.mean(d1)
           if d2: m2=numpy.mean(d2)
-        if d: m=numpy.mean(d)
+        if d: 
+          m=numpy.mean(d)
+          # ~ print(d),print(m)
+          if find_cis:
+            cis=[]
+            if type(d)==list:
+              cis=st.t.interval(0.95, len(d)-1, loc=np.mean(d), scale=st.sem(d))
+              # ~ cis=d
       if m :
-        if not ignore_capital:
+        if not ignore_capital:          
           mean_values.append((dd,m,m1,m2))
         else:
-          mean_values.append((dd,m))
+          if find_cis:
+            mean_values.append((dd,m,cis))
+          else:
+            mean_values.append((dd,m))
       # ~ print('got for %s' %(dd.strftime('%d-%m')))
   if plot:
     pylab.close()
@@ -3890,7 +3901,10 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
       if not ignore_capital:
         dates,m,m1,m2=zip(*mean_values)
       else:
-        dates,m=zip(*mean_values)
+        if find_cis:
+          dates,m,cis=zip(*mean_values)
+        else:
+          dates,m=zip(*mean_values)
     except: 
       print(mean_values);return
     xlabel='';ylabel='';title=''
@@ -3927,6 +3941,13 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
       dates,m=zip(*xx)
     #mean age vs time
     ax.plot_date(pylab.date2num(dates),m,label=label);
+    if find_cis:
+      for idx in range(len(dates)):
+        date=pylab.date2num(dates[idx]);
+        ci=cis[idx]
+        if len(ci)>1:
+          try: ax.fill_between(date, ci[0], ci[1], color='grey', alpha=.1) 
+          except: print('ci plot failed for '+str(idx)) 
     title=label+' for '+state
     pylab.xlabel(xlabel);pylab.ylabel(label);pylab.title(title);
     if plot_linear_fit:
@@ -3959,7 +3980,7 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
       ax.legend(fontsize=7)
       pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
 
-
+  # ~ print('returning mean_v')
   return mean_values
 
 def kerala_parse_deaths(format_type='new'):  
