@@ -56,7 +56,7 @@ karnataka_districts_map={'bagal':'bagalkote','balla':'ballari','chikkam':'chikka
 
 pop_growth_multiples={'Chhattisgarh': 1.15, 'Karnataka': 1.15,'Tamil Nadu': 1.07,
                       'Kerala': 1.043,'Delhi': 1.23,'Maharashtra':1.114,'Uttar Pradesh':1.201,
-                      'Rajasthan': 1.207,'Gujarat': 1.19,'West Bengal': 1.06,}
+                      'Rajasthan': 1.207,'Gujarat': 1.19,'West Bengal': 1.06,'Punjab': 1.11}
 def parse_census_district(state='Karnataka',district='Bengaluru Urban',metric='urban'):
     import csv;r=csv.reader(open('india-districts-census-2011.csv'));info=[]
     for i in r :info.append(i)
@@ -376,7 +376,7 @@ def estimate_state_vaccination_timeseries(state='ct',vaccination_type='over60fir
     if state in pop_growth_multiples:
       pop_multiple=pop_growth_multiples[state]
     else:
-      pop_multiple=1.10;print('no growth mutiple known for %s. Using standard 10% growth estimate (post 2011)' %(state))
+      pop_multiple=1.10;print('no growth mutiple known for %s. Using standard 10%% growth estimate (post 2011)' %(state))
   r=csv.reader(open('csv_dumps/national_vaccination_timeseries.csv'))
   info=[]
   for i in r: info.append(i)
@@ -401,7 +401,9 @@ def estimate_state_vaccination_timeseries(state='ct',vaccination_type='over60fir
     
   #Fraction is obtained nationally above, now apply to state-specific timeseries to get estimate
   
-  dates2,xx,cumstatedoses=zip(*vaccination_state(state))
+  y2=vaccination_state(state)
+  y2=[i for i in y2 if i[0]<datetime.datetime(2021,5,5,0,0)]
+  dates2,xx,cumstatedoses=zip(*y2)
   
   predict=np.int_(frac*np.array(cumstatedoses))
   
@@ -518,7 +520,7 @@ def parse_census(state='Tamil Nadu',metric='mean age'):
       male=int(data[3])
       return (100*float(male)/tot,male,tot,data)
 
-def get_cases_global(country='India',case_type='confirmed',do_moving_average=True):
+def get_cases_global(country='India',case_type='confirmed',do_moving_average=True,plot=False,plot_days=''):
     import csv
     fname='time_series_covid19_confirmed_global.csv'
     if case_type.startswith('deaths'): fname=fname.replace('confirmed','deaths')
@@ -536,6 +538,17 @@ def get_cases_global(country='India',case_type='confirmed',do_moving_average=Tru
         cdata=np.append(np.array([0]),cdata)
     if do_moving_average:
       cdata=moving_average(cdata)
+    
+    if plot:
+      c=np.diff(cdata)
+      dates=dates[1:]
+      if plot_days: c=c[-1*plot_days:];dates=dates[-1*plot_days:]
+      sp,ax=pylab.subplots()
+      locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator);
+      ax.xaxis.set_major_locator(locator);ax.xaxis.set_major_formatter(formatter)
+      ax.plot_date(dates,c,label='New daily cases in '+country+' (7-day MA)')
+      pylab.xlabel('Date');pylab.ylabel('New cases');pylab.title('New daily cases in '+country+' (7-day MA)');pylab.legend()
+      pylab.savefig(TMPDIR+'New daily cases in '+country+' (7-day MA).jpg');pylab.close()
 
     return (dates,cdata)
 
@@ -1074,11 +1087,12 @@ def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full
     if verbose: print(('Deaths in %s on %s were %d' %(state,date,deaths_day)))
     return deaths_day
 
-
+global_karnataka_case_series='';global_karnataka_case_date_series='';global_karnataka_case_number_series=''
 #cache this to avoid repeated file reads
-global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
-global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
-global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
+if 'covid19india_data_parser' in os.path.abspath('.'):
+  global_karnataka_case_series=get_cases(state='Karnataka',case_type='confirmed',return_full_series=True,verbose=False)
+  global_karnataka_case_date_series=[i[0] for i in global_karnataka_case_series]
+  global_karnataka_case_number_series=[i[1] for i in global_karnataka_case_series]
   
 def highlight(text):
   highlight_begin=colorama.Back.BLACK+colorama.Fore.WHITE+colorama.Style.BRIGHT
@@ -3605,6 +3619,9 @@ def karnataka_parse_csv(old=False):
     r=csv.reader(open('csv_dumps/karnataka_fatalities_truncated_Feb15_May05.csv'))
   for i in r: info.append(i);
   info=info[1:];fatalities=[]
+  try: assert(global_karnataka_case_series!='')
+  except AssertionError:
+    print('For ka parse csv to work, global_karnataka_case_series must be defined')
   for row in info[2:]:
     try:
       patient_number=row[0]
@@ -3671,7 +3688,7 @@ def karnataka_predict_vaccination_perct_45plus(base=85,delay=7,pop_multiple=1.15
   pylab.title(title);  pylab.savefig(TMPDIR+title+'.jpg',dpi=100);pylab.close();print('saved '+TMPDIR+title+'.jpg')
   
   
-def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,3,1),enddate=datetime.date(2021,5,10),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True):
+def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,2,20),enddate=datetime.date(2021,5,10),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True,capital_district=''):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   if not deaths:
     if state=='Tamil Nadu': deaths=tamil_nadu_parse_csv() ;print('loaded TN fatality data from csv')
@@ -3695,6 +3712,8 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
   if state=='Tamil Nadu':capital='chennai';outside='RoTN'
   elif state=='Kerala':capital='Thiruvananthapuram';outside='RoKL'
   elif state=='Karnataka':capital='Bengaluru';outside='RoKA'
+  
+  if capital_district: capital=capital_district;print('setting capital to '+capital_district)
 
   for dd in datetimes:
     d='';d1='';d2=''
@@ -3932,8 +3951,10 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
   
       #chn and rotn
       ax.plot_date(pylab.date2num(dates),m1,label=label+'('+capital+')');
-      ax.plot_date(pylab.date2num(dates),m2,label=label+' ('+outside+')');
-      title=label+' for '+capital+' and '+outside+' (over time)'
+      # ~ ax.plot_date(pylab.date2num(dates),m2,label=label+' ('+outside+')');
+      ax.plot_date(pylab.date2num(dates),m,label=label+' ('+state+')');
+      # ~ title=label+' for '+capital+' and '+outside+' (over time)'
+      title=label+' for '+capital+' and '+state+' (over time)'
       pylab.xlabel(xlabel);pylab.ylabel(label);pylab.title(title);
       ax.legend(fontsize=7)
       pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
