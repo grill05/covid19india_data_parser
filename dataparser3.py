@@ -3689,7 +3689,7 @@ def karnataka_predict_vaccination_perct_45plus(base=85,delay=7,pop_multiple=1.15
   pylab.title(title);  pylab.savefig(TMPDIR+title+'.jpg',dpi=100);pylab.close();print('saved '+TMPDIR+title+'.jpg')
   
   
-def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,2,20),enddate=datetime.date(2021,5,10),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True,capital_district='',find_cis=False):
+def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,2,20),enddate=datetime.date(2021,5,1),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True,capital_district='',find_cis=False):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   if not deaths:
     if state=='Tamil Nadu': deaths=tamil_nadu_parse_csv() ;print('loaded TN fatality data from csv')
@@ -3942,12 +3942,16 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
     #mean age vs time
     ax.plot_date(pylab.date2num(dates),m,label=label);
     if find_cis:
-      for idx in range(len(dates)):
-        date=pylab.date2num(dates[idx]);
-        ci=cis[idx]
-        if len(ci)>1:
-          try: ax.fill_between(date, ci[0], ci[1], color='grey', alpha=.1) 
-          except: print('ci plot failed for '+str(idx)) 
+      ci0=[i[0] for i in cis]
+      ci1=[i[1] for i in cis]
+      ax.fill_between(pylab.date2num(dates), ci0, ci1, color='grey', alpha=.35,label='95%% CI') 
+      # ~ for idx in range(len(dates)):
+        # ~ date=pylab.date2num(dates[idx]);
+        # ~ ci=cis[idx]
+        # ~ if len(ci)>1:
+          # ~ ax.fill_between(date, ci[0], ci[1], color='grey', alpha=.1) 
+          # ~ try: ax.fill_between(date, ci[0], ci[1], color='grey', alpha=.1) 
+          # ~ except: print('ci plot failed for '+str(idx)) 
     title=label+' for '+state
     pylab.xlabel(xlabel);pylab.ylabel(label);pylab.title(title);
     if plot_linear_fit:
@@ -3955,7 +3959,12 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
     
     
     if draw_vline:
-      pylab.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(m),max(m),color='xkcd:rose',label='Elderly vaccinations begin',linestyle='dashed',linewidth=4)
+      if find_cis:
+        ci0=[i[0] for i in cis]
+        ci1=[i[1] for i in cis]
+        pylab.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(ci0),max(ci1),color='xkcd:rose',label='Elderly vaccinations begin',linestyle='dashed',linewidth=4)
+      else:
+        pylab.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(m),max(m),color='xkcd:rose',label='Elderly vaccinations begin',linestyle='dashed',linewidth=4)
 
     ax.legend(fontsize=7)
     pylab.savefig(TMPDIR+title+'.jpg');#pylab.show();
