@@ -414,8 +414,9 @@ def estimate_state_vaccination_timeseries(state='ct',vaccination_type='over60fir
   elif vaccination_type=='over45firstdoses':
     predict_percent=100*(np.float_(predict)/(parse_census(state,'above45')[0]*pop_multiple))
   
+  predict_percent_unvaccinated=100-predict_percent
   
-  return list(zip(dates2,predict,predict_percent))
+  return list(zip(dates2,predict,predict_percent,predict_percent_unvaccinated))
   
 
   
@@ -3656,9 +3657,9 @@ def simplify_json():
   json.dump(x,a);a.close()
   print('wrote simplified.json from state_test_data.json removing empty fields')
 
-def karnataka_predict_vaccination_perct_45plus(base=85,delay=7,pop_multiple=1.15):
-  
-  y=helper_get_mean_deaths(filter_type='percent45plus',date_type='admission',state='Karnataka')#,startdate=datetime.date(2021,3,1,0,0))
+def predict_vaccination_effect(state='Karnataka',percent_type='percetn45plus',base=85,delay=7,pop_multiple=1.15):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
+  y=helper_get_mean_deaths(filter_type=percent_type,date_type='admission',state=state)#,startdate=datetime.date(2021,3,1,0,0))
   datesd,pd45plus=zip(*y)
   dates,v,v2,p60plus,p45plus=zip(*karnataka_parse_vaccination(multiple=pop_multiple))
   puv=100-np.array(p45plus)
@@ -3689,15 +3690,17 @@ def karnataka_predict_vaccination_perct_45plus(base=85,delay=7,pop_multiple=1.15
   pylab.title(title);  pylab.savefig(TMPDIR+title+'.jpg',dpi=100);pylab.close();print('saved '+TMPDIR+title+'.jpg')
   
   
-def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,2,20),enddate=datetime.date(2021,5,1),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True,capital_district='',find_cis=False):
+def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,3,1),enddate=datetime.date(2021,5,1),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True,capital_district='',find_cis=False):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
+  if filter_type in ['p60','p60p','p60plus']: filter_type='percent60plus'
+  if filter_type in ['p45','p45p','p45plus']: filter_type='percent45plus'
   if not deaths:
     if state=='Tamil Nadu': deaths=tamil_nadu_parse_csv() ;print('loaded TN fatality data from csv')
     elif state=='Kerala': deaths=kerala_parse_csv();print('loaded KL fatality data from csv')
     elif state=='Karnataka': deaths=karnataka_parse_csv();print('loaded KA fatality data from csv')
     elif state=='Chhattisgarh': deaths=chhattisgarh_parse_csv();print('loaded CT fatality data from csv')
     else: print('State is not TN/KL and no deaths data given to function');return
-  import scipy.stats as st    
+  import scipy.stats as st;import statsmodels.api as sm
   d1=startdate
   d2=enddate
   delta=d2-d1
@@ -3761,7 +3764,13 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
         d1=100*float(len([i for i in d1 if i.origin in ['SARI','ILI']]))/len(d1)
         d2=100*float(len([i for i in d2 if i.origin in ['SARI','ILI']]))/len(d2)
     elif filter_type=='percent60plus': #find fraction of SARI/ILI in daily deaths on date
-      if d: d=100*float(len([i for i in d if i.age>=60]))/len(d)
+      if d: 
+        x1=len([i for i in d if i.age>=60])
+        tot=len(d)
+        if find_cis:
+          cis=100*np.array(sm.stats.proportion_confint(x1,tot))
+          
+        d=100*float(x1)/tot
       else: d=0
       if not ignore_capital:
         if d1: d1=100*float(len([i for i in d1 if i.age>=60]))/len(d1)
@@ -3769,7 +3778,12 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
         if d2: d2=100*float(len([i for i in d2 if i.age>=60]))/len(d2)
         else: d2=0
     elif filter_type=='percent45plus': #find fraction of SARI/ILI in daily deaths on date
-      if d: d=100*float(len([i for i in d if i.age>=45]))/len(d)
+      if d: 
+        x1=len([i for i in d if i.age>=45])
+        tot=len(d)
+        if find_cis:
+          cis=100*np.array(sm.stats.proportion_confint(x1,tot))
+        d=100*float(x1)/tot
       else: d=0
       if not ignore_capital:
         if d1: d1=100*float(len([i for i in d1 if i.age>=45]))/len(d1)
@@ -3777,7 +3791,8 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
         if d2: d2=100*float(len([i for i in d2 if i.age>=45]))/len(d2)
         else: d2=0
     elif filter_type=='percentupto45': #find fraction of SARI/ILI in daily deaths on date
-      if d: d=100*float(len([i for i in d if i.age<45]))/len(d)
+      if d: 
+        d=100*float(len([i for i in d if i.age<45]))/len(d)
       else: d=0
       if not ignore_capital:
         if d1: d1=100*float(len([i for i in d1 if i.age<45]))/len(d1)
@@ -3877,7 +3892,7 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
         if d: 
           m=numpy.mean(d)
           # ~ print(d),print(m)
-          if find_cis:
+          if find_cis and filter_type in ['']:
             cis=[]
             if type(d)==list:
               cis=st.t.interval(0.95, len(d)-1, loc=np.mean(d), scale=st.sem(d))
@@ -3886,7 +3901,7 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
         if not ignore_capital:          
           mean_values.append((dd,m,m1,m2))
         else:
-          if find_cis:
+          if find_cis and (type(cis)==numpy.ndarray and cis.any()) or cis:
             mean_values.append((dd,m,cis))
           else:
             mean_values.append((dd,m))
@@ -3944,7 +3959,7 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
     if find_cis:
       ci0=[i[0] for i in cis]
       ci1=[i[1] for i in cis]
-      ax.fill_between(pylab.date2num(dates), ci0, ci1, color='grey', alpha=.35,label='95%% CI') 
+      ax.fill_between(pylab.date2num(dates), ci0, ci1, color='grey', alpha=.25,label='95% CI') 
       # ~ for idx in range(len(dates)):
         # ~ date=pylab.date2num(dates[idx]);
         # ~ ci=cis[idx]
