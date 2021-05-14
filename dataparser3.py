@@ -3901,7 +3901,7 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
         if not ignore_capital:          
           mean_values.append((dd,m,m1,m2))
         else:
-          if find_cis and (type(cis)==numpy.ndarray and cis.any()) or cis:
+          if find_cis and ((type(cis)==numpy.ndarray and cis.any()) or cis):
             mean_values.append((dd,m,cis))
           else:
             mean_values.append((dd,m))
