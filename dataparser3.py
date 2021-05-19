@@ -2423,7 +2423,50 @@ def karnataka_parse_vaccination(multiple=1.15,plot=False):
     pylab.savefig(fname);pylab.close();print('saved fig to %s' %(fname))
       
   return out2
-def tamil_nadu_parse_cases(analysis=False,plot=True):
+def mumbai_parse_cases(analysis=False,plot=True):
+  r=csv.reader(open('0data/MumbaiCOVID19CasesByAge_mod.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info=info[-87:-7]; #start analyzing at 27 Jan
+  
+  dates=[datetime.datetime.strptime(i[0].replace('/21','/2021'),'%d/%m/%Y') for i in info]
+  # ~ below60cases=np.int_(i[2:][:-4])
+  below60cases=[]
+  for i in info:
+    try: below60cases.append( sum(np.int_(i[2:-4])) )
+    except: print('failed for '+str(i))
+  # ~ over60cases=np.int_(i[2:][-4:])
+  over60cases=[sum(np.int_(i[-4:])) for i in info]
+  
+  dates=dates[1:]
+  below60cases=np.diff(below60cases);over60cases=np.diff(over60cases)
+  
+  over60frac=100*(np.float_(over60cases)/(over60cases+below60cases))
+  over60frac=moving_average(over60frac)
+    
+  if plot:
+    sp,ax=pylab.subplots()
+    dt,pt=tamil_nadu_parse_cases(analysis=True,plot=False)
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
+
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Percent of 60+ in daily cases (7-day MA)')
+    ax.plot_date(dates,over60frac,label='Mumbai')
+    ax.plot_date(dt,pt,label='Tamil Nadu')
+    
+    ax.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(over60frac)-0.5,max(over60frac)+0.5,label='Elderly vaccinations begin',color='green',linestyles='dashed',linewidth=4)
+    ax.legend(fontsize=8);pylab.title("Percentage of 60+ in Mumbai and Tamil Nadu's daily cases")
+    fname=TMPDIR+'Mumbai_Tamil_nadu_elderly_cases_fraction.jpg'
+    pylab.savefig(fname);pylab.close();print('saved fig to %s' %(fname))
+    
+  return (dates,below60cases,over60cases,over60frac)
+  # ~ for i in info:
+    # ~ date=datetime.datetime.strptime(i[0].replace('/21','/2021'),'%d/%m/%Y')
+    # ~ below60cases=sum(np.int_(i[2:][:-4]))
+    # ~ over60cases=np.int_(i[2:][-4:])
+  
+def tamil_nadu_parse_cases(analysis=False,plot=True,find_cis=False):
   r=csv.reader(open('csv_dumps/TN_cases.csv'))
   info=[]
   for i in r: info.append(i)
@@ -2444,7 +2487,13 @@ def tamil_nadu_parse_cases(analysis=False,plot=True):
     c=np.diff(c)[-1*len(a60):]#[-1*len(dates):]
     
     # ~ frac=100*(np.array(moving_average(a60))/np.array(moving_average(c)))
-    frac=100*np.array(moving_average(a60/c,window_size=7))
+    frac=100*np.array(moving_average(a60/c,window_size=7))    
+    if find_cis:
+      import statsmodels.api as sm;cis=[];ci0=[];ci1=[]
+      for idx in range(len(c)):        
+        cis.append(100*np.array(sm.stats.proportion_confint(a60[idx],c[idx])))
+        ci0.append(100*np.array(sm.stats.proportion_confint(a60[idx],c[idx]))[0])
+        ci1.append(100*np.array(sm.stats.proportion_confint(a60[idx],c[idx]))[1])
     
     # ~ dates=[i for i in dates if i>= datetime.datetime(2021, 2, 1, 0, 0)]
     dates=dates[7:]
@@ -2459,10 +2508,15 @@ def tamil_nadu_parse_cases(analysis=False,plot=True):
       ax.set_ylabel('Percent of 60+ in daily cases (7-day MA)')
       ax.plot_date(pylab.date2num(dates),frac,label='Percent of 60+ in daily cases')      
       ax.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(frac)-0.5,max(frac)+0.5,label='Elderly vaccinations begin',color='green',linestyles='dashed',linewidth=4)
+      if find_cis:
+        ax.fill_between(pylab.date2num(dates), ci0[:-6], ci1[:-6], color='grey', alpha=.25,label='95% CI') 
       ax.legend(fontsize=8);pylab.title("Percentage of 60+ in Tamil Nadu's daily cases")
       fname=TMPDIR+'Tamil_nadu_elderly_cases_fraction.jpg'
       pylab.savefig(fname);pylab.close();print('saved fig to %s' %(fname))
-    return (dates,frac)
+    if find_cis:
+      return (dates,frac,cis)
+    else:
+      return (dates,frac)
     
     
     
@@ -2641,12 +2695,16 @@ def tamil_nadu_parse_clippings():
 
     
     try:
-      age=cons.split()[1]
+      age=cons.split()[1]      
     except:
       print(('error splirtting cons: '+cons+' '+str(indices[j])))
     if age.lower()=='years': age=cons.split()[0].replace('A','')
 
+    
     if not age.isdigit():
+      try: assert(age[0])
+      except:
+        print(('error splirtting cons: '+cons+' '+str(indices[j])))
       if age[0].isdigit(): #starts right but has alpha
         # ~ print 'incorrect age at index: '+str(j)+' with cons: '+cons
         # ~ return
@@ -5281,7 +5339,7 @@ def get_people_on_ventilators(state='Telangana',verbose=False):
       print(('%s : %.3f (%d on ventilator)' %(i[0],i[1],i[2])))
   return all_percent_ventilator
 
-def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
+def analysis(state='Uttar Pradesh',extra=False,plot_days='',width_days='',doboth=True):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   deaths=get_cases(state=state,case_type='deaths',return_full_series=True,verbose=False)
   deaths=[i for i in deaths if i[0]>=datetime.datetime(2020,6,1,0,0)]
@@ -5308,6 +5366,16 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',doboth=True):
       dates2=dates[-1*plot_days:]
       dates3=dates[-1*plot_days:]
       dates4=dates[-1*plot_days:]
+      
+      if width_days:
+        c=c[:width_days];
+        t=t[:width_days]
+        d=d[:width_days]
+        p=p[:width_days]
+        dates=dates[:width_days]
+        dates2=dates[:width_days]
+        dates3=dates[:width_days]
+        dates4=dates[:width_days]
   sp,ax=pylab.subplots()
     
   locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
