@@ -738,12 +738,23 @@ def get_cases_national(case_type='confirmed',return_full_series=True):
   for i in x:
     date=i['dateymd'];y=0    
     date=datetime.datetime.strptime(date,'%Y-%m-%d')
-    # ~ print(date)
+    y=''
     if case_type=='confirmed': y=int(i['dailyconfirmed'])
     elif case_type in ['deaths','death']: y=int(i['dailydeceased'])
     elif case_type in ['recovered']: y=int(i['dailyrecovered'])
     elif case_type in ['active']: y=int(i['dailyconfirmed'])-int(i['dailyrecovered'])-int(i['dailydeceased'])
-    info.append((date,y))
+    if y: info.append((date,y))
+  if case_type in ['tested','tests']:
+    x=json.load(open('national_data.json'))['tested']
+    dd=[];yy=[]
+    for i in x:
+      
+      
+      if i['totalsamplestested']: 
+        date=datetime.datetime.strptime(i['updatetimestamp'].split()[0],'%d/%m/%Y')
+        yy.append(int(i['totalsamplestested']));dd.append(date)
+    y=np.diff(yy)
+    info=list(zip(dd[1:],y))
   return info
 
 def get_testing_delta():
@@ -884,6 +895,7 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',
 
 
 def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',color2='red',draw_vline=False,plot_days=''):
+    if len(state)==2 and state in state_code_to_name: state=state_code_to_name[state];
     if plot_days:
         dates=dates[-1*plot_days:]
         dates2=dates2[-1*plot_days:]
@@ -907,9 +919,10 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
     ax.tick_params(axis='y', labelcolor=color)
     
     if draw_vline:
-      ax.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(data)-0.5,max(data)+0.5,label='Elderly vaccinations begin',color='green',linestyles='dashed',linewidth=4)
+      # ~ ax.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(data)-0.5,max(data)+0.5,label='Elderly vaccinations begin',color='green',linestyles='dashed',linewidth=4)
+      ax.vlines(pylab.date2num([datetime.datetime(2021, 5, 6, 0, 0)]),min(data),max(data)+3,label='Approximate national peak',color='grey',linestyles='dashed',linewidth=5)
     
-    ax.legend(loc='lower left',fontsize=6)
+    ax.legend(loc='upper left',fontsize=6)
 
     ax2=ax.twinx()
     color = color2
@@ -922,7 +935,7 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
     ax2.set_ylabel(label2,color=color)
     ax2.plot_date(dates2,data2,color=color,label=label2)
     ax2.tick_params(axis='y', labelcolor=color)
-    ax2.legend(loc='lower right',fontsize=6)
+    ax2.legend(loc='upper right',fontsize=6)
     
     title=''
     if state: title+=state+' '
@@ -1432,12 +1445,15 @@ def chloropleth_data():
     data=[]
     states=list(state_name_to_code.keys());states.sort()
     # ~ print(states)
-    for st in ['Sikkim','Dadra and Nagar Haveli and Daman and Diu','Ladakh','Mizoram','Tripura','Nagaland']: states.remove(st)
+    for st in ['Sikkim','Dadra and Nagar Haveli and Daman and Diu','Ladakh','Mizoram','Tripura','Nagaland','Goa']: states.remove(st)
     metric={}
     for state in tqdm.tqdm(states):
-        x=get_positivity(state)
+        # ~ x=get_positivity(state)
+        x=get_cases(state,case_type='deaths',return_full_series=True);d,x=zip(*x);x=np.diff(x);x=moving_average(x)
         try:
-          metric[state]=x[-1][1]/x[-11][1]
+          # ~ metric[state]=x[-1][1]/x[-11][1] #percent change in TPR relative to 10 days ago
+          # ~ metric[state]=x[-1][1] #abs value of TPR
+          metric[state]=x[-1]/x[-11] # percent change in daily deaths vs  10 days ago
         except:
           print('failed for '+state)
           continue
@@ -4478,7 +4494,8 @@ def karnataka_parse_deaths(bulletin='09_09_2020.pdf',bulletin_date=datetime.date
       
   
 def karnataka_parse_deaths_restricted(bulletin='09_09_2020.pdf',bulletin_date=datetime.datetime(2020, 9, 9, 0, 0),page_range='',stop_debug=''):
-  if stop_debug and (not page_range): #means coming from debug
+  # ~ if stop_debug and (not page_range): #means coming from debug
+  if (not page_range): #means coming from debug
     (bulletin_date,annex_range)=karnataka_bulletin_parser(bulletin,return_date_only=True)
     page_range=annex_range['deaths']
     
@@ -4527,7 +4544,7 @@ def karnataka_parse_deaths_restricted(bulletin='09_09_2020.pdf',bulletin_date=da
         elif last_entry.lower().startswith('under'): origin='UNKN'
         elif last_entry.lower().startswith('sari'): origin='SARI'
         elif last_entry.lower().startswith('ILI'): origin='ILI'
-        if age.lower().startswith('mont'):age='1'
+        if age.lower().startswith(('mont','mo','3m')):age='1'
         patient_numbers.append(patient_number);ages.append(age);genders.append(gender);origins.append(origin)
       
       elif last_entry.lower().startswith('mo'):#age is in months
@@ -4545,7 +4562,7 @@ def karnataka_parse_deaths_restricted(bulletin='09_09_2020.pdf',bulletin_date=da
     patient_number=i.split()[0];age=i.split()[1]
     gender=i.split()[2];origin=i.split()[3]
     if 'under' in origin or 'contact' in origin or 'trac' in origin: origin='CONT'
-    if age.lower().startswith('mont'):age='1'
+    if age.lower().startswith(('mont','mo','3m')):age='1'
     patient_numbers.append(patient_number);ages.append(age);genders.append(gender);origins.append(origin)
 
   if stop_debug=='origin':
@@ -4561,25 +4578,30 @@ def karnataka_parse_deaths_restricted(bulletin='09_09_2020.pdf',bulletin_date=da
 
   b=[i.lower().replace('hospital','').replace('at ','') for i in open('tmp.txt').readlines()]
   b=[i.strip() for i in b if i.strip() and not ('page' in i and 'of' in i) and i.strip()[0].isnumeric() and ('-' in i or '/' in i) ]
-  b=[i.replace('-21','-2021').replace('26/4/21','26-04-2021').replace('25/4/21','25-04-2021').replace('4/18/','18-04-').replace('4/16/','16-04-').replace('4/19/','19-04-').replace('4/17/','17-04-').replace('4/20/','20-04-').replace('4/28/','28-04-').replace('4/21/','21-04-').replace('4/22/','22-04-').replace('4/24/','24-04-').replace('4/23/','23-04-').replace('4/25/','25-04-').replace('4/26/','26-04-').replace('4/27/','27-04-').replace('4/28/','28-04-').replace('4/30/','30-04-').replace('27/04/21','27-04-2021').replace('gàazàä','').replace('ªàägàtzà','').replace('¸àéuàèºàzà°','') for i in b];#correct common errors
+  b=[i.replace('-21','-2021').replace('26/4/21','26-04-2021').replace('25/4/21','25-04-2021').replace('4/18/','18-04-').replace('4/16/','16-04-').replace('4/19/','19-04-').replace('4/17/','17-04-').replace('4/20/','20-04-').replace('4/28/','28-04-').replace('4/21/','21-04-').replace('4/22/','22-04-').replace('4/24/','24-04-').replace('4/23/','23-04-').replace('4/25/','25-04-').replace('4/26/','26-04-').replace('4/27/','27-04-').replace('4/28/','28-04-').replace('4/30/','30-04-').replace('27/04/21','27-04-2021').replace('gàazàä','').replace('ªàägàtzà','').replace('¸àéuàèºàzà°','').replace('-20221','-2021').replace('-201','-2021') for i in b];#correct common errors
   # ~ doubles=[i.split() for i in b if len(i.split())>1]
   # ~ singles=[i.split() for i in b if len(i.split())==1]
    
   dates_of_admission=[];dates_of_death=[]
   for i in b:
+    if '/2021' in i: i=i.replace('/','-');  #print(i)
+    elif '.2021' in i: i=i.replace('.','-');  #print(i)
     i=i.split()
+    
+    if len(i)==3:
+      if i[1]=='021': i[0]+='021';i.pop(1)
     if len(i)==1:
       try:
         doa=datetime.datetime.strptime(i[0],'%d-%m-%Y')
       except:
-        print('error converting doa '+i[0])
+        print('error converting doa '+i[0]+' : '+i)
         return
       dates_of_admission.append(doa);dates_of_death.append(doa)
     else:
       try:
         doa=datetime.datetime.strptime(i[0],'%d-%m-%Y')
       except:
-        print('error converting doa '+i[0])
+        print('error converting doa '+i[0]+' '+str(i))
         return
       try:
         dod=datetime.datetime.strptime(i[1].replace('.','-'),'%d-%m-%Y')
@@ -5178,6 +5200,13 @@ def get_positivity_national(do_moving_average=True,plot=False,plot_days=''):
   
 def get_positivity(state='Karnataka',do_moving_average=True,plot=False,plot_days=''):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
+  if state in ['','national','India']:
+    d,cases=zip(*get_cases_national('confirmed'))
+    d,tests=zip(*get_cases_national('tests'))
+    if do_moving_average:
+      cases=moving_average(cases[-360:]);tests=moving_average(tests[-360:])
+      tpr=100*(np.array(cases)/np.array(tests))
+      return list(zip(d[-360:],tpr))
   cases_cum=get_cases(state=state,case_type='confirmed',return_full_series=True,verbose=False)
   d=[i[0] for i in cases_cum][1:]
   c=numpy.diff([i[1] for i in cases_cum])
@@ -5407,42 +5436,44 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',width_days='',doboth
   #pylab.savefig(TMPDIR+state+' daily cases vs daily deaths.jpg',dpi=150)
   pylab.savefig(TMPDIR+state+' daily cases vs daily deaths.jpg',bbox_inches='tight')
   pylab.close()
+  
+  sp,ax=pylab.subplots()
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  # ~ formatter = mdates.ConciseDateFormatter(locator)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax.xaxis.set_major_locator(locator)
+  ax.xaxis.set_major_formatter(formatter) 
+
+  color = 'tab:blue'
+  ax.set_xlabel('Date')
+  ax.set_ylabel(state+' new daily cases (7-day MA)',color=color)
+  ax.plot_date(dates,c,color=color,label=state+' new daily cases (7-day MA)')
+  ax.tick_params(axis='y', labelcolor=color)
+  ax.legend(loc='lower left',fontsize=5);
+
+  ax2=ax.twinx()
+  locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+  # ~ formatter = mdates.ConciseDateFormatter(locator)
+  formatter = mdates.ConciseDateFormatter(locator)
+  ax2.xaxis.set_major_locator(locator)
+  ax2.xaxis.set_major_formatter(formatter) 
+
+  color = 'tab:green'
+  ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
+  ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
+  ax2.tick_params(axis='y', labelcolor=color)
+  ax2.legend(loc='lower right',fontsize=5);
+  sp.tight_layout()
+
+  title=state+' daily cases vs TPR'
+  pylab.title(title);  
+  #pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',dpi=150)
+
+  pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',bbox_inches='tight')
+  pylab.close()
 
   if doboth:
-    sp,ax=pylab.subplots()
-    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.ConciseDateFormatter(locator)
-    ax.xaxis.set_major_locator(locator)
-    ax.xaxis.set_major_formatter(formatter) 
 
-    color = 'tab:blue'
-    ax.set_xlabel('Date')
-    ax.set_ylabel(state+' new daily cases (7-day MA)',color=color)
-    ax.plot_date(dates,c,color=color,label=state+' new daily cases (7-day MA)')
-    ax.tick_params(axis='y', labelcolor=color)
-    ax.legend(loc='lower left',fontsize=5);
-
-    ax2=ax.twinx()
-    locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-    # ~ formatter = mdates.ConciseDateFormatter(locator)
-    formatter = mdates.ConciseDateFormatter(locator)
-    ax2.xaxis.set_major_locator(locator)
-    ax2.xaxis.set_major_formatter(formatter) 
-
-    color = 'tab:green'
-    ax2.set_ylabel(state+' Test Positivity Rate (7-day MA)',color=color)
-    ax2.plot_date(dates3,p,color=color,label=state+' TPR (7-day MA)')
-    ax2.tick_params(axis='y', labelcolor=color)
-    ax2.legend(loc='lower right',fontsize=5);
-    sp.tight_layout()
-
-    title=state+' daily cases vs TPR'
-    pylab.title(title);  
-    #pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',dpi=150)
-
-    pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',bbox_inches='tight')
-    pylab.close()
 
     sp,ax=pylab.subplots()
 
