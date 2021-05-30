@@ -610,7 +610,7 @@ def get_mortality_rate(state='Tamil Nadu',district='',return_full_series=False,d
       pylab.savefig(TMPDIR+title+'.jpg');pylab.close()
     return x
 
-def helper_get_pdf_urls(state='Tamil Nadu',start='15-03-2021',end='30-04-2021',write=True):
+def helper_get_pdf_urls(state='Tamil Nadu',start='15-03-2021',end='30-04-2021',alllinks=False,write=True):
     if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
     start=datetime.datetime.strptime(start,'%d-%m-%Y')
     end=datetime.datetime.strptime(end,'%d-%m-%Y')
@@ -618,11 +618,11 @@ def helper_get_pdf_urls(state='Tamil Nadu',start='15-03-2021',end='30-04-2021',w
     x=[i for i in x if i['state']==state]
     y=[i for i in x if datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')>=start and datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')<=end]
     y=[(i['source1'],datetime.datetime.strptime(i['updatedon'],'%d/%m/%Y')) for i in y]
-    y2=[i[0] for i in y if '.pdf' in i[0]]
+    y2=[i[0] for i in y]
+    if not alllinks: y2=[i for i in y2 if '.pdf' in i]
     
     y3=[i[1].strftime('%d-%m-%Y') for i in y if '.pdf' not in i[0]]
-    if state=='Karnataka': 
-      y2=[i[0] for i in y]
+    if state=='Karnataka':       
       y3=[i for i in y if 't.co/' not in i]
     if not y3: y3='got pdf for all days between %s and %s' %(start.strftime('%d-%m'),end.strftime('%d-%m'))
     a=open('urls.txt','w')
@@ -1225,23 +1225,28 @@ def delhi_parse_csv():
 
     return info
     
-def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
+def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False,restricted_parse=True,debug=False):
   cmd='pdftotext -layout "'+bulletin+'" tmp.txt';os.system(cmd)
   b=[i.strip() for i in open('tmp.txt').readlines() if i.strip()]
 
-  date_string=[i for i in b if '2020' in i]
+  date_string=[i for i in b if '2020' in i or '2021' in i]
   if not date_string:
     print(('could not find date for bulletin ',bulletin))
     return
   date_string=date_string[0].lower()
+  if debug: print('date_string: ',date_string)
   try:
     if '/' in date_string:
-      date_string=date_string.split('/')[1].replace(')','').replace('(','').replace(',',' ').replace('2020',' ').strip()
+      date_string=date_string.split('/')[1].replace(')','').replace('(','').replace(',',' ').replace('2021',' ').strip()
     else:
-      date_string=date_string.replace(')','').replace('(','').replace(',',' ').replace('2020',' ').strip()
+      date_string=date_string.replace(')','').replace('(','').replace(',',' ').replace('2021',' ').strip()
   except:
     print(('error getting date for bulletin: '+bulletin+' with string: '+date_string))
-  print(date_string)
+  
+  # ~ date_string=date_string.replace('st','').replace('nd','').replace('rd','').replace('th','')
+  if debug: print('date_string: ',date_string)
+  
+  
   if len(date_string.split())==1: #all jumbled        
     for mm in ['june','july','august','september','october','november']: date_string=date_string.replace(mm,'')
     day=date_string
@@ -1255,14 +1260,10 @@ def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
   day=int(day)
   
   
-  month=9
-  if 'august' in month_string: month=8
-  elif 'october' in month_string: month=10
-  elif 'november' in month_string: month=11
-  elif 'july' in month_string: month=7
-  elif 'june' in month_string: month=6
-
-  date=datetime.datetime(2020,month,day,0,0)
+  month=0
+  month={'december':12,'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,'july':7}.get(month_string)
+  
+  date=datetime.datetime(2021,month,day,0,0)
 
   if return_date_only: return date
 
@@ -1272,48 +1273,52 @@ def delhi_bulletin_parser(bulletin='09_15_2020.pdf',return_date_only=False):
     return
   hos=hos[0];hos_capacity=hos.split()[-3];hos_used=hos.split()[-2];
 
-  dcc=[i for i in b if i.lower().startswith('dedicated covid care centre')]
-  if not dcc:
-    print(('could not find data in bulletin %s for DCCC' %(bulletin)))
-    return
-  dcc=dcc[0];dcc_capacity=dcc.split()[-3];dcc_used=dcc.split()[-2];
-
-  dchc=[i for i in b if i.lower().startswith('dedicated covid health')]
-  if not dchc:
-    print(('could not find data in bulletin %s for DCHC' %(bulletin)))
-    return
-  dchc=dchc[0];dchc_capacity=dchc.split()[-3];dchc_used=dchc.split()[-2];
-
-  tt=[i for i in b if i.lower().startswith('tests conducted today')]  
-  rtpcr=0;rapid=0;total=0
-  if tt: #old type
-    total=tt[0].split()[-1]
-    total=int(total)
+  if restricted_parse:
+    dcc_capacity='0';dcc_used='0';dchc_capacity='0';dchc_used='0';
+    total='0';rtpcr='0';rapid='0';cz='0';amb='0'
   else:
-    rtpcr=[i for i in b if i.lower().startswith('rtpcr')]
-    if not rtpcr:
-      print(('could not find data in bulletin %s for RTPCR' %(bulletin)))
+    dcc=[i for i in b if i.lower().startswith('dedicated covid care centre')]
+    if not dcc:
+      print(('could not find data in bulletin %s for DCCC' %(bulletin)))
       return
-    rtpcr=rtpcr[0].split()[-1]
-
-    rapid=[i for i in b if i.lower().startswith('rapid antigen')]
-    if not rapid:
-      print(('could not find data in bulletin %s for rapid tests' %(bulletin)))
+    dcc=dcc[0];dcc_capacity=dcc.split()[-3];dcc_used=dcc.split()[-2];
+  
+    dchc=[i for i in b if i.lower().startswith('dedicated covid health')]
+    if not dchc:
+      print(('could not find data in bulletin %s for DCHC' %(bulletin)))
       return
-    rapid=rapid[0].split()[-1]
-    total=int(rapid)+int(rtpcr)
-
-  cz=[i for i in b if 'number of containment zones' in i.lower()]
-  if not cz:
-    print(('could not find data in bulletin %s for containment zones' %(bulletin)))
-    return
-  cz=cz[0].split()[-1].split(':')[-1].split('\x93')[-1]
-
-  amb=[i for i in b if 'ambulance' in i.lower()]
-  if not amb:
-    print(('could not find data in bulletin %s for ambulances' %(bulletin)))
-    return
-  amb=amb[0].split()[-1].split('\x93')[-1]
+    dchc=dchc[0];dchc_capacity=dchc.split()[-3];dchc_used=dchc.split()[-2];
+  
+    tt=[i for i in b if i.lower().startswith('tests conducted today')]  
+    rtpcr=0;rapid=0;total=0
+    if tt: #old type
+      total=tt[0].split()[-1]
+      total=int(total)
+    else:
+      rtpcr=[i for i in b if i.lower().startswith('rtpcr')]
+      if not rtpcr:
+        print(('could not find data in bulletin %s for RTPCR' %(bulletin)))
+        return
+      rtpcr=rtpcr[0].split()[-1]
+  
+      rapid=[i for i in b if i.lower().startswith('rapid antigen')]
+      if not rapid:
+        print(('could not find data in bulletin %s for rapid tests' %(bulletin)))
+        return
+      rapid=rapid[0].split()[-1]
+      total=int(rapid)+int(rtpcr)
+  
+    cz=[i for i in b if 'number of containment zones' in i.lower()]
+    if not cz:
+      print(('could not find data in bulletin %s for containment zones' %(bulletin)))
+      return
+    cz=cz[0].split()[-1].split(':')[-1].split('\x93')[-1]
+  
+    amb=[i for i in b if 'ambulance' in i.lower()]
+    if not amb:
+      print(('could not find data in bulletin %s for ambulances' %(bulletin)))
+      return
+    amb=amb[0].split()[-1].split('\x93')[-1]
 
   # ~ print date,hos_capacity,hos_used,dcc_capacity,dcc_used,dchc_capacity,dchc_used,total,rtpcr,rapid,cz,amb
   
