@@ -853,6 +853,16 @@ def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/
     for i in returned:
       if i[1]>=30: return i[0]
   return returned
+
+def plot_table(data,rows,columns,fontsize=15,scale=1.2):
+  pylab.close();
+  sp,ax=pylab.subplots();
+  table=pylab.table(cellText=data,rowLabels=rows,colLabels=columns,loc='center');
+  table.auto_set_font_size(False);table.set_fontsize(fontsize);
+  table.auto_set_column_width(col=list(range(1,4)));table.scale(scale,scale);
+  ax.axis('tight');ax.axis('off');
+  pylab.show();
+
 def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',color='blue',color2='red',state='',linear_fit=False,plot_days='',extrapolate='',date_label=''):
   
   if type(dates[0])==datetime.datetime: dates=pylab.date2num(dates)
@@ -1861,7 +1871,8 @@ def delhi_analysis(do='',plot_days=''):
   dhc_used=[i.dchc_used for i in do]  
   dcc_used=[i.dcc_used for i in do]
   hos_cap=[i.hos_capacity for i in do]
-
+  
+  dates0=dates
   dates=pylab.date2num(dates)
   
   tot=[i.total for i in do]
@@ -1884,170 +1895,20 @@ def delhi_analysis(do='',plot_days=''):
   hp=100*(numpy.float64(hos_used)/numpy.float64(actives))
   hc=100*(numpy.float64(hos_used)/numpy.float64(hos_cap))
 
+  hos_used=moving_average(hos_used)
+  actives=moving_average(actives)
+  deaths=moving_average(deaths)
   if plot_days:
       actives=actives[-1*plot_days:]
       hos_used=hos_used[-1*plot_days:]
       deaths=deaths[-1*plot_days:]
       dates=dates[-1*plot_days:]
       dates2=dates2[-1*plot_days:]
-      dates3=dates3[-1*plot_days:]
-  hos_used=moving_average(hos_used,3)
-  actives=moving_average(actives)
-  deaths=moving_average(deaths)
-  plot2(dates,hos_used,dates2,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
-  plot2(dates,hos_used,dates3,deaths,label1='Hospital beds used',label2='Daily Deaths',color2='red',state='Delhi')
-  #plot2(dates,hp,dates,actives,label1='Hospitalization percentage (of actives)',label2='Active Cases',color1='blue',color2='orange',state='Delhi')
-  #plot2(dates,hc,dates,hos_cap,label1='Hospitalization percentage (of actives)',label2='Hospital (DCH) capacity',color1='blue',color2='orange',state='Delhi')
-  return (dates,deaths)
-  # ~ dhp=100*(numpy.float64(dhc_used)/numpy.float64(actives))
-  # ~ ccp=100*(numpy.float64(dcc_used)/numpy.float64(actives))
-  
-  # ~ sp,ax=pylab.subplots()
-
-  # ~ color = 'tab:blue'
-  # ~ ax.set_xlabel('Date')
-  # ~ ax.set_ylabel('Hospitalization (DCH) Percent (of active cases)',color=color)
-  # ~ ax.plot_date(dates,hp,color=color,label='Hospitalization Percentage')
-  # ~ ax.tick_params(axis='y', labelcolor=color)  
-
-  # ~ ax2=ax.twinx()
-  # ~ color = 'tab:green'
-  # ~ ax2.set_ylabel('Health Center (DCHC) Percent (of active cases)',color=color)
-  # ~ ax2.plot_date(dates,dhp,color=color,label='Health Center Percentage')
-  # ~ ax2.tick_params(axis='y', labelcolor=color)
-
-  # ~ sp.tight_layout()
-
-  # ~ title='Hospitalion-percent(of actives) vs Health center percent in Delhi'
-  # ~ pylab.title(title);
-  # ~ ax2.legend(loc='upper right'); ax.legend(loc='upper left');
-  # ~ pylab.legend();
-  # ~ pylab.show()
-
-  # ~ sp,ax=pylab.subplots()
-
-  # ~ color = 'tab:blue'
-  # ~ ax.set_xlabel('Date')
-  # ~ ax.set_ylabel('Hospitalization Percent (of active cases)',color=color)
-  # ~ ax.plot_date(dates,hp,color=color,label='Hospitalization Percentage')
-  # ~ ax.tick_params(axis='y', labelcolor=color)  
-
-  # ~ ax2=ax.twinx()
-  # ~ color = 'tab:green'
-  # ~ ax2.set_ylabel('Daily Tests',color=color)
-  # ~ ax2.plot_date(dates,tot,color=color,label='Daily Tests')
-  # ~ ax2.tick_params(axis='y', labelcolor=color)
-
-  # ~ sp.tight_layout()
-
-  # ~ title='Hospitalion-percent(of actives) vs Daily-tests in Delhi'
-  # ~ pylab.title(title);
-  # ~ ax2.legend(loc='lower right'); ax.legend(loc='lower left');
-  # ~ pylab.legend();
-  # ~ pylab.show()
-
-
- 
-
-  # ~ sp,ax=pylab.subplots()
-
-  # ~ color = 'tab:blue'
-  # ~ ax.set_xlabel('Date')
-  # ~ ax.set_ylabel('Number of Containment Zones',color=color)
-  # ~ ax.plot_date(dates,cz,color=color,label='Containment Zones')
-  # ~ ax.tick_params(axis='y', labelcolor=color)  
-  # ~ ax.legend(loc='upper left');
-  
-  # ~ ax2=ax.twinx()
-  # ~ color = 'tab:orange'
-  # ~ ax2.set_ylabel('Active Cases',color=color)
-  # ~ ax2.plot_date(dates,actives,color=color,label='Active Cases')
-  # ~ ax2.tick_params(axis='y', labelcolor=color)
-  # ~ ax2.legend(loc='lower left');
-  
-  # ~ sp.tight_layout()
-
-  # ~ title='Containment-Zones vs Active-Cases in Delhi'
-  # ~ pylab.title(title);
-  # ~ ax2.legend(loc='upper right'); 
-
-  # ~ sp,ax=pylab.subplots()
-
-  # ~ color = 'tab:blue'
-  # ~ ax.set_xlabel('Date')
-  # ~ ax.set_ylabel('Hospital beds used',color=color)
-  # ~ ax.plot_date(dates,hos_used,color=color,label='Hospital Beds')
-  # ~ ax.tick_params(axis='y', labelcolor=color)  
-  # ~ ax.legend(loc='lower left');
-  
-  # ~ ax2=ax.twinx()
-  # ~ color = 'tab:red'
-  # ~ ax2.set_ylabel('Daily Deaths (7-day MA)',color=color)
-  # ~ ax2.plot_date(dates[dates_skip:],deaths[dates_skip:],color=color,label='Daily Deaths (7-day MA)')
-  # ~ ax2.tick_params(axis='y', labelcolor=color)
-  # ~ ax2.legend(loc='lower right');
-  
-  # ~ sp.tight_layout()
-
-  # ~ title='Hospital-beds-used vs Daily-deaths in Delhi'
-  # ~ pylab.title(title);
-  # ~ ax2.legend(loc='lower right'); 
-
-  # ~ sp,ax=pylab.subplots()
-
-  # ~ color = 'tab:blue'
-  # ~ ax.set_xlabel('Date')
-  # ~ ax.set_ylabel('Active Cases',color=color)
-  # ~ ax.plot_date(dates,actives,color=color,label='Active Cases')
-  # ~ ax.tick_params(axis='y', labelcolor=color)  
-  # ~ ax.legend(loc='upper left');
-  
-  # ~ ax2=ax.twinx()
-  # ~ color = 'tab:red'
-  # ~ ax2.set_ylabel('Daily Deaths (7-day MA)',color=color)
-  # ~ ax2.plot_date(dates[dates_skip:],deaths[dates_skip:],color=color,label='Daily Deaths (7-day MA)')
-  # ~ ax2.tick_params(axis='y', labelcolor=color)
-  # ~ ax2.legend(loc='lower left');
-  
-  # ~ sp.tight_layout()
-
-  # ~ title='Active-cases vs Daily-deaths in Delhi'
-  # ~ pylab.title(title);
-  # ~ ax2.legend(loc='upper right'); 
-  # ~ sp,ax=pylab.subplots()
-
-  # ~ color = 'tab:blue'
-  # ~ ax.set_xlabel('Date')
-  # ~ ax.set_ylabel('DCH(hospital) beds',color=color)
-  # ~ ax.plot_date(dates,hos_used,color=color,label='DCH(hospital) beds')
-  # ~ ax.tick_params(axis='y', labelcolor=color)  
-  # ~ ax.legend(loc='upper left');
-  
-  # ~ ax2=ax.twinx()
-  # ~ color = 'tab:red'
-  # ~ ax2.set_ylabel('DCHC(Health Center) beds',color=color)
-  # ~ ax2.plot_date(dates,dhc_used,color=color,label='DCHC(Health Center) beds')
-  # ~ ax2.tick_params(axis='y', labelcolor=color)
-  # ~ ax2.legend(loc='lower left');
-  
-  # ~ sp.tight_layout()
-
-  # ~ title='Bed Utilization in Delhi\'s Hospitals (DCH) and Health Centers (DCHC) over time'
-  # ~ pylab.title(title);
-  # ~ ax2.legend(loc='upper right'); 
-
-  # ~ ax=pylab.figure()
-  # ~ pylab.plot_date(dates,tot,label='Total tests')
-  # ~ pylab.plot_date(dates,r,label='Rapid antigen tests')
-  # ~ xlabel='Date';ylabel='Tests';title='Scale-up of Testing in Delhi over time'
-  # ~ pylab.xlabel(xlabel);pylab.ylabel(ylabel);pylab.title(title);pylab.legend()
-
-  # ~ ax=pylab.figure()
-  # ~ pylab.plot_date(dates,rp,label='Rapid tests percentage')
-  # ~ xlabel='Date';ylabel='Percent of Rapid antigen tests';title='Reliance on rapid tests in Delhi over time'
-  # ~ pylab.xlabel(xlabel);pylab.ylabel(ylabel);pylab.title(title);pylab.legend()
-  
-  return (hos_used,deaths)
+      dates3=dates3[-1*plot_days:]  
+      plot2(dates,hos_used,dates2,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
+      plot2(dates,hos_used,dates3,deaths,label1='Hospital beds used',label2='Daily Deaths',color2='red',state='Delhi')
+  # ~ return (dates,deaths)
+  return (dates0,hos_used,deaths)
   
 def update_data_files(extra=False):
   urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv','https://api.covid19india.org/data.json']
@@ -3241,8 +3102,8 @@ class mumbaihosp():
 def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=False,plot_days=''):
     if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
     import csv;info=[]
-    # ~ r=csv.reader(open('2020_IN_Region_Mobility_Report.csv'))
-    r=csv.reader(open('2021_IN_Region_Mobility_Report.csv'))
+    r=csv.reader(open('2020_IN_Region_Mobility_Report.csv'))
+    # ~ r=csv.reader(open('2021_IN_Region_Mobility_Report.csv'))
     for i in r: info.append(i);
     x=[i for i in info if i[2]==state and i[3]==district]
     y=[]
@@ -3920,6 +3781,17 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
         if not ignore_capital:
           d1=float(len(d1))
           d2=float(len(d2))
+    elif filter_type in ['mean_age_male']: #find raw_number of deaths
+      d=[i.age for i in d if i.gender=='M']
+      if not ignore_capital:
+        d1=[i.age for i in d1 if i.gender=='M']
+        d2=[i.age for i in d2 if i.gender=='M']
+    elif filter_type in ['mean_age_female']: #find raw_number of deaths
+      d=[i.age for i in d if i.gender=='F']
+      if not ignore_capital:
+        d1=[i.age for i in d1 if i.gender=='F']
+        d2=[i.age for i in d2 if i.gender=='F']
+      
     elif filter_type=='raw_number_under45': #find raw_number of deaths
       d=[i for i in d if i.age<45]
       if not ignore_capital:
@@ -4010,17 +3882,19 @@ def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=
     if filter_type=='':      
       label='Mean age'
       if use_median: label='Median Age'
-    if filter_type=='gender':      label='Percentage of Males in daily deaths'
-    if filter_type=='comorb':      label='Percentage of deaths with comorbidities among daily deaths'
-    if filter_type=='comorb45to60':      label='Percent of deaths with comorbidities(45-60 yrs)'
-    if filter_type=='admission_death':      label='Admission-Death interval'
-    if filter_type=='death_reporting':      label='Death-Reporting interval'
-    if filter_type=='percent60plus':      label='Percent of deaths that were 60+yrs'
-    if filter_type=='percent45to60':      label='Percent of deaths that were 45-60 yrs'
-    if filter_type=='percent45plus':      label='Percent of deaths that were 45+ yrs'
-    if filter_type=='percentupto45':      label='Percent of deaths that were upto 45 yrs'
-    if filter_type=='raw_number':      label='Raw number of deaths'
-    if filter_type=='raw_number_under45':      label='Raw number of deaths (under 45 yrs)'
+    elif filter_type=='mean_age_male':      label='Mean age of Males in daily deaths'
+    elif filter_type=='mean_age_female':      label='Mean age of Females in daily deaths'
+    elif filter_type=='gender':      label='Percentage of Males in daily deaths'
+    elif filter_type=='comorb':      label='Percentage of deaths with comorbidities among daily deaths'
+    elif filter_type=='comorb45to60':      label='Percent of deaths with comorbidities(45-60 yrs)'
+    elif filter_type=='admission_death':      label='Admission-Death interval'
+    elif filter_type=='death_reporting':      label='Death-Reporting interval'
+    elif filter_type=='percent60plus':      label='Percent of deaths that were 60+yrs'
+    elif filter_type=='percent45to60':      label='Percent of deaths that were 45-60 yrs'
+    elif filter_type=='percent45plus':      label='Percent of deaths that were 45+ yrs'
+    elif filter_type=='percentupto45':      label='Percent of deaths that were upto 45 yrs'
+    elif filter_type=='raw_number':      label='Raw number of deaths'
+    elif filter_type=='raw_number_under45':      label='Raw number of deaths (under 45 yrs)'
     label+=' (7-day MA)'
     
     if skip_plot_date:
