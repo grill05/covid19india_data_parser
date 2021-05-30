@@ -866,7 +866,7 @@ def plot_table(data,rows,columns,fontsize=15,scale=1.2):
 def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',color='blue',color2='red',state='',linear_fit=False,plot_days='',extrapolate='',date_label=''):
   
   if type(dates[0])==datetime.datetime: dates=pylab.date2num(dates)
-  if dates2: dates2=np.array(dates2);data2=np.array(data2)
+  if dates2.any(): dates2=np.array(dates2);data2=np.array(data2)
   if dates2.any() and type(dates2[0])==datetime.datetime: 
     dates2=pylab.date2num(dates2)
     if plot_days: 
@@ -1214,11 +1214,14 @@ def mhpolice_parse_csv():
 def delhi_parse_csv():
     import csv,datetime
     r=csv.reader(open('csv_dumps/Delhi_Jun18_Oct27.csv'))
-    info=[];skip=True
-    for i in r: 
+    info=[];info0=[];skip=True
+    for i in r: info0.append(i)
+    for i in info0[1:]:
         #if skip: skip=False;continue
         x=i
-        y=datetime.datetime(2020,int(x[0].split('-')[1]),int(x[0].split('-')[2]),0,0)
+        try: y=datetime.datetime(int(x[0].split('-')[0]),int(x[0].split('-')[1]),int(x[0].split('-')[2]),0,0)
+        except: 
+          print('failed in '+str(i))
         x[0]=y
         a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12=x
         info.append(delhi_status(a1,int(a2),int(a3),int(a4),int(a5),int(a6),int(a7),int(a8),int(a9),int(a10),int(a11),int(a12)))
@@ -1863,57 +1866,67 @@ def parse_chennai_beds(print_district='Chennai'):
   return bed_availability
       
     
-def delhi_analysis(do='',plot_days=''):
+def delhi_analysis(do='',use_moving_average=True,plot_days=''):
   #hos_capacity='';hos_used='';dcc_capacity='';dcc_used='';dchc_capacity='';dchc_used='';
   # ~ hos_util=0;dcc_util=0;dchc_util=0
   # ~ total='';rtpcr='';rapid='';
   # ~ cz='';amb='';date=''
   # ~ import pylab
-  if not do: do=delhi_parse_json()
+  is_dch=True
+  if not do:
+    do=delhi_parse_json()
+    is_dch=False
   dates=[i.date for i in do]
 
   hos_used=[i.hos_used for i in do]
-  dhc_used=[i.dchc_used for i in do]  
-  dcc_used=[i.dcc_used for i in do]
+  # ~ dhc_used=[i.dchc_used for i in do]  
+  # ~ dcc_used=[i.dcc_used for i in do]
   hos_cap=[i.hos_capacity for i in do]
   
   dates0=dates
   dates=pylab.date2num(dates)
   
-  tot=[i.total for i in do]
-  r=[i.rapid for i in do]
-  rtpcr=[i.rtpcr for i in do]
-  rp=numpy.float64(r)/numpy.float64(tot)
+  # ~ tot=[i.total for i in do]
+  # ~ r=[i.rapid for i in do]
+  # ~ rtpcr=[i.rtpcr for i in do]
+  # ~ rp=numpy.float64(r)/numpy.float64(tot)
 
-  cz=[i.cz for i in do]
+  # ~ cz=[i.cz for i in do]
 
   actives=get_cases(state='Delhi',case_type='active',return_full_series=True,verbose=True)
   deaths=get_cases(state='Delhi',case_type='deaths',return_full_series=True,verbose=True)
   dates2=[i[0] for i in actives]
   dates3=[i[0] for i in deaths]
   actives=[i[1] for i in actives]
-  deaths=moving_average(numpy.diff([i[1] for i in deaths ]))
+  deaths=numpy.diff([i[1] for i in deaths ])
   deaths=deaths[-1*len(dates):]
    
   if len(actives)!=len(hos_used): actives=actives[-1*len(hos_used):]  
 
-  hp=100*(numpy.float64(hos_used)/numpy.float64(actives))
+  # ~ hp=100*(numpy.float64(hos_used)/numpy.float64(actives))
   hc=100*(numpy.float64(hos_used)/numpy.float64(hos_cap))
-
-  hos_used=moving_average(hos_used)
-  actives=moving_average(actives)
-  deaths=moving_average(deaths)
+  
+  if use_moving_average: 
+    hos_used=moving_average(hos_used)
+    hos_cap=moving_average(hos_cap)
+    actives=moving_average(actives)
+    deaths=moving_average(deaths)
+  
   if plot_days:
       actives=actives[-1*plot_days:]
-      hos_used=hos_used[-1*plot_days:]
+      hos_used=hos_used[-1*plot_days:];      hos_cap=hos_cap[-1*plot_days:];hc=hc[-1*plot_days:]
       deaths=deaths[-1*plot_days:]
       dates=dates[-1*plot_days:]
       dates2=dates2[-1*plot_days:]
       dates3=dates3[-1*plot_days:]  
       plot2(dates,hos_used,dates2,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
       plot2(dates,hos_used,dates3,deaths,label1='Hospital beds used',label2='Daily Deaths',color2='red',state='Delhi')
+      if is_dch:
+        plotex(dates,hos_used,dates,hos_cap,label='beds used',label2='DCH Bed Capacity',color2='red',state='Delhi')
+        plot2(dates,hos_used,dates,hc,label1='DCH beds used',label2='Percentage capacity used',color2='red',state='Delhi')
+  print(len(hos_used),len(hos_cap))
   # ~ return (dates,deaths)
-  return (dates0,hos_used,deaths)
+  return (dates0,hos_used,hos_cap,deaths)
   
 def update_data_files(extra=False):
   urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv','https://api.covid19india.org/data.json']
