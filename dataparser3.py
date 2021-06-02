@@ -239,6 +239,38 @@ def diffdata(data):
   
   # ~ return info
 
+def intz(string_int):
+  if not string_int: return 0
+  else: return int(string_int)
+def vaccination_cowin_state(state='ka'):
+  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
+  x=csv.reader(open('cowin_vaccine_data_statewise.csv'));info=[]
+  for i in x: info.append(i)
+  data=[];zd={'':0}
+  for i in info[1:]:
+    # ~ try:
+    date,sstate,tot_persons_vaccinated,tot_sessions,tot_sites,firstdoses,seconddoses,males,females,transgenders,covaxin,covishield,sputnik,sefi,from18to45,from45to60,over60,totdoses=i
+    if sstate!=state: continue
+    
+    tot_persons_vaccinated=intz(tot_persons_vaccinated)
+    tot_sessions=intz(tot_sessions)      
+    firstdoses=intz(firstdoses)
+    seconddoses=intz(seconddoses)
+    females=intz(females)
+    males=intz(males)
+    covaxin=intz(covaxin)
+    covishield=intz(covishield)
+    sputnik=intz(sputnik)
+    from18to45=intz(from18to45)
+    from45to60=intz(from45to60)
+    over60=intz(over60)
+    totdoses=intz(totdoses)
+    date=datetime.datetime.strptime(date,'%d/%m/%Y')
+    data.append((date,tot_persons_vaccinated,tot_sessions,firstdoses,seconddoses,males,females,covaxin,covishield,sputnik,from18to45,from45to60,over60,totdoses))
+    # ~ except:
+      # ~ print('failed for '+str(i))
+      # ~ return
+  return data
 
 def vaccination_national():
   x=json.load(open('national_data.json'))['tested']
@@ -1459,19 +1491,35 @@ def cartogram_date(date='09_20_2020',window_size=3,plot_base=False,verbose=True,
   
   # ~ return (plt,ax,patch)
 
+# ~ recent_elderly_vaccintion_alldoses={
+# ~ 'Andaman and Nicobar Islands': 30654,
+# ~ 'Andhra Pradesh': 2587408,'Assam':
 def chloropleth_data():
     data=[]
     states=list(state_name_to_code.keys());states.sort()
     # ~ print(states)
-    for st in ['Sikkim','Dadra and Nagar Haveli and Daman and Diu','Ladakh','Mizoram','Tripura','Nagaland','Goa']: states.remove(st)
+    # ~ for st in ['Sikkim','Dadra and Nagar Haveli and Daman and Diu','Ladakh','Mizoram','Tripura','Nagaland','Goa']: states.remove(st)
     metric={}
     for state in tqdm.tqdm(states):
-        # ~ x=get_positivity(state)
-        x=get_cases(state,case_type='deaths',return_full_series=True);d,x=zip(*x);x=np.diff(x);x=moving_average(x)
+        x=get_positivity(state)
+        # ~ x=get_cases(state,case_type='deaths',return_full_series=True);d,x=zip(*x);x=np.diff(x);x=moving_average(x)
         try:
           # ~ metric[state]=x[-1][1]/x[-11][1] #percent change in TPR relative to 10 days ago
           # ~ metric[state]=x[-1][1] #abs value of TPR
-          metric[state]=x[-1]/x[-11] # percent change in daily deaths vs  10 days ago
+          # ~ metric[state]=x[-1]/x[-11] # percent change in daily deaths vs  10 days ago
+          
+          #elderly vacination rate on jun 2
+          date,tot_persons_vaccinated,tot_sessions,firstdoses,seconddoses,males,females,covaxin,covishield,sputnik,from18to45,from45to60,over60,totdoses=zip(*vaccination_cowin_state(state))
+          lastelderlyupdate=over60[-3]; #HACK as last 2 entries in covid19oindiaorg api are empty
+          over60firstdoses=lastelderlyupdate*0.757; #at last update of mohfw, ~76% of total elderly doses were 1st doses
+          over60pop=0
+          #hack since TG didn't exist at time of 2011 census
+          if state=='Telangana': over60pop=4.160e6;#print('got tg');print(over60firstdoses,over60pop)
+          elif state=='Andhra Pradesh': over60pop=6.557e6
+          else:
+            over60pop=parse_census(state,'above60')[0]*1.356 #in all of india, 60+ grows by ~36% from 2011 to 2021
+          metric[state]=over60coverage=100*(over60firstdoses/over60pop)
+        
         except:
           print('failed for '+state)
           continue
@@ -1557,7 +1605,7 @@ def norm_cmap(values, cmap='YlGn', vmin=None, vmax=None):
   return n_cmap
   
   
-def chloropleth(data_dict={},date='',extra_title='',reverse_colormap=False,use_map='',no_print_error=False):
+def chloropleth(data_dict={},date='',extra_title='',reverse_colormap=False,use_map='',cmap='',colorbar_label='',no_print_error=False):
   from  matplotlib.colors import LinearSegmentedColormap
   import matplotlib.colors as colors
   import matplotlib.cm as cm
@@ -1567,12 +1615,10 @@ def chloropleth(data_dict={},date='',extra_title='',reverse_colormap=False,use_m
           'blue' : ((0,0,0),(0.5,1,1),(1,0,0))
   }
   
-  cmap=LinearSegmentedColormap.from_list('',["g", "y", "r"], N=256) 
-  if reverse_colormap: cmap=LinearSegmentedColormap.from_list('rg',["r", "y", "g"], N=256) 
-  # ~ cmap = colors.LinearSegmentedColormap('GnRd', cdict) 
-  # ~ cmap = cm.PiYG(np.arange(-1,1,0.01))
-  # ~ cmap=norm_cmap(data_dict.values(),mycolormap)
-  cmap=norm_cmap(data_dict.values(),cmap)
+  if not cmap:
+    cmap=LinearSegmentedColormap.from_list('',["g", "y", "r"], N=256) 
+    if reverse_colormap: cmap=LinearSegmentedColormap.from_list('rg',["r", "y", "g"], N=256) 
+    cmap=norm_cmap(data_dict.values(),cmap)
   jsonfile='india_state.json'
   if use_map and use_map.endswith('json'): jsonfile=use_map
   #jsonfile='india_telengana.geojson'
@@ -1617,10 +1663,15 @@ def chloropleth(data_dict={},date='',extra_title='',reverse_colormap=False,use_m
   from mpl_toolkits.axes_grid1 import make_axes_locatable 
   divider = make_axes_locatable(ax)
   cax = divider.append_axes('right', size='5%', pad=0.05)
-  fig.colorbar(cmap,cax=cax, orientation='vertical')
+  # ~ fig.colorbar(cmap,cax=cax, orientation='vertical')
+  if colorbar_label:
+    fig.colorbar(cmap,cax=cax, orientation='vertical',label=colorbar_label)
+  else:
+    fig.colorbar(cmap,cax=cax, orientation='vertical')
   # ~ import matplotlib.colorbar;  matplotlib.colorbar.ColorbarBase(ax=ax,values=sorted(data_dict.values()),orientation='vertical')
   
   fig.tight_layout()
+  pylab.legend()
   
   # ~ plt.savefig(TMPDIR+orig_date+'.png',bbox_layout='tight')
   plt.savefig(TMPDIR+orig_date+'.png')
@@ -2375,6 +2426,9 @@ def tamil_nadu_parse_cases(analysis=False,plot=True,find_cis=False):
   if analysis:
     print('analysing!')
     x=get_cases('Tamil Nadu',case_type='confirmed',return_full_series=True)
+    #align
+    lastdate=out[-1][0]
+    x=[i for i in x if i[0]<=lastdate]
     datesc,c=zip(*x)
     dates,a60=zip(*out)
     
@@ -3643,7 +3697,7 @@ def predict_vaccination_effect(state='Karnataka',percent_type='percetn45plus',ba
   pylab.title(title);  pylab.savefig(TMPDIR+title+'.jpg',dpi=100);pylab.close();print('saved '+TMPDIR+title+'.jpg')
   
   
-def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,3,1),enddate=datetime.date(2021,5,1),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True,capital_district='',find_cis=False,special_title=''):
+def helper_get_mean_deaths(deaths='',filter_type='',date_type='',moving_average=True,ma_size=7,state='Tamil Nadu',plot=True,draw_vline=True,startdate=datetime.date(2021,3,1),enddate=datetime.date(2021,5,18),skip_plot_date='',plot_linear_fit=True,use_median=False,ignore_capital=True,capital_district='',find_cis=False,special_title=''):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   if filter_type in ['p60','p60p','p60plus']: filter_type='percent60plus'
   if filter_type in ['p45','p45p','p45plus']: filter_type='percent45plus'
