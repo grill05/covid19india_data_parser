@@ -898,6 +898,8 @@ def plot_table(data,rows,columns,fontsize=15,scale=1.2):
 def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',color='blue',color2='red',state='',linear_fit=False,plot_days='',extrapolate='',date_label=''):
   
   if type(dates[0])==datetime.datetime: dates=pylab.date2num(dates)
+  if type(dates)==tuple: dates=np.array(dates)
+  if type(dates2)==tuple: dates2=np.array(dates2)
   if dates2.any(): dates2=np.array(dates2);data2=np.array(data2)
   if dates2.any() and type(dates2[0])==datetime.datetime: 
     dates2=pylab.date2num(dates2)
@@ -931,6 +933,7 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',
   if label2: title+=' vs '+label2
   if state: title+=' in '+state
   title+=' over time'
+  title=title.replace('(7-day MA)','')
   pylab.title(title);  
   pylab.savefig(TMPDIR+title+'.jpg',dpi=100)
   pylab.close()
@@ -1925,7 +1928,8 @@ def delhi_analysis(do='',use_moving_average=True,plot_days=''):
   # ~ import pylab
   is_dch=True
   if not do:
-    do=delhi_parse_json()
+    # ~ do=delhi_parse_json()
+    do=delhi_parse_csv()
     is_dch=False
   dates=[i.date for i in do]
 
@@ -2503,11 +2507,11 @@ def kerala_parse_csv():
   return y
  
   
-def get_pfr(state='Tamil Nadu',start='',end='',date_type='',do_moving_average=False,ma_size=2,plot=False):
+def get_pfr(state='Tamil Nadu',start='',end='',date_type='',gender='',pfr_band=False,do_moving_average=False,ma_size=2,plot=False):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   if state=='Tamil Nadu':    deaths=tamil_nadu_parse_csv()
   elif state=='Kerala':    deaths=kerala_parse_csv()
-  elif state=='Karnataka':    deaths=karnataka_parse_csv();print('ka')
+  elif state=='Karnataka':    deaths=karnataka_parse_csv(old=True);
   dd={}
   if start:
     deaths=[i for i in deaths if i.date_of_death>=start]
@@ -2517,12 +2521,23 @@ def get_pfr(state='Tamil Nadu',start='',end='',date_type='',do_moving_average=Fa
     deaths=[i for i in deaths if i.date_of_death<=end]
     if date_type=='admission':
       deaths=[i for i in deaths if i.date_of_admission<=end]
+  if gender:
+    if gender in ['M','male','Male']: 
+      deaths=[i for i in deaths if i.gender in ['M']]
+    else:
+      deaths=[i for i in deaths if i.gender in ['F']]
   allages=[i.age for i in deaths]
   for i in deaths:
     age=i.age
     if age in dd: dd[age]+=1
     else: dd[age]=1
-  agedict=parse_census(state,'agedict')
+  
+  agedict=''
+  if gender:
+    if gender in ['M','male','Male']:      agedict=parse_census(state,'agedictm')
+    else: agedict=parse_census(state,'agedictf')    
+  else:    agedict=parse_census(state,'agedict')
+  
   pfr={}
   
   for i in dd: 
@@ -2533,6 +2548,16 @@ def get_pfr(state='Tamil Nadu',start='',end='',date_type='',do_moving_average=Fa
         ages_ma=sum([agedict[j] for j in agedict if j<=(i+ma_size) and j>=(i-ma_size)])
         pfr[i]=100*(float(deaths_ma)/ages_ma)
         # ~ histdata.append((i,deaths_ma))
+  pfr_in_band=0;pfr_ratio={}
+  if pfr_band:
+    band=[60,65]
+    dx=sum([dd[j] for j in dd if j<=band[1] and j>=band[0]])
+    people_in_age_band=sum([agedict[j] for j in agedict if j<=band[1] and j>=band[0]])
+    pfr_in_band=100*(float(dx)/people_in_age_band)
+    
+      
+    
+    # ~ print('got '+str(pfr_in_band))
   if plot:
     ages,pfrs=zip(*list(pfr.items()))
     label='PFR for '+state
@@ -2545,8 +2570,11 @@ def get_pfr(state='Tamil Nadu',start='',end='',date_type='',do_moving_average=Fa
     pylab.semilogy(ages,pfrs,'.',label=label+' semilog')
     pylab.xlabel('age');pylab.ylabel('PFR');pylab.legend();pylab.title(label+' semilogy')
     pylab.savefig(TMPDIR+'/'+label+'semilog.jpg');pylab.close()
-    
-  return pfr,allages
+  pfr=list(pfr.items());pfr.sort()
+  if pfr_band:
+    return pfr,pfr_in_band
+  else:
+    return pfr,allages
   
 def tamil_nadu_bulletin_parser(bulletin='',return_page_range=False,clip_bulletin=False,return_date=False,dump_clippings=False):
   cmd='pdftotext  -layout "'+bulletin+'" tmp.txt';os.system(cmd)
@@ -3174,8 +3202,8 @@ class mumbaihosp():
 def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=False,plot_days=''):
     if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
     import csv;info=[]
-    r=csv.reader(open('2020_IN_Region_Mobility_Report.csv'))
-    # ~ r=csv.reader(open('2021_IN_Region_Mobility_Report.csv'))
+    # ~ r=csv.reader(open('2020_IN_Region_Mobility_Report.csv'))
+    r=csv.reader(open('2021_IN_Region_Mobility_Report.csv'))
     for i in r: info.append(i);
     x=[i for i in info if i[2]==state and i[3]==district]
     y=[]
