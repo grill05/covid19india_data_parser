@@ -7,9 +7,12 @@
 # ~ np.convolve(x, np.ones((N,))/N, mode='valid')
 
 import os,sys,copy,tqdm,csv,lazy_import
+
+
 pylab=lazy_import.lazy_module('pylab')
 requests=lazy_import.lazy_module('requests')
 np=lazy_import.lazy_module('numpy')
+pd=lazy_import.lazy_module('pandas')
 numpy=np
 colorama=lazy_import.lazy_module('colorama')
 mdates=lazy_import.lazy_module('matplotlib.dates')
@@ -5694,6 +5697,71 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
   pylab.legend(fontsize=7)
   pylab.savefig(TMPDIR+state+'_'+atype+' vs active cases.jpg',dpi=150)
   pylab.close()
+
+def cdr_func(tpr,maxi=14,mini=10): 
+  #linear function goes from mini to maxi as TPR goes from 1% to 35%
+  b=(mini-maxi)/34.;a=maxi-((mini-maxi)/34);
+  return a+(b*tpr)
+def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percent=0.65,max_cdr=14,min_cdr=10): 
+ pop=20e6 
+  
+ d,p=zip(*get_positivity('dl'))
+ xx=pd.DataFrame({'dates':d,'p':p})
+ dates=xx[(xx.dates>startdate) & (xx.dates<enddate)].dates
+ p=xx[(xx.dates>startdate) & (xx.dates<enddate)].p
+ cdr=np.array([cdr_func(i,max_cdr,min_cdr) for i in p])
+ 
+ d,c=zip(*get_cases('dl',case_type='confirmed',return_full_series=True))
+ xx=pd.DataFrame({'dates':d[1:],'cases':np.diff(c)})
+ # ~ prev=xx[(xx.dates>'2021-04-20') & (xx.dates<'2021-06-04')].cases*cdr_ratio
+ num_infected=xx[(xx.dates>startdate) & (xx.dates<enddate)].cases*(100/cdr)
+ prev_daily=num_infected/pop
+ dates=xx[(xx.dates>startdate) & (xx.dates<'2021-06-04')].dates
+ # ~ print(len(dates))
+ 
+ 
+ prev=[];
+ for idx in range(len(prev_daily)): 
+   tot_infected_percent_till_date=(prev_daily[:idx+1].sum())+orig_infected_percent
+   if tot_infected_percent_till_date>0.90: tot_infected_percent_till_date=0.90
+   prev.append(tot_infected_percent_till_date)
+ prev=pd.DataFrame(prev)[0]
+ # ~ return prev
+ 
+ dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('dl',do_moving_average=True))
+ m=pd.DataFrame({'dates':dt,'avg':avg})
+ # ~ m=pd.DataFrame({'dates':dt,'avg':recr})
+ mobility=m[(m.dates>startdate) & (m.dates<enddate)].avg*0.01
+ # ~ return mobility
+ #Rt=(1-(prev2+0.7))*(1-reduction)*R0
+ 
+ a=(1-prev) 
+ b=mobility+1
+ Rt=a.values*b.values*R0
+ # ~ Rt=pd.DataFrame({'dates':dates,'r':})
+ # ~ return Rt
+ # ~ out=pd.DataFrame({'r':Rt.r,'a':a,'b':b,'dates':dates,'prev':prev,'prev_daily':prev_daily,'num_infected': num_infected})
+ # ~ out=pd.DataFrame({'r':Rt,'a':a,'b':b,'dates':dates})#,'prev':prev,'prev_daily':prev_daily,'num_infected': num_infected})
+ # ~ print(out.shape)
+ # ~ out=pd.DataFrame({'r':Rt.r,'a':a,'b':b,'dates':Rt.dates,'prev':prev[0]})
+ # ~ return (Rt,a,b,dates,cdr,prev,prev_daily)
+ return Rt,a,b,dates,prev,prev_daily
+
+def rweekly(state='',days=7):
+ if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
+ if state in ['','India']:
+  x=pd.DataFrame(get_cases_national('confirmed'),columns=['dates','cases'])
+ else:
+  d,c=zip(*get_cases(state,case_type='confirmed',return_full_series=True))
+  c=np.diff(c);d=d[1:];  x=pd.DataFrame({'dates':d,"cases":c})
+ c=moving_average(x.cases)
+ rout=[]
+ for idx in range(days,len(c)):
+  fact=float(c[idx])/c[idx-days]
+  rout.append((x.dates[idx],fact))
+ rout=pd.DataFrame(rout,columns=['dates','r'])
+ return rout
+
 
 def make_plots(use_all_states=False,use_solid_lines=False):
   # ~ import pylab
