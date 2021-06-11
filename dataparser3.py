@@ -5702,10 +5702,33 @@ def cdr_func(tpr,maxi=14,mini=10):
   #linear function goes from mini to maxi as TPR goes from 1% to 35%
   b=(mini-maxi)/34.;a=maxi-((mini-maxi)/34);
   return a+(b*tpr)
+
+def r0_func(date='',ro_init=2.5,ro_alpha=4.,r0_delta=7):
+ init_date=datetime.datetime(2021, 2, 10, 0, 0); alpha_date=datetime.datetime(2021, 3, 15, 0, 0); delta_date=datetime.datetime(2021, 4, 10, 0, 0);
+ 
+ if date<init_date: return ro_init
+ elif (date>=init_date) and (date<alpha_date): 
+  slope=(ro_alpha-ro_init)/float((alpha_date-init_date).days)
+  gap=(date-init_date).days
+  # ~ print('found %d gap from alpha to init' %(gap))
+  return ro_init+(gap*slope)
+ elif (date>=alpha_date) and (date<delta_date): 
+  slope=(r0_delta-ro_alpha)/float((delta_date-alpha_date).days)
+  gap=(date-alpha_date).days
+  # ~ print('found %d gap from delta to alpha' %(gap))
+  return ro_alpha+(gap*slope)
+ elif date>=delta_date: return r0_delta
+ 
 def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percent=0.65,max_cdr=14,min_cdr=10): 
  pop=20e6 
   
  d,p=zip(*get_positivity('dl'))
+ 
+ #get r0
+ dates2=[i for i in d if i>datetime.datetime.strptime(startdate,'%Y-%m-%d') and i<datetime.datetime.strptime(enddate,'%Y-%m-%d')]
+ r0=[r0_func(i) for i in dates2]
+ 
+ #get cdr from TPR
  xx=pd.DataFrame({'dates':d,'p':p})
  dates=xx[(xx.dates>startdate) & (xx.dates<enddate)].dates
  p=xx[(xx.dates>startdate) & (xx.dates<enddate)].p
@@ -5717,6 +5740,8 @@ def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percen
  num_infected=xx[(xx.dates>startdate) & (xx.dates<enddate)].cases*(100/cdr)
  prev_daily=num_infected/pop
  dates=xx[(xx.dates>startdate) & (xx.dates<'2021-06-04')].dates
+ 
+ 
  # ~ print(len(dates))
  
  
@@ -5737,15 +5762,9 @@ def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percen
  
  a=(1-prev) 
  b=mobility+1
- Rt=a.values*b.values*R0
- # ~ Rt=pd.DataFrame({'dates':dates,'r':})
- # ~ return Rt
- # ~ out=pd.DataFrame({'r':Rt.r,'a':a,'b':b,'dates':dates,'prev':prev,'prev_daily':prev_daily,'num_infected': num_infected})
- # ~ out=pd.DataFrame({'r':Rt,'a':a,'b':b,'dates':dates})#,'prev':prev,'prev_daily':prev_daily,'num_infected': num_infected})
- # ~ print(out.shape)
- # ~ out=pd.DataFrame({'r':Rt.r,'a':a,'b':b,'dates':Rt.dates,'prev':prev[0]})
- # ~ return (Rt,a,b,dates,cdr,prev,prev_daily)
- return Rt,a,b,dates,prev,prev_daily
+ # ~ Rt=a.values*b.values*R0
+ Rt=a.values*b.values*np.array(r0)
+ return Rt,a,b,dates,prev,prev_daily,r0
 
 def rweekly(state='',days=7):
  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
@@ -5762,6 +5781,21 @@ def rweekly(state='',days=7):
  rout=pd.DataFrame(rout,columns=['dates','r'])
  return rout
 
+def plot_func(R0=8,startdate='2021-04-20',gt=6,orig_infected_percent=0.60,max_cdr=10,min_cdr=9):
+ enddate='2021-06-04';
+ y=rest(R0=R0,startdate=startdate,enddate=enddate,orig_infected_percent=orig_infected_percent,max_cdr=max_cdr,min_cdr=min_cdr);
+ a=y[1];b=y[2];r0=y[6]
+ # ~ return (a,b,r0)
+ rw=rweekly('dl',days=gt);rcalc=rw[(rw.dates>startdate) & (rw.dates<enddate)].r.values;
+ rcalc=pd.DataFrame({'dates':y[3],'r':rcalc})
+ rr=pd.DataFrame({'dates':y[3],'r':y[0]});
+ pylab.close();sp,ax=pylab.subplots()
+ locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator);ax.xaxis.set_major_locator(locator);ax.xaxis.set_major_formatter(formatter)
+ pylab.plot(rcalc.dates,rcalc.r,label='5-day cases growth rate (measured Rt)');pylab.plot(rr.dates,rr.r,label='Calculated Rt for simplified homogeneous network');
+ pylab.plot(rcalc.dates,np.ones(len(rcalc.dates)),label='Rt=1')
+ pylab.legend();pylab.xlabel('Date');pylab.ylabel('Rt')
+ pylab.show()
+ 
 
 def make_plots(use_all_states=False,use_solid_lines=False):
   # ~ import pylab
