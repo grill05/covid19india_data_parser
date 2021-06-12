@@ -901,8 +901,8 @@ def plot_table(data,rows,columns,fontsize=15,scale=1.2):
 def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',color='blue',color2='red',state='',linear_fit=False,plot_days='',extrapolate='',date_label=''):
   
   if type(dates[0])==datetime.datetime: dates=pylab.date2num(dates)
-  if type(dates)==tuple: dates=np.array(dates)
-  if type(dates2)==tuple: dates2=np.array(dates2)
+  if type(dates) in [tuple,list]: dates=np.array(dates)
+  if type(dates2) in [tuple,list]: dates2=np.array(dates2)
   if dates2.any(): dates2=np.array(dates2);data2=np.array(data2)
   if dates2.any() and type(dates2[0])==datetime.datetime: 
     dates2=pylab.date2num(dates2)
@@ -3202,28 +3202,46 @@ class mumbaihosp():
     info+='\tOxyg.: %d/%d used\n' %(self.oxy_used,self.oxy_cap)
     print(info)
 
-def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=False,plot_days=''):
+def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=False,plot_days='',special_sum=False):
     if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
     import csv;info=[]
-    # ~ r=csv.reader(open('2020_IN_Region_Mobility_Report.csv'))
-    r=csv.reader(open('2021_IN_Region_Mobility_Report.csv'))
+    r=csv.reader(open('2020_IN_Region_Mobility_Report.csv'))
+    
     for i in r: info.append(i);
     x=[i for i in info if i[2]==state and i[3]==district]
     y=[]
     for i in x:
       dt=datetime.datetime.strptime(i[8],'%Y-%m-%d')
-#      try:
       recr=int(i[9])
       groc_phar=int(i[10])
-#      except:
-#          print('error parsing '+str(i))
-#          continue
       parks=int(i[11])
       trans=int(i[12])
       wrksp=int(i[13])
       resi=int(i[14])
       avg=(recr+groc_phar+parks+trans+wrksp+resi)/6.
-      y.append((dt,recr,groc_phar,parks,trans,wrksp,resi,avg))
+      if special_sum:        
+        avg_minus_resi=(recr+groc_phar+parks+trans+wrksp)/5.
+        y.append((dt,recr,groc_phar,parks,trans,wrksp,resi,avg_minus_resi))
+      else:
+        y.append((dt,recr,groc_phar,parks,trans,wrksp,resi,avg))
+    
+    r=csv.reader(open('2021_IN_Region_Mobility_Report.csv'));info=[]
+    for i in r: info.append(i);
+    x=[i for i in info if i[2]==state and i[3]==district]
+    for i in x:
+      dt=datetime.datetime.strptime(i[8],'%Y-%m-%d')
+      recr=int(i[9])
+      groc_phar=int(i[10])
+      parks=int(i[11])
+      trans=int(i[12])
+      wrksp=int(i[13])
+      resi=int(i[14])
+      avg=(recr+groc_phar+parks+trans+wrksp+resi)/6.
+      if special_sum:        
+        avg_minus_resi=(recr+groc_phar+parks+trans+wrksp)/5.
+        y.append((dt,recr,groc_phar,parks,trans,wrksp,resi,avg_minus_resi))
+      else:
+        y.append((dt,recr,groc_phar,parks,trans,wrksp,resi,avg))
 
     dates,recr,groc,parks,trans,wrksp,resi,avg=zip(*y)
 #    print(len(resi),len(parks))
@@ -5718,6 +5736,21 @@ def r0_func(date='',ro_init=2.5,ro_alpha=4.,r0_delta=7):
   # ~ print('found %d gap from delta to alpha' %(gap))
   return ro_alpha+(gap*slope)
  elif date>=delta_date: return r0_delta
+def reinfection_rate_func(date='',reinfection_rate_init=0.10,reinfection_rate_alpha=0.12,reinfection_rate_delta=0.35):
+ init_date=datetime.datetime(2021, 2, 10, 0, 0); alpha_date=datetime.datetime(2021, 3, 15, 0, 0); delta_date=datetime.datetime(2021, 4, 10, 0, 0);
+ 
+ if date<init_date: return reinfection_rate_init
+ elif (date>=init_date) and (date<alpha_date): 
+  slope=(reinfection_rate_alpha-reinfection_rate_init)/float((alpha_date-init_date).days)
+  gap=(date-init_date).days
+  # ~ print('found %d gap from alpha to init' %(gap))
+  return reinfection_rate_init+(gap*slope)
+ elif (date>=alpha_date) and (date<delta_date): 
+  slope=(reinfection_rate_delta-reinfection_rate_alpha)/float((delta_date-alpha_date).days)
+  gap=(date-alpha_date).days
+  # ~ print('found %d gap from delta to alpha' %(gap))
+  return reinfection_rate_alpha+(gap*slope)
+ elif date>=delta_date: return reinfection_rate_delta
  
 def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percent=0.65,max_cdr=14,min_cdr=10): 
  pop=20e6 
@@ -5780,6 +5813,52 @@ def rweekly(state='',days=7):
   rout.append((x.dates[idx],fact))
  rout=pd.DataFrame(rout,columns=['dates','r'])
  return rout
+
+def rmodel(cdr0=10.0,init_prev=0.55,reinfection_rate=0.3,GT=5,startdate='2021-02-15',enddate='2021-06-04',plot=True):
+  tot_pop=20e6;  startdate=datetime.datetime.strptime(startdate,"%Y-%m-%d");
+  enddate=datetime.datetime.strptime(enddate,"%Y-%m-%d")
+  
+  import math;delta_days=(enddate-startdate).days
+  
+  #get IO
+  d,c=zip(*get_cases('dl',case_type='confirmed',return_full_series=True))
+  c=np.diff(c);d=d[1:];  x=pd.DataFrame({'dates':d,"cases":c})
+  c=moving_average(x.cases);cases_dict=dict(zip(d,c))
+  I0=cases_dict[startdate]*(100./cdr0)
+  #get mobilility
+  dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('dl',do_moving_average=True))
+  mobility_dict=dict(zip(dt,avg))
+  
+  rt0=r0_func(startdate)*(1-init_prev)*(1+(0.01*mobility_dict[startdate]))
+  rt=[rt0];dates=[startdate];daily_infections=[I0]
+  prev_pop_daily=[0]
+  
+  for i in range(1,delta_days):
+   date=startdate+datetime.timedelta(days=i)  
+   try:
+     infections_new=(daily_infections[-1])*math.pow(rt[-1],1/GT)
+   except:
+     print('got error ',daily_infections[-1],rt[-1],1/GT,i)
+     return dates,daily_infections,prev_pop_daily,rt
+   daily_infections.append(infections_new);dates.append(date)
+   
+   prev_pop_immunity=(1-reinfection_rate_func(date))*(float(sum(daily_infections))/tot_pop)
+   prev_pop_daily.append(prev_pop_immunity)
+   prev=init_prev+prev_pop_immunity
+   mobility=0.01*mobility_dict[date]
+   rt_new=r0_func(date)*(1-prev)+(1+mobility) 
+   rt_new=r0_func(date)*(1-prev)+(1+mobility) 
+   rt.append(rt_new) 
+   rt[-1]=r0_func(date)*(1-prev)*(1+mobility)
+   # ~ if len(rt)==2: 
+     # ~ print(rt,'rt_new',rt_new,r0_func(date)*(1-prev)*(1+mobility))
+     # ~ rt[-1]=r0_func(date)*(1-prev)*(1+mobility)
+     # ~ print('rt',rt)
+  
+  if plot:
+    rw=rweekly('dl',days=GT);rcalc=rw[(rw.dates>startdate) & (rw.dates<enddate)].r.values;
+    plotex(dates,rt,dates[1:],rcalc,label='Calculated Rt',label2='measured Rt (%d-day change)' %(GT),color2='green')
+  return dates,daily_infections,prev_pop_daily,rt
 
 def plot_func(R0=8,startdate='2021-04-20',gt=6,orig_infected_percent=0.60,max_cdr=10,min_cdr=9):
  enddate='2021-06-04';
