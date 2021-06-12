@@ -5814,7 +5814,7 @@ def rweekly(state='',days=7):
  rout=pd.DataFrame(rout,columns=['dates','r'])
  return rout
 
-def rmodel(cdr0=10.0,init_prev=0.55,reinfection_rate=0.3,GT=5,startdate='2021-02-15',enddate='2021-06-04',plot=True):
+def rmodel(cdr0=10.0,init_prev=0.55,reinfection_rate_delta=0.3,GT=6,mobility_shift='',startdate='2021-02-15',enddate='2021-06-04',plot=True):
   tot_pop=20e6;  startdate=datetime.datetime.strptime(startdate,"%Y-%m-%d");
   enddate=datetime.datetime.strptime(enddate,"%Y-%m-%d")
   
@@ -5826,8 +5826,18 @@ def rmodel(cdr0=10.0,init_prev=0.55,reinfection_rate=0.3,GT=5,startdate='2021-02
   c=moving_average(x.cases);cases_dict=dict(zip(d,c))
   I0=cases_dict[startdate]*(100./cdr0)
   #get mobilility
-  dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('dl',do_moving_average=True))
-  mobility_dict=dict(zip(dt,avg))
+  dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('dl',do_moving_average=True,special_sum=False))
+  
+  if mobility_shift:
+    if mobility_shift>0:      
+      mobility_dict=dict(zip(dt[mobility_shift:],avg[:-1*mobility_shift]))
+    elif mobility_shift<0:
+      mobility_shift=-1*mobility_shift      
+      mobility_dict=list(zip(dt[:-1*mobility_shift],avg[mobility_shift:]))
+      mobility_dict.extend(list(zip(dt[-1*mobility_shift:],[avg[-1]]*mobility_shift)))
+      mobility_dict=dict(mobility_dict)
+  else:
+    mobility_dict=dict(zip(dt,avg))
   
   rt0=r0_func(startdate)*(1-init_prev)*(1+(0.01*mobility_dict[startdate]))
   rt=[rt0];dates=[startdate];daily_infections=[I0]
@@ -5842,7 +5852,7 @@ def rmodel(cdr0=10.0,init_prev=0.55,reinfection_rate=0.3,GT=5,startdate='2021-02
      return dates,daily_infections,prev_pop_daily,rt
    daily_infections.append(infections_new);dates.append(date)
    
-   prev_pop_immunity=(1-reinfection_rate_func(date))*(float(sum(daily_infections))/tot_pop)
+   prev_pop_immunity=(1-reinfection_rate_func(date,reinfection_rate_delta=reinfection_rate_delta))*(float(sum(daily_infections))/tot_pop)
    prev_pop_daily.append(prev_pop_immunity)
    prev=init_prev+prev_pop_immunity
    mobility=0.01*mobility_dict[date]
@@ -5858,6 +5868,13 @@ def rmodel(cdr0=10.0,init_prev=0.55,reinfection_rate=0.3,GT=5,startdate='2021-02
   if plot:
     rw=rweekly('dl',days=GT);rcalc=rw[(rw.dates>startdate) & (rw.dates<enddate)].r.values;
     plotex(dates,rt,dates[1:],rcalc,label='Calculated Rt',label2='measured Rt (%d-day change)' %(GT),color2='green')
+    sp,ax=pylab.subplots()
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator);ax.xaxis.set_major_locator(locator);ax.xaxis.set_major_formatter(formatter)
+    ax.semilogy(d[-130:],c[-130:],label='Daily cases in DL')
+    ax.semilogy(dates,daily_infections,label='Daily infections in DL')
+    pylab.legend();pylab.xlabel('Dates');pylab.ylabel('Cases/Infections in Delhi');pylab.title('Delhi cases vs infections in 4th wave');
+    pylab.savefig(TMPDIR+'Log-scale cases vs infections in DL.jpg');pylab.close()
+    
   return dates,daily_infections,prev_pop_daily,rt
 
 def plot_func(R0=8,startdate='2021-04-20',gt=6,orig_infected_percent=0.60,max_cdr=10,min_cdr=9):
