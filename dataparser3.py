@@ -935,7 +935,7 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',
   title=label
   if label2: title+=' vs '+label2
   if state: title+=' in '+state
-  title+=' over time'
+  # ~ title+=' over time'
   title=title.replace('(7-day MA)','')
   pylab.title(title);  
   pylab.savefig(TMPDIR+title+'.jpg',dpi=100)
@@ -1989,7 +1989,8 @@ def delhi_analysis(do='',use_moving_average=True,plot_days=''):
 def update_data_files(extra=False):
   urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv','https://api.covid19india.org/data.json']
   
-  if extra: urls.extend(['https://api.covid19india.org/v4/data-all.json'])
+  # ~ if extra: urls.extend(['https://api.covid19india.org/v4/data-all.json'])
+  if extra: urls.extend(['https://api.covid19india.org/csv/latest/districts.csv'])
   for i in urls:
     filename=os.path.split(i)[1]
     if os.path.exists(filename):
