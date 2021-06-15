@@ -824,70 +824,86 @@ def get_testing_delta():
   # ~ a.close()
 ##date must be given as 01/09/2020 for September 1,2020
 ##State must be fullname (see dict above)
-def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/2020',case_type='confirmed_delta',return_full_series=True,verbose=False):
+def get_cases_district(state='Karnataka',district='Bengaluru Urban',date='01/09/2020',case_type='confirmed',return_full_series=True,verbose=False):
+  if len(state)==2 and state in state_code_to_name: state=state_code_to_name[state];
+  r=csv.reader(open('districts.csv'))
+  info=[]
+  for i in r: info.append(i)
+  info=[i for i in info if district==i[2] and state==i[1]]
+  confirmed=[];recovered=[];deaths=[];dates=[];actives=[]
+  for i in info:
+    date=datetime.datetime.strptime(i[0],'%Y-%m-%d')
+    confirmed.append(i[3]);    recovered.append(i[4]);    deaths.append(i[5])
+    active=int(i[3])-int(i[4])-int(i[5])
+    actives.append(active)
+    dates.append(date)
+  dates=dates[1:]
+  confirmed=np.diff(np.int_(confirmed))
+  recovered=np.diff(np.int_(recovered))
+  deaths=np.diff(np.int_(deaths))
+  if case_type in ['confirmed']:    return list(zip(dates,confirmed))
+  elif case_type in ['recovered']:    return list(zip(dates,recovered))
+  elif case_type in ['deaths']:    return list(zip(dates,deaths))
+  elif case_type in ['active']:    return list(zip(dates,actives[1:]))
   
-  x=json.load(open('data-all.json'))
-  d=list(x.keys());d.sort()
-  dates=[datetime.datetime.strptime(i,'%Y-%m-%d') for i in d];
-  state_code=state_name_to_code[state].upper()
-  returned=[]
+  
+  # ~ x=json.load(open('data-all.json'))
+  # ~ d=list(x.keys());d.sort()
+  # ~ dates=[datetime.datetime.strptime(i,'%Y-%m-%d') for i in d];
+  # ~ state_code=state_name_to_code[state].upper()
+  # ~ returned=[]
 
-  first30=False
-  if case_type=='first30deaths' : first30=True;case_type='deaths' 
+  # ~ first30=False
+  # ~ if case_type=='first30deaths' : first30=True;case_type='deaths' 
   
-  for date in d:
-    dt=datetime.datetime.strptime(date,'%Y-%m-%d')
-    if dt<=datetime.datetime(2020,4,1,0,0): continue
-    if  not (state_code in x[date] and 'districts' in x[date][state_code]) : continue
-    state_data=x[date][state_code]['districts']
-    # ~ except:
-      # ~ print 'no data for date: %s in state: %s' %(date,state_code)
-      # ~ continue
+  # ~ for date in d:
+    # ~ dt=datetime.datetime.strptime(date,'%Y-%m-%d')
+    # ~ if dt<=datetime.datetime(2020,4,1,0,0): continue
+    # ~ if  not (state_code in x[date] and 'districts' in x[date][state_code]) : continue
+    # ~ state_data=x[date][state_code]['districts']
+
     
-    if district in state_data:
-      district_data=state_data[district]
-      if not ('total' in district_data and 'delta' in district_data): continue
-      tested=0;tested_delta=0;deaths_delta=0;deaths=0;recovered=0
-      confirmed=district_data['total']['confirmed']
-      if 'recovered' in district_data['total']: recovered=district_data['total']['recovered']
-      if 'deceased' in district_data['total']:  deaths=district_data['total']['deceased']
-      if 'tested' in district_data['total']: tested=district_data['total']['tested']
+    # ~ if district in state_data:
+      # ~ district_data=state_data[district]
+      # ~ if not ('total' in district_data and 'delta' in district_data): continue
+      # ~ tested=0;tested_delta=0;deaths_delta=0;deaths=0;recovered=0
+      # ~ confirmed=district_data['total']['confirmed']
+      # ~ if 'recovered' in district_data['total']: recovered=district_data['total']['recovered']
+      # ~ if 'deceased' in district_data['total']:  deaths=district_data['total']['deceased']
+      # ~ if 'tested' in district_data['total']: tested=district_data['total']['tested']
       
-      active=confirmed-recovered-deaths
-      # ~ print active
+      # ~ active=confirmed-recovered-deaths
 
-      if not ('recovered' in district_data['delta'] and 'confirmed' in district_data['delta']): continue
-      confirmed_delta=district_data['delta']['confirmed']
-      try:
-        recovered_delta=district_data['delta']['recovered']
-      except:
-        print(('error getting recovered_delta on date: '+date))
-        print((district_data['delta']))
-        return
-      if 'deceased' in district_data['delta']: deaths_delta=district_data['delta']['deceased']
-      active_delta=confirmed_delta-recovered_delta-deaths_delta
-      if 'tested' in district_data['delta']: tested_delta=district_data['delta']['tested']
+      # ~ if not ('recovered' in district_data['delta'] and 'confirmed' in district_data['delta']): continue
+      # ~ confirmed_delta=district_data['delta']['confirmed']
+      # ~ try:
+        # ~ recovered_delta=district_data['delta']['recovered']
+      # ~ except:
+        # ~ print(('error getting recovered_delta on date: '+date))
+        # ~ print((district_data['delta']))
+        # ~ return
+      # ~ if 'deceased' in district_data['delta']: deaths_delta=district_data['delta']['deceased']
+      # ~ active_delta=confirmed_delta-recovered_delta-deaths_delta
+      # ~ if 'tested' in district_data['delta']: tested_delta=district_data['delta']['tested']
 
-      if case_type=='confirmed_delta': returned.append((dt,confirmed_delta))
-      elif case_type=='recovered_delta': returned.append((dt,recovered_delta))
-      elif case_type=='deaths_delta': returned.append((dt,deaths_delta))
-      elif case_type=='active_delta': returned.append((dt,active_delta))
-      elif case_type=='tested_delta': returned.append((dt,tested_delta))
-      elif case_type=='recovered': returned.append((dt,recovered))
-      elif case_type=='deaths': returned.append((dt,deaths))
-      elif case_type=='active': returned.append((dt,active))
-      elif case_type=='tested': returned.append((dt,tested))
-      elif case_type=='confirmed': returned.append((dt,confirmed))
-    else:
-      # ~ print 'district: %s not found in state: %s on date: %s' %(district,state,date)
-      continue
-      # ~ return
-  del x
-  if first30:
-    date=''
-    for i in returned:
-      if i[1]>=30: return i[0]
-  return returned
+      # ~ if case_type=='confirmed_delta': returned.append((dt,confirmed_delta))
+      # ~ elif case_type=='recovered_delta': returned.append((dt,recovered_delta))
+      # ~ elif case_type=='deaths_delta': returned.append((dt,deaths_delta))
+      # ~ elif case_type=='active_delta': returned.append((dt,active_delta))
+      # ~ elif case_type=='tested_delta': returned.append((dt,tested_delta))
+      # ~ elif case_type=='recovered': returned.append((dt,recovered))
+      # ~ elif case_type=='deaths': returned.append((dt,deaths))
+      # ~ elif case_type=='active': returned.append((dt,active))
+      # ~ elif case_type=='tested': returned.append((dt,tested))
+      # ~ elif case_type=='confirmed': returned.append((dt,confirmed))
+    # ~ else:
+      # ~ continue
+  # ~ del x
+  # ~ if first30:
+    # ~ date=''
+    # ~ for i in returned:
+      # ~ if i[1]>=30: return i[0]
+  # ~ return returned
 
 def plot_table(data,rows,columns,fontsize=15,scale=1.2):
   pylab.close();
@@ -2444,7 +2460,11 @@ def tamil_nadu_parse_cases(analysis=False,plot=True,find_cis=False):
     c=np.diff(c)[-1*len(a60):]#[-1*len(dates):]
     
     # ~ frac=100*(np.array(moving_average(a60))/np.array(moving_average(c)))
-    frac=100*np.array(moving_average(a60/c,window_size=7))    
+    # ~ frac=100*np.array(moving_average(a60/c,window_size=7))    
+    frac=100*np.array(a60/c)
+    
+    
+        
     if find_cis:
       import statsmodels.api as sm;cis=[];ci0=[];ci1=[]
       for idx in range(len(c)):        
@@ -2456,6 +2476,9 @@ def tamil_nadu_parse_cases(analysis=False,plot=True,find_cis=False):
     dates=dates[7:]
     frac=frac[-1*len(dates):]    
     
+    frac=[i[1] for i in zip(dates,frac) if i[0]!=datetime.datetime(2021, 3, 15, 0, 0)] #remove outlier on march 15
+    frac=moving_average(frac)
+    dates=[i for i in dates if i!=datetime.datetime(2021, 3, 15, 0, 0)]
     if plot:
       sp,ax=pylab.subplots()
       locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
@@ -2672,7 +2695,12 @@ def tamil_nadu_parse_clippings():
     
     clip=b[start:end]
     death_case_no=clip[0].strip().split('Death Case No')[1].replace(':','').strip().replace('.','')
+    if 'no' in death_case_no.lower(): death_case_no=death_case_no.lower().replace('no','').strip()
     cons=' '.join(clip[1:])
+    
+    if 'included in the list' in cons.lower(): 
+      # ~ print('included in list.skipping');
+      continue
 
     
     try:
@@ -3261,38 +3289,34 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
     if plot:
         if plot_days:
             pass
-        if district: #compare with avg of district vs state
-            dates2,x1,x2,x3,x4,x5,x6,state_avg=zip(*get_mobility(state=state,district=''))
-            dates2=pylab.date2num(dates2);dates=pylab.date2num(dates)
-            ax=pylab.axes()
-            locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+        # ~ if district: #compare with avg of district vs state
+            # ~ dates2,x1,x2,x3,x4,x5,x6,state_avg=zip(*get_mobility(state=state,district=''))
+            # ~ dates2=pylab.date2num(dates2);dates=pylab.date2num(dates)
+            # ~ ax=pylab.axes()
+            # ~ locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
             # ~ formatter = mdates.ConciseDateFormatter(locator)
-            formatter = mdates.ConciseDateFormatter(locator)
-            ax.xaxis.set_major_locator(locator)
-            ax.xaxis.set_major_formatter(formatter) 
-            ax.plot_date(dates,avg,label=district+' avg. change from baseline')
-            ax.plot_date(dates2,state_avg,label=state+' avg. change from baseline')
-            ax.set_xlabel('dates');ax.set_ylabel('Percent Change in mobility from baseline in '+district+' vs whole '+state);
-            ax.legend(fontsize=6)
-            ax.set_title('Mobility trends in '+district+' vs '+state)
+            # ~ ax.xaxis.set_major_locator(locator)
+            # ~ ax.xaxis.set_major_formatter(formatter) 
+            # ~ ax.plot_date(dates,avg,label=district+' avg. change from baseline')
+            # ~ ax.plot_date(dates2,state_avg,label=state+' avg. change from baseline')
+            # ~ ax.set_xlabel('dates');ax.set_ylabel('Percent Change in mobility from baseline in '+district+' vs whole '+state);
+            # ~ ax.legend(fontsize=6)
+            # ~ ax.set_title('Mobility trends in '+district+' vs '+state)
 
-            pylab.savefig(TMPDIR+district+' vs '+state+' mobility trends.jpg');pylab.close()
-            for state in ['Bihar','Uttar Pradesh','Rajsthan']:
-                print('saving mobility vs tpr')
-                dx,ppd,xx1,xx2=get_positivity_district(state=state,district=district,plot=False)
-                plot2(dates,avg,dx,ppd,label1='Average Mobility change in '+district+','+state+' from baseline',label2='TPR in district',color2='green')
+            # ~ pylab.savefig(TMPDIR+district+' vs '+state+' mobility trends.jpg');pylab.close()
 
-        else:
+
+        # ~ else:
             dates=pylab.date2num(dates)
             if plot_days:
-                dates=dates[-1*plot_days:]
-                recr=recr[-1*plot_days:]
-                trans=trans[-1*plot_days:]
-                wrksp=wrksp[-1*plot_days:]
-                groc=groc[-1*plot_days:]
-                resi=resi[-1*plot_days:]
-                parks=parks[-1*plot_days:]
-                avg=avg[-1*plot_days:]
+              dates=dates[-1*plot_days:]
+              recr=recr[-1*plot_days:]
+              trans=trans[-1*plot_days:]
+              wrksp=wrksp[-1*plot_days:]
+              groc=groc[-1*plot_days:]
+              resi=resi[-1*plot_days:]
+              parks=parks[-1*plot_days:]
+              avg=avg[-1*plot_days:]
             ax=pylab.axes()
             locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
             # ~ formatter = mdates.ConciseDateFormatter(locator)
@@ -3305,16 +3329,17 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
             ax.plot_date(dates,trans,label='Transport')
             ax.plot_date(dates,wrksp,label='Workplace')
             ax.plot_date(dates,resi,label='Residence')
+            ax.plot_date(dates,avg,label='Average')
             ax.set_xlabel('dates');ax.set_ylabel('Percent Change in mobility from baseline');
             ax.legend(fontsize=6)
             loc=state
             if district: loc=district+' district of '+state
             if not loc: loc='India'
             ax.set_title('Mobility trends in '+loc)
-
+  
             pylab.savefig(TMPDIR+loc+' mobility trends.jpg');pylab.close()
             #avg vs pos
-            if loc!='India':
+            if (not district) and (loc!='India'):
                 dates5,pos=zip(*get_positivity(state))
                 if plot_days:
                     dates5=dates5[-1*plot_days:]
@@ -4154,11 +4179,15 @@ def kerala_parse_deaths(format_type='new'):
       if gender.lower()=='female': gender='F'
       else: gender='M'
   
-      dod=entry.split()[-2].strip().replace('267.09.2020','26.09.2020').replace('.','/').replace('2021','2021').replace('2O21','2021').replace('-','/').replace('202I','2021')
+      dod=entry.split()[-2].strip().replace('267.09.2020','26.09.2020').replace('.','/').replace('2021','2021').replace('2O21','2021').replace('-','/').replace('202I','2021').replace('/221','/2021').replace('/20210','/2021').replace('/052021','/05/2021').replace('/O5/','/05/')
+      if '00/01/1900' in dod: print('unparsable 1900 date.continuing.');continue
       if dod.count('/')==2:
         if dod.endswith('/20'):dod+='20'
         elif dod.endswith('/21'):dod=dod.replace('/21','/2021')
-        dod=datetime.datetime.strptime(dod,'%d/%m/%Y')
+        # ~ dod=dod.replace('/221','/2021').replace('/052021','/05/2021')
+        try: dod=datetime.datetime.strptime(dod,'%d/%m/%Y')
+        except:
+          print('could not converet dod: ',dod);return
   
       origin=entry.split()[-1].strip()
       if origin.lower()=='contact': origin='CONT'
@@ -5722,8 +5751,29 @@ def cdr_func(tpr,maxi=14,mini=10):
   b=(mini-maxi)/34.;a=maxi-((mini-maxi)/34);
   return a+(b*tpr)
 
-def r0_func(date='',ro_init=2.5,ro_alpha=4.,r0_delta=7):
+def r0_func(date='',ro_init=3,ro_alpha=4.,r0_delta=7,time_shift=0,time_shift2=0,time_shift3=0,plot=False,return_series=False):
+ # ~ if time_shift: print('got shift ',time_shift)
+ if return_series:
+   dates=pd.date_range('2021-02-01','2021-06-10').to_pydatetime()
+   r0=[r0_func(date=i,ro_init=ro_init,ro_alpha=ro_alpha,r0_delta=r0_delta,time_shift=time_shift,time_shift2=time_shift2,time_shift3=time_shift3) for i in dates]
+   return dates,r0
+ if plot:
+  dates=pd.date_range('2021-02-01','2021-06-10').to_pydatetime()
+  r0=[r0_func(date=i,ro_init=ro_init,ro_alpha=ro_alpha,r0_delta=r0_delta,time_shift=time_shift,time_shift2=time_shift2,time_shift3=time_shift3) for i in dates]
+  rr=pd.DataFrame({'dates':dates,'r0':r0})
+  pylab.close()
+  pylab.plot_date(rr.dates,rr.r0);pylab.show()
+  return
  init_date=datetime.datetime(2021, 2, 10, 0, 0); alpha_date=datetime.datetime(2021, 3, 15, 0, 0); delta_date=datetime.datetime(2021, 4, 10, 0, 0);
+ if time_shift: 
+   init_date+=datetime.timedelta(days=time_shift)
+   alpha_date+=datetime.timedelta(days=time_shift)
+   delta_date+=datetime.timedelta(days=time_shift)
+ if time_shift2:    
+   alpha_date+=datetime.timedelta(days=time_shift2)
+ if time_shift3:    
+   delta_date+=datetime.timedelta(days=time_shift3)
+   
  
  if date<init_date: return ro_init
  elif (date>=init_date) and (date<alpha_date): 
@@ -5737,8 +5787,17 @@ def r0_func(date='',ro_init=2.5,ro_alpha=4.,r0_delta=7):
   # ~ print('found %d gap from delta to alpha' %(gap))
   return ro_alpha+(gap*slope)
  elif date>=delta_date: return r0_delta
-def reinfection_rate_func(date='',reinfection_rate_init=0.10,reinfection_rate_alpha=0.12,reinfection_rate_delta=0.35):
+def reinfection_rate_func(date='',reinfection_rate_init=0.10,reinfection_rate_alpha=0.12,reinfection_rate_delta=0.35,time_shift=0,time_shift2=0,time_shift3=0):
  init_date=datetime.datetime(2021, 2, 10, 0, 0); alpha_date=datetime.datetime(2021, 3, 15, 0, 0); delta_date=datetime.datetime(2021, 4, 10, 0, 0);
+ 
+ if time_shift: 
+   init_date+=datetime.timedelta(days=time_shift)
+   alpha_date+=datetime.timedelta(days=time_shift)
+   delta_date+=datetime.timedelta(days=time_shift)
+ if time_shift2:    
+   alpha_date+=datetime.timedelta(days=time_shift2)
+ if time_shift3:    
+   delta_date+=datetime.timedelta(days=time_shift3)
  
  if date<init_date: return reinfection_rate_init
  elif (date>=init_date) and (date<alpha_date): 
@@ -5773,7 +5832,7 @@ def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percen
  # ~ prev=xx[(xx.dates>'2021-04-20') & (xx.dates<'2021-06-04')].cases*cdr_ratio
  num_infected=xx[(xx.dates>startdate) & (xx.dates<enddate)].cases*(100/cdr)
  prev_daily=num_infected/pop
- dates=xx[(xx.dates>startdate) & (xx.dates<'2021-06-04')].dates
+ dates=xx[(xx.dates>startdate) & (xx.dates<enddate)].dates
  
  
  # ~ print(len(dates))
@@ -5800,13 +5859,29 @@ def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percen
  Rt=a.values*b.values*np.array(r0)
  return Rt,a,b,dates,prev,prev_daily,r0
 
-def rweekly(state='',days=7):
+def rweekly(state='',district='',days=6,startdate='2021-01-01',use_tpr=False):
  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
  if state in ['','India']:
   x=pd.DataFrame(get_cases_national('confirmed'),columns=['dates','cases'])
+  # ~ x=x[x.dates>=startdate]
+  if use_tpr:
+    z=[i for i in get_positivity(state) if i[0]>=datetime.datetime.strptime(startdate,'%Y-%m-%d')]
+    d,c=zip(*z)
+    x=pd.DataFrame({'dates':d,"cases":c})
  else:
-  d,c=zip(*get_cases(state,case_type='confirmed',return_full_series=True))
-  c=np.diff(c);d=d[1:];  x=pd.DataFrame({'dates':d,"cases":c})
+   if district: 
+    d,c=zip(*get_cases_district(state,district,case_type='confirmed'))
+    x=pd.DataFrame({'dates':d,"cases":c})
+    x=x[x.dates>=startdate]
+   else:
+    if use_tpr:
+      z=[i for i in get_positivity(state) if i[0]>=datetime.datetime.strptime(startdate,'%Y-%m-%d')]
+      d,c=zip(*z)
+      x=pd.DataFrame({'dates':d,"cases":c})
+    else:
+      z=[i for i in get_cases(state,case_type='confirmed',return_full_series=True) if i[0]>=datetime.datetime.strptime(startdate,'%Y-%m-%d')]
+      d,c=zip(*z)
+      c=np.diff(c);d=d[1:];  x=pd.DataFrame({'dates':d,"cases":c})
  c=moving_average(x.cases)
  rout=[]
  for idx in range(days,len(c)):
@@ -5815,19 +5890,36 @@ def rweekly(state='',days=7):
  rout=pd.DataFrame(rout,columns=['dates','r'])
  return rout
 
-def rmodel(cdr0=10.0,init_prev=0.55,reinfection_rate_delta=0.3,GT=6,mobility_shift='',startdate='2021-02-15',enddate='2021-06-04',plot=True):
+def rmodel(model_city='dl',r0_time_shift=0,r0_time_shift2=0,r0_time_shift3=0,cdr0=10.0,init_prev=0.55,reinfection_rate_delta=0.25,GT=6,mobility_shift='',startdate='2021-02-15',enddate='2021-06-08',plot=True):
   tot_pop=20e6;  startdate=datetime.datetime.strptime(startdate,"%Y-%m-%d");
   enddate=datetime.datetime.strptime(enddate,"%Y-%m-%d")
   
   import math;delta_days=(enddate-startdate).days
   
   #get IO
-  d,c=zip(*get_cases('dl',case_type='confirmed',return_full_series=True))
-  c=np.diff(c);d=d[1:];  x=pd.DataFrame({'dates':d,"cases":c})
+  if model_city in ['dl']:
+    d,c=zip(*get_cases('dl',case_type='confirmed',return_full_series=True));    c=np.diff(c);d=d[1:];  
+  elif model_city in ['bg']:
+    d,c=zip(*get_cases_district('ka','Bengaluru Urban',case_type='confirmed',return_full_series=True))
+    tot_pop=12e6
+  elif model_city in ['ch']:
+    d,c=zip(*get_cases_district('tn','Chennai',case_type='confirmed',return_full_series=True))
+    tot_pop=10.9e6
+  elif model_city in ['ah']:
+    d,c=zip(*get_cases_district('gj','Ahmedabad',case_type='confirmed',return_full_series=True))
+    tot_pop=9e6
+  x=pd.DataFrame({'dates':d,"cases":c})
   c=moving_average(x.cases);cases_dict=dict(zip(d,c))
   I0=cases_dict[startdate]*(100./cdr0)
   #get mobilility
-  dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('dl',do_moving_average=True,special_sum=False))
+  if model_city in ['dl']:
+    dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('dl',do_moving_average=True,special_sum=False))
+  elif model_city in ['bg']:
+    dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('ka','Bangalore Urban',do_moving_average=True,special_sum=False))
+  elif model_city in ['ch']:    
+    dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('tn','Chennai',do_moving_average=True,special_sum=False))
+  elif model_city in ['ah']:    
+    dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('gj','Ahmedabad',do_moving_average=True,special_sum=False))
   
   if mobility_shift:
     if mobility_shift>0:      
@@ -5838,9 +5930,9 @@ def rmodel(cdr0=10.0,init_prev=0.55,reinfection_rate_delta=0.3,GT=6,mobility_shi
       mobility_dict.extend(list(zip(dt[-1*mobility_shift:],[avg[-1]]*mobility_shift)))
       mobility_dict=dict(mobility_dict)
   else:
-    mobility_dict=dict(zip(dt,avg))
-  
-  rt0=r0_func(startdate)*(1-init_prev)*(1+(0.01*mobility_dict[startdate]))
+    # ~ mobility_dict=dict(zip(dt,avg))
+    mobility_dict=dict(zip(dt,recr))
+  rt0=r0_func(startdate,time_shift=r0_time_shift,time_shift2=r0_time_shift2,time_shift3=r0_time_shift3)*(1-init_prev)*(1+(0.01*mobility_dict[startdate]))
   rt=[rt0];dates=[startdate];daily_infections=[I0]
   prev_pop_daily=[0]
   
@@ -5849,37 +5941,46 @@ def rmodel(cdr0=10.0,init_prev=0.55,reinfection_rate_delta=0.3,GT=6,mobility_shi
    try:
      infections_new=(daily_infections[-1])*math.pow(rt[-1],1/GT)
    except:
-     print('got error ',daily_infections[-1],rt[-1],1/GT,i)
+     print('got error ',daily_infections[-1],rt[-1],1/GT,i,date)
      return dates,daily_infections,prev_pop_daily,rt
    daily_infections.append(infections_new);dates.append(date)
    
-   prev_pop_immunity=(1-reinfection_rate_func(date,reinfection_rate_delta=reinfection_rate_delta))*(float(sum(daily_infections))/tot_pop)
+   cur_reinfection_rate=reinfection_rate_func(date,reinfection_rate_delta=reinfection_rate_delta,time_shift=r0_time_shift,time_shift2=r0_time_shift2,time_shift3=r0_time_shift3)
+   prev_pop_immunity=(1-cur_reinfection_rate)*(float(sum(daily_infections))/tot_pop)
    prev_pop_daily.append(prev_pop_immunity)
    prev=init_prev+prev_pop_immunity
    mobility=0.01*mobility_dict[date]
-   rt_new=r0_func(date)*(1-prev)+(1+mobility) 
-   rt_new=r0_func(date)*(1-prev)+(1+mobility) 
+   r0t=r0_func(date,time_shift=r0_time_shift,time_shift2=r0_time_shift2,time_shift3=r0_time_shift3)
+   rt_new=r0t*(1-prev)+(1+mobility) 
+   # ~ rt_new=r0_func(date)*(1-prev)+(1+mobility) 
    rt.append(rt_new) 
-   rt[-1]=r0_func(date)*(1-prev)*(1+mobility)
+   rt[-1]=r0t*(1-prev)*(1+mobility)
    # ~ if len(rt)==2: 
      # ~ print(rt,'rt_new',rt_new,r0_func(date)*(1-prev)*(1+mobility))
      # ~ rt[-1]=r0_func(date)*(1-prev)*(1+mobility)
      # ~ print('rt',rt)
   
   if plot:
-    rw=rweekly('dl',days=GT);rcalc=rw[(rw.dates>startdate) & (rw.dates<enddate)].r.values;
-    plotex(dates,rt,dates[1:],rcalc,label='Calculated Rt',label2='measured Rt (%d-day change)' %(GT),color2='green')
+    if model_city in ['dl']:      rw=rweekly('dl',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
+    elif model_city in ['bg']:      rw=rweekly('ka','Bengaluru Urban',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
+    elif model_city in ['ch']:      rw=rweekly('tn','Chennai',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
+    elif model_city in ['ah']:      rw=rweekly('gj','Ahmedabad',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
+    # ~ rcalc=rw[(rw.dates>startdate) & (rw.dates<enddate)].r.values;
+    rcalc=rw[rw.dates>startdate].r.values;
+    rdates=pd.date_range(startdate,periods=len(rcalc)+1)[1:].to_pydatetime()
+    # ~ plotex(dates,rt,dates[1:],rcalc,label='Calculated Rt',label2='measured Rt (%d-day change)' %(GT),color2='green',state=model_city.upper())
+    plotex(dates,rt,rdates,rw[rw.dates>startdate].r.values,label='Calculated Rt',label2='measured Rt (%d-day change)' %(GT),color2='green',state=model_city.upper())
     sp,ax=pylab.subplots()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator);ax.xaxis.set_major_locator(locator);ax.xaxis.set_major_formatter(formatter)
-    ax.semilogy(d[-130:],c[-130:],label='Daily cases in DL')
-    ax.semilogy(dates,daily_infections,label='Daily infections in DL')
-    pylab.legend();pylab.xlabel('Dates');pylab.ylabel('Cases/Infections in Delhi');pylab.title('Delhi cases vs infections in 4th wave');
-    pylab.savefig(TMPDIR+'Log-scale cases vs infections in DL.jpg');pylab.close()
+    ax.semilogy(d[-130:],c[-130:],label='Daily cases')
+    ax.semilogy(dates,daily_infections,label='Daily infections')
+    pylab.legend();pylab.xlabel('Dates');pylab.ylabel('Cases/Infections in '+model_city.upper());pylab.title('Cases vs infections in '+model_city);
+    pylab.savefig(TMPDIR+'Log-scale cases vs infections in '+model_city.upper()+'.jpg');pylab.close()
     
   return dates,daily_infections,prev_pop_daily,rt
 
-def plot_func(R0=8,startdate='2021-04-20',gt=6,orig_infected_percent=0.60,max_cdr=10,min_cdr=9):
- enddate='2021-06-04';
+def plot_func(R0=8,startdate='2021-04-20',enddate='2021-06-04',gt=6,orig_infected_percent=0.60,max_cdr=10,min_cdr=9):
+ 
  y=rest(R0=R0,startdate=startdate,enddate=enddate,orig_infected_percent=orig_infected_percent,max_cdr=max_cdr,min_cdr=min_cdr);
  a=y[1];b=y[2];r0=y[6]
  # ~ return (a,b,r0)
@@ -5888,7 +5989,8 @@ def plot_func(R0=8,startdate='2021-04-20',gt=6,orig_infected_percent=0.60,max_cd
  rr=pd.DataFrame({'dates':y[3],'r':y[0]});
  pylab.close();sp,ax=pylab.subplots()
  locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator);ax.xaxis.set_major_locator(locator);ax.xaxis.set_major_formatter(formatter)
- pylab.plot(rcalc.dates,rcalc.r,label='5-day cases growth rate (measured Rt)');pylab.plot(rr.dates,rr.r,label='Calculated Rt for simplified homogeneous network');
+ # ~ pylab.plot(rcalc.dates,rcalc.r,label='5-day cases growth rate (measured Rt)');pylab.plot(rr.dates,rr.r,label='Calculated Rt for simplified homogeneous network');
+ pylab.plot(rw[rw.dates>startdate].dates,rw[rw.dates>startdate].r,label=str(gt)+'-day cases growth rate (measured Rt)');pylab.plot(rr.dates,rr.r,label='Calculated Rt for simplified homogeneous network');
  pylab.plot(rcalc.dates,np.ones(len(rcalc.dates)),label='Rt=1')
  pylab.legend();pylab.xlabel('Date');pylab.ylabel('Rt')
  pylab.show()
