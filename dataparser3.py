@@ -48,6 +48,8 @@ state_code_to_name={"an" : "Andaman and Nicobar Islands" ,"ap" : "Andhra Pradesh
 state_name_to_code={}
 for k in state_code_to_name: state_name_to_code[state_code_to_name[k]]=k
 
+todatetime=lambda x: pd.DatetimeIndex(x).to_pydatetime()
+
 #bengaluru-urban and bengaluru-rural taken together as one for our purposes
 karnataka_districts_map={'bagal':'bagalkote','balla':'ballari','chikkam':'chikkamagaluru',
   'belag':'belagavi','benga':'bengaluru','bida':'bidar','chamaraj':'chamarajanagara','chikkab':'chikkaballapura',
@@ -958,7 +960,7 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',
   pylab.close()
 
 
-def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',color2='red',draw_vline=False,plot_days=''):
+def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',color2='red',draw_vline=False,draw_hline=False,plot_days=''):
     if len(state)==2 and state in state_code_to_name: state=state_code_to_name[state];
     if plot_days:
         dates=dates[-1*plot_days:]
@@ -985,6 +987,8 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
     if draw_vline:
       # ~ ax.vlines(pylab.date2num([datetime.datetime(2021, 3, 1, 0, 0)]),min(data)-0.5,max(data)+0.5,label='Elderly vaccinations begin',color='green',linestyles='dashed',linewidth=4)
       ax.vlines(pylab.date2num([datetime.datetime(2021, 5, 6, 0, 0)]),min(data),max(data)+3,label='Approximate national peak',color='grey',linestyles='dashed',linewidth=5)
+    if draw_hline:
+      ax.plot_date(dates,np.ones(len(dates)),'-',label='Rt=1',color='orange')
     
     ax.legend(loc='upper left',fontsize=6)
 
@@ -5913,7 +5917,7 @@ def rmodel(model_city='dl',r0_time_shift=0,r0_time_shift2=0,r0_time_shift3=0,cdr
   I0=cases_dict[startdate]*(100./cdr0)
   #get mobilility
   if model_city in ['dl']:
-    dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('dl',do_moving_average=True,special_sum=False))
+    dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('dl',do_moving_average=True,special_sum=True))
   elif model_city in ['bg']:
     dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('ka','Bangalore Urban',do_moving_average=True,special_sum=False))
   elif model_city in ['ch']:    
@@ -5930,8 +5934,8 @@ def rmodel(model_city='dl',r0_time_shift=0,r0_time_shift2=0,r0_time_shift3=0,cdr
       mobility_dict.extend(list(zip(dt[-1*mobility_shift:],[avg[-1]]*mobility_shift)))
       mobility_dict=dict(mobility_dict)
   else:
-    # ~ mobility_dict=dict(zip(dt,avg))
-    mobility_dict=dict(zip(dt,recr))
+    # ~ mobility_dict=dict(zip(dt,recr))
+    mobility_dict=dict(zip(dt,avg))
   rt0=r0_func(startdate,time_shift=r0_time_shift,time_shift2=r0_time_shift2,time_shift3=r0_time_shift3)*(1-init_prev)*(1+(0.01*mobility_dict[startdate]))
   rt=[rt0];dates=[startdate];daily_infections=[I0]
   prev_pop_daily=[0]
@@ -5961,7 +5965,7 @@ def rmodel(model_city='dl',r0_time_shift=0,r0_time_shift2=0,r0_time_shift3=0,cdr
      # ~ print('rt',rt)
   
   if plot:
-    if model_city in ['dl']:      rw=rweekly('dl',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
+    if model_city in ['dl']:      rw=rweekly('dl',startdate=startdate.strftime('%Y-%m-%d'),days=GT,use_tpr=True);
     elif model_city in ['bg']:      rw=rweekly('ka','Bengaluru Urban',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
     elif model_city in ['ch']:      rw=rweekly('tn','Chennai',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
     elif model_city in ['ah']:      rw=rweekly('gj','Ahmedabad',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
