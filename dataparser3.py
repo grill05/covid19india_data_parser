@@ -2010,7 +2010,7 @@ def update_data_files(extra=False):
   urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv','https://api.covid19india.org/data.json']
   
   # ~ if extra: urls.extend(['https://api.covid19india.org/v4/data-all.json'])
-  if extra: urls.extend(['https://api.covid19india.org/csv/latest/districts.csv'])
+  if extra: urls.extend(['https://api.covid19india.org/csv/latest/districts.csv','http://api.covid19india.org/csv/latest/cowin_vaccine_data_statewise.csv'])
   for i in urls:
     filename=os.path.split(i)[1]
     if os.path.exists(filename):
@@ -5863,7 +5863,7 @@ def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percen
  Rt=a.values*b.values*np.array(r0)
  return Rt,a,b,dates,prev,prev_daily,r0
 
-def rweekly(state='',district='',days=6,startdate='2021-01-01',use_tpr=False):
+def rweekly(state='',district='',days=6,startdate='2021-01-01',use_tpr=False,plot=False):
  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
  if state in ['','India']:
   x=pd.DataFrame(get_cases_national('confirmed'),columns=['dates','cases'])
@@ -5876,7 +5876,8 @@ def rweekly(state='',district='',days=6,startdate='2021-01-01',use_tpr=False):
    if district: 
     d,c=zip(*get_cases_district(state,district,case_type='confirmed'))
     x=pd.DataFrame({'dates':d,"cases":c})
-    x=x[x.dates>=startdate]
+    # ~ x=x[x.dates>=startdate]
+    # ~ return x
    else:
     if use_tpr:
       z=[i for i in get_positivity(state) if i[0]>=datetime.datetime.strptime(startdate,'%Y-%m-%d')]
@@ -5886,12 +5887,25 @@ def rweekly(state='',district='',days=6,startdate='2021-01-01',use_tpr=False):
       z=[i for i in get_cases(state,case_type='confirmed',return_full_series=True) if i[0]>=datetime.datetime.strptime(startdate,'%Y-%m-%d')]
       d,c=zip(*z)
       c=np.diff(c);d=d[1:];  x=pd.DataFrame({'dates':d,"cases":c})
+      # ~ return x
  c=moving_average(x.cases)
  rout=[]
  for idx in range(days,len(c)):
-  fact=float(c[idx])/c[idx-days]
-  rout.append((x.dates[idx],fact))
+  if c[idx-days]>0:
+    fact=float(c[idx])/c[idx-days]
+    rout.append((x.dates[idx],fact))
  rout=pd.DataFrame(rout,columns=['dates','r'])
+ if plot:
+   pylab.close()
+   sp,ax=pylab.subplots()
+   locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator);ax.xaxis.set_major_locator(locator);ax.xaxis.set_major_formatter(formatter)
+   loc=''
+   if district: loc=district+', '
+   if state: loc+=state
+   pylab.plot(rout[rout.dates>'2021-02-01'].dates,rout[rout.dates>'2021-02-01'].r,'.',label=loc)
+   pylab.plot(rout[rout.dates>'2021-02-01'].dates,np.ones(len(rout[rout.dates>'2021-02-01'].dates)),'-',label='R=1')
+   pylab.xlabel('Dates');pylab.ylabel('Percentage 6-day change in cases (R)');pylab.legend();pylab.title('Percentage 6-day change in cases (R) for '+loc);pylab.show()
+
  return rout
 
 def rmodel(model_city='dl',r0_time_shift=0,r0_time_shift2=0,r0_time_shift3=0,cdr0=10.0,init_prev=0.55,reinfection_rate_delta=0.25,GT=6,mobility_shift='',startdate='2021-02-15',enddate='2021-06-08',plot=True):
