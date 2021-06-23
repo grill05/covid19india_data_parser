@@ -177,7 +177,14 @@ def vaccination_state(state='Delhi',mohfw=True,check=False):
 
 def diffdata(data):  
   data2=[data[0]];  data2.extend(np.diff(data))
+  
+  for j in range(len(data2)):
+    if data2[j]<0:
+      if j>0 and  j<(len(data2)-1):
+        net=data2[j+1]+data2[j]
+        data2[j]=int(net/2);data2[j+1]=int(net/2)
   return data2
+  # ~ return data
 
 # ~ def vaccination_national():
   # ~ r=csv.reader(open('tested_numbers_icmr_data.csv'))
@@ -330,15 +337,16 @@ def vaccination_national_csv():
   x=csv.reader(open('tested_numbers_icmr_data.csv'));  info=[]
   for i in x: info.append(i)
   info=info[1:]
-  x=[i for i in info if i[19]]
+  x=[i for i in info if i[22]]
   firstdoses=[];seconddoses=[];dates=[]
   frontlinefirstdoses=[];frontlineseconddoses=[];hcwfirstdoses=[];hcwseconddoses=[]
-  over60firstdoses=[];over60seconddoses=[];upto60firstdoses=[];upto60seconddoses=[]
+  over60firstdoses=[];over60seconddoses=[];over45firstdoses=[];over45seconddoses=[]
+  from18to45firstdoses=[];from18to45seconddoses=[];
 
   for i in x:
-    if i[19]:firstdoses.append(int(i[19]))
+    if i[22]:firstdoses.append(int(i[22]))
     else: firstdoses.append(0)
-    if i[20]:seconddoses.append(int(i[20]))
+    if i[23]:seconddoses.append(int(i[23]))
     else: seconddoses.append(0)
     if i[12]:frontlinefirstdoses.append(int(i[12]))
     else: frontlinefirstdoses.append(0)
@@ -348,14 +356,18 @@ def vaccination_national_csv():
     else: hcwfirstdoses.append(0)
     if i[11]:hcwseconddoses.append(int(i[11]))
     else: hcwseconddoses.append(0)
-    if i[17]:over60firstdoses.append(int(i[17]))
+    if i[20]:over60firstdoses.append(int(i[20]))
     else: over60firstdoses.append(0)
-    if i[18]:over60seconddoses.append(int(i[18]))
+    if i[21]:over60seconddoses.append(int(i[21]))
     else: over60seconddoses.append(0)
-    if i[15]:upto60firstdoses.append(int(i[15]))
-    else: upto60firstdoses.append(0)
-    if i[16]:upto60seconddoses.append(int(i[16]))
-    else: upto60seconddoses.append(0)
+    if i[16]:over45firstdoses.append(int(i[16]))
+    else: over45firstdoses.append(0)
+    if i[17]:over45seconddoses.append(int(i[17]))
+    else: over45seconddoses.append(0)
+    if i[14]:from18to45firstdoses.append(int(i[14]))
+    else: from18to45firstdoses.append(0)
+    if i[15]:from18to45seconddoses.append(int(i[15]))
+    else: from18to45seconddoses.append(0)
     date=datetime.datetime.strptime(i[1],'%d/%m/%Y')
     dates.append(date)
   
@@ -364,8 +376,9 @@ def vaccination_national_csv():
   frontlinefirstdoses=diffdata(frontlinefirstdoses);frontlineseconddoses=diffdata(frontlineseconddoses);
   hcwfirstdoses=diffdata(hcwfirstdoses);hcwseconddoses=diffdata(hcwseconddoses);
   over60firstdoses=diffdata(over60firstdoses);over60seconddoses=diffdata(over60seconddoses);
-  upto60firstdoses=diffdata(upto60firstdoses);upto60seconddoses=diffdata(upto60seconddoses)
-  return list(zip(dates,firstdoses,seconddoses,frontlinefirstdoses,frontlineseconddoses,hcwfirstdoses,hcwseconddoses,over60firstdoses,over60seconddoses,upto60firstdoses,upto60seconddoses))
+  over45firstdoses=diffdata(over45firstdoses);over45seconddoses=diffdata(over45seconddoses)
+  from18to45firstdoses=diffdata(from18to45firstdoses);from18to45seconddoses=diffdata(from18to45seconddoses)
+  return list(zip(dates,firstdoses,seconddoses,frontlinefirstdoses,frontlineseconddoses,hcwfirstdoses,hcwseconddoses,over60firstdoses,over60seconddoses,over45firstdoses,over45firstdoses,from18to45firstdoses,from18to45seconddoses))
 def kerala_parse_vaccination(bulletin='',dump=False):
   if dump:
     cmd='pdftotext -layout "'+bulletin+'" tmp.txt';os.system(cmd)
@@ -5791,7 +5804,7 @@ def r0_func(date='',ro_init=3,ro_alpha=4.,r0_delta=7,time_shift=0,time_shift2=0,
   # ~ print('found %d gap from delta to alpha' %(gap))
   return ro_alpha+(gap*slope)
  elif date>=delta_date: return r0_delta
-def reinfection_rate_func(date='',reinfection_rate_init=0.10,reinfection_rate_alpha=0.12,reinfection_rate_delta=0.35,time_shift=0,time_shift2=0,time_shift3=0):
+def reinfection_rate_func(date='',reinfection_rate_init=0.07,reinfection_rate_alpha=0.08,reinfection_rate_delta=0.18,time_shift=0,time_shift2=0,time_shift3=0):
  init_date=datetime.datetime(2021, 2, 10, 0, 0); alpha_date=datetime.datetime(2021, 3, 15, 0, 0); delta_date=datetime.datetime(2021, 4, 10, 0, 0);
  
  if time_shift: 
@@ -5863,7 +5876,7 @@ def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percen
  Rt=a.values*b.values*np.array(r0)
  return Rt,a,b,dates,prev,prev_daily,r0
 
-def rweekly(state='',district='',days=6,startdate='2021-01-01',use_tpr=False,plot=False):
+def rweekly(state='',district='',days=6,startdate='2021-01-01',use_tpr=False,plot=False,time_shift=True):
  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
  if state in ['','India']:
   x=pd.DataFrame(get_cases_national('confirmed'),columns=['dates','cases'])
@@ -5893,7 +5906,10 @@ def rweekly(state='',district='',days=6,startdate='2021-01-01',use_tpr=False,plo
  for idx in range(days,len(c)):
   if c[idx-days]>0:
     fact=float(c[idx])/c[idx-days]
-    rout.append((x.dates[idx],fact))
+    if time_shift:
+      if idx-days>=0: rout.append((x.dates[idx-days],fact))
+    else:
+      rout.append((x.dates[idx],fact))
  rout=pd.DataFrame(rout,columns=['dates','r'])
  if plot:
    pylab.close()
@@ -5931,7 +5947,7 @@ def rmodel(model_city='dl',r0_time_shift=0,r0_time_shift2=0,r0_time_shift3=0,cdr
   I0=cases_dict[startdate]*(100./cdr0)
   #get mobilility
   if model_city in ['dl']:
-    dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('dl',do_moving_average=True,special_sum=True))
+    dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('dl',do_moving_average=True,special_sum=False))
   elif model_city in ['bg']:
     dt,recr,groc_phar,parks,trans,wrksp,resi,avg=zip(*get_mobility('ka','Bangalore Urban',do_moving_average=True,special_sum=False))
   elif model_city in ['ch']:    
@@ -5948,8 +5964,8 @@ def rmodel(model_city='dl',r0_time_shift=0,r0_time_shift2=0,r0_time_shift3=0,cdr
       mobility_dict.extend(list(zip(dt[-1*mobility_shift:],[avg[-1]]*mobility_shift)))
       mobility_dict=dict(mobility_dict)
   else:
-    # ~ mobility_dict=dict(zip(dt,recr))
-    mobility_dict=dict(zip(dt,avg))
+    mobility_dict=dict(zip(dt,recr))
+    # ~ mobility_dict=dict(zip(dt,avg))
   rt0=r0_func(startdate,time_shift=r0_time_shift,time_shift2=r0_time_shift2,time_shift3=r0_time_shift3)*(1-init_prev)*(1+(0.01*mobility_dict[startdate]))
   rt=[rt0];dates=[startdate];daily_infections=[I0]
   prev_pop_daily=[0]
@@ -5966,20 +5982,16 @@ def rmodel(model_city='dl',r0_time_shift=0,r0_time_shift2=0,r0_time_shift3=0,cdr
    cur_reinfection_rate=reinfection_rate_func(date,reinfection_rate_delta=reinfection_rate_delta,time_shift=r0_time_shift,time_shift2=r0_time_shift2,time_shift3=r0_time_shift3)
    prev_pop_immunity=(1-cur_reinfection_rate)*(float(sum(daily_infections))/tot_pop)
    prev_pop_daily.append(prev_pop_immunity)
+   # ~ prev=init_prev*(1-cur_reinfection_rate)+prev_pop_immunity
    prev=init_prev+prev_pop_immunity
    mobility=0.01*mobility_dict[date]
    r0t=r0_func(date,time_shift=r0_time_shift,time_shift2=r0_time_shift2,time_shift3=r0_time_shift3)
    rt_new=r0t*(1-prev)+(1+mobility) 
-   # ~ rt_new=r0_func(date)*(1-prev)+(1+mobility) 
    rt.append(rt_new) 
    rt[-1]=r0t*(1-prev)*(1+mobility)
-   # ~ if len(rt)==2: 
-     # ~ print(rt,'rt_new',rt_new,r0_func(date)*(1-prev)*(1+mobility))
-     # ~ rt[-1]=r0_func(date)*(1-prev)*(1+mobility)
-     # ~ print('rt',rt)
-  
+   
   if plot:
-    if model_city in ['dl']:      rw=rweekly('dl',startdate=startdate.strftime('%Y-%m-%d'),days=GT,use_tpr=True);
+    if model_city in ['dl']:      rw=rweekly('dl',startdate=startdate.strftime('%Y-%m-%d'),days=GT,use_tpr=False,time_shift=False);
     elif model_city in ['bg']:      rw=rweekly('ka','Bengaluru Urban',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
     elif model_city in ['ch']:      rw=rweekly('tn','Chennai',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
     elif model_city in ['ah']:      rw=rweekly('gj','Ahmedabad',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
