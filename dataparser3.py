@@ -2110,7 +2110,8 @@ def update_data_files(extra=False):
     os.system(cmd);
   if extra:
     cmd='cd ..&&wget https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip && unzip -q Region_Mobility_Report_CSVs.zip&&mv -v 2021_IN_Region_Mobility_Report.csv covid19india_data_parser && rm *zip *csv&&cd -'
-    print(cmd);os.system(cmd)
+    # ~ print(cmd);
+    os.system(cmd)
 
 class kerala_community_tr():
   date='';percent_unknown=''
