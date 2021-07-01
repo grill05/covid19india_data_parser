@@ -342,6 +342,7 @@ def vaccination_national_csv():
   frontlinefirstdoses=[];frontlineseconddoses=[];hcwfirstdoses=[];hcwseconddoses=[]
   over60firstdoses=[];over60seconddoses=[];over45firstdoses=[];over45seconddoses=[]
   from18to45firstdoses=[];from18to45seconddoses=[];
+  dosesprovided=[];dosesconsumed=[];dosesavailable=[];dosesinpipeline=[]
 
   for i in x:
     if i[22]:firstdoses.append(int(i[22]))
@@ -368,6 +369,15 @@ def vaccination_national_csv():
     else: from18to45firstdoses.append(0)
     if i[15]:from18to45seconddoses.append(int(i[15]))
     else: from18to45seconddoses.append(0)
+    
+    if i[33]:dosesprovided.append(int(i[33]))
+    else: dosesprovided.append(0)
+    if i[34]:dosesconsumed.append(int(i[34]))
+    else: dosesconsumed.append(0)
+    if i[35]:dosesavailable.append(int(i[35]))
+    else: dosesavailable.append(0)
+    if i[36]:dosesinpipeline.append(int(i[36]))
+    else: dosesinpipeline.append(0)
     date=datetime.datetime.strptime(i[1],'%d/%m/%Y')
     dates.append(date)
   
@@ -378,7 +388,7 @@ def vaccination_national_csv():
   over60firstdoses=diffdata(over60firstdoses);over60seconddoses=diffdata(over60seconddoses);
   over45firstdoses=diffdata(over45firstdoses);over45seconddoses=diffdata(over45seconddoses)
   from18to45firstdoses=diffdata(from18to45firstdoses);from18to45seconddoses=diffdata(from18to45seconddoses)
-  return list(zip(dates,firstdoses,seconddoses,frontlinefirstdoses,frontlineseconddoses,hcwfirstdoses,hcwseconddoses,over60firstdoses,over60seconddoses,over45firstdoses,over45firstdoses,from18to45firstdoses,from18to45seconddoses))
+  return list(zip(dates,firstdoses,seconddoses,frontlinefirstdoses,frontlineseconddoses,hcwfirstdoses,hcwseconddoses,over60firstdoses,over60seconddoses,over45firstdoses,over45firstdoses,from18to45firstdoses,from18to45seconddoses,dosesprovided,dosesconsumed,dosesavailable,dosesinpipeline))
 def kerala_parse_vaccination(bulletin='',dump=False):
   if dump:
     cmd='pdftotext -layout "'+bulletin+'" tmp.txt';os.system(cmd)
@@ -519,7 +529,7 @@ def parse_census(state='Tamil Nadu',metric='mean age'):
   for i in r: info.append(i)
   data=[i for i in info if i[0]==state]
 #  print(len(data))
-  if metric in ['above60','above45'] or metric.startswith('agedict'):
+  if metric in ['above60','above45','above18'] or metric.startswith('agedict'):
     data=data[1:-3]#exclude last 2 rows and initial one
     agedict={}
     for i in data:
@@ -540,6 +550,12 @@ def parse_census(state='Tamil Nadu',metric='mean age'):
     elif metric=='above45':
       tot_persons=sum(list(agedict.values()))
       above45=sum([agedict[i] for i in agedict if i>=45])
+      try:frac=float('%.3f' %(float(above45)/tot_persons))
+      except ZeroDivisionError: frac=0
+      return (above45,frac*100)
+    elif metric=='above18':
+      tot_persons=sum(list(agedict.values()))
+      above45=sum([agedict[i] for i in agedict if i>=18])
       try:frac=float('%.3f' %(float(above45)/tot_persons))
       except ZeroDivisionError: frac=0
       return (above45,frac*100)
@@ -571,7 +587,7 @@ def parse_census(state='Tamil Nadu',metric='mean age'):
       male=int(data[3])
       return (100*float(male)/tot,male,tot,data)
 
-def get_cases_global(country='India',case_type='confirmed',do_moving_average=True,plot=False,plot_days=''):
+def get_cases_global2(country='India',case_type='confirmed',do_moving_average=True,plot=False,plot_days=''):
     import csv
     fname='time_series_covid19_confirmed_global.csv'
     if case_type.startswith('deaths'): fname=fname.replace('confirmed','deaths')
@@ -602,6 +618,53 @@ def get_cases_global(country='India',case_type='confirmed',do_moving_average=Tru
       pylab.savefig(TMPDIR+'New daily cases in '+country+' (7-day MA).jpg');pylab.close()
 
     return (dates,cdata)
+def get_cases_global(country='United Kingdom',case_type='confirmed',do_moving_average=True,plot=False,plot_days=''):
+    import csv
+    fname='global_covid_data.csv'
+    # ~ if case_type.startswith('deaths'): fname=fname.replace('confirmed','deaths')
+    # ~ elif case_type.startswith('recovered'): fname=fname.replace('confirmed','recovered')
+    r=csv.reader(open(fname))
+    info=[]
+    for i in r: info.append(i)
+    info=[i for i in info[1:] if i[2]==country]
+    dates=[datetime.datetime.strptime(i[3],'%Y-%m-%d') for i in info]
+    # ~ cdata=[i for i in info if i[1]==country]
+    if not info: print('info for %s not found!' %(country));return
+    
+    values=[]
+    if case_type=='confirmed': values=[i[5] for i in info]
+    elif case_type=='cpm': values=[i[11] for i in info]
+    elif case_type=='deaths': values=[i[8] for i in info]
+    elif case_type=='dpm': values=[i[14] for i in info]
+    elif case_type=='r': values=[i[16] for i in info]
+    elif case_type in ['test','tests']: values=[i[25] for i in info]
+    elif case_type in ['tests_per_hundred']: values=[i[28] for i in info]
+    elif case_type in ['tpr']: values=[i[31] for i in info]
+    elif case_type in ['vaccinations']: values=[i[35] for i in info]
+    elif case_type in ['vaccinations_per_hundred']: values=[i[40] for i in info]
+    elif case_type in ['full_vaccinations']: values=[i[36] for i in info]
+    elif case_type in ['full_vaccinations_per_hundred']: values=[i[41] for i in info]
+    elif case_type in ['population']: values=[i[44] for i in info]
+    elif case_type in ['gdp_per_capita']: values=[i[49] for i in info]
+    
+    values2=[]
+    for i in values:
+      if i: values2.append(float(i))
+      else: values2.append(0)
+    values=values2
+    if case_type in ['population','gdp_per_capita']: values=values[0]
+    # ~ if plot:
+      # ~ c=np.diff(cdata)
+      # ~ dates=dates[1:]
+      # ~ if plot_days: c=c[-1*plot_days:];dates=dates[-1*plot_days:]
+      # ~ sp,ax=pylab.subplots()
+      # ~ locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator);
+      # ~ ax.xaxis.set_major_locator(locator);ax.xaxis.set_major_formatter(formatter)
+      # ~ ax.plot_date(dates,c,label='New daily cases in '+country+' (7-day MA)')
+      # ~ pylab.xlabel('Date');pylab.ylabel('New cases');pylab.title('New daily cases in '+country+' (7-day MA)');pylab.legend()
+      # ~ pylab.savefig(TMPDIR+'New daily cases in '+country+' (7-day MA).jpg');pylab.close()
+
+    return (dates,values)
 
 def get_population(state='Karnataka',district='Bengaluru Urban'):
     x=json.load(open('data-all.json'))
@@ -973,7 +1036,7 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label='',label2='',
   pylab.close()
 
 
-def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',color2='red',draw_vline=False,draw_hline=False,plot_days=''):
+def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',color2='red',draw_vline=False,draw_hline=False,plot_days='',do_show=False):
     if len(state)==2 and state in state_code_to_name: state=state_code_to_name[state];
     if plot_days:
         dates=dates[-1*plot_days:]
@@ -1022,7 +1085,9 @@ def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',col
     if state: title+=state+' '
     title+=label1.replace('(7-day MA)','')+' vs '+label2.replace('(7-day MA)','')
     pylab.title(title);  
-    pylab.savefig(TMPDIR+title+'.jpg',dpi=100)
+    if do_show: pylab.show()
+    else:  
+      pylab.savefig(TMPDIR+title+'.jpg',dpi=100)
     pylab.close()
 
 def get_beds(state='West Bengal'):
@@ -1130,6 +1195,7 @@ def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full
         confirmed_series[datetime_i]=confirmed;recovered_series[datetime_i]=recovered;
         deaths_series[datetime_i]=deaths;active_series[datetime_i]=active
 
+  
   if return_full_series:
     x=[]
     for date in confirmed_series: x.append((date,confirmed_series[date]))
@@ -1143,6 +1209,7 @@ def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full
     x=[]
     for date in recovered_series: x.append((date,recovered_series[date]))
     recovered_series=x;recovered_series.sort()
+  
   if case_type=='first100deaths':
     for i in deaths_series:
       date=i[0]
@@ -1155,7 +1222,16 @@ def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full
     else:                   return active
   elif case_type=='confirmed':
     if verbose: print(('Total cases in %s on %s were %d' %(state,date,confirmed)))
-    if return_full_series:  return confirmed_series
+    if return_full_series:
+      #HACK for delhi backlog
+      if state=='Delhi':
+        d,c=zip(*confirmed_series);d=list(d);c=list(c)
+        if datetime.datetime(2021,6,22,0,0) in d: c[d.index(datetime.datetime(2021,6,22,0,0))]=c[d.index(datetime.datetime(2021,6,21,0,0))]+134
+        if datetime.datetime(2021,6,23,0,0) in d: c[d.index(datetime.datetime(2021,6,23,0,0))]=c[d.index(datetime.datetime(2021,6,22,0,0))]+111
+        for i in range(len(d)):
+          if d[i]>datetime.datetime(2021,6,23,0,0): c[i]=c[i]-740
+        confirmed_series=list(zip(d,c))
+      return confirmed_series
     else:                   return confirmed
   elif case_type=='recovered':
     if verbose: print(('Recovered cases in %s on %s were %d' %(state,date,recovered)))
@@ -2008,6 +2084,7 @@ def delhi_analysis(do='',use_moving_average=True,plot_days=''):
       hos_used=hos_used[-1*plot_days:];      hos_cap=hos_cap[-1*plot_days:];hc=hc[-1*plot_days:]
       deaths=deaths[-1*plot_days:]
       dates=dates[-1*plot_days:]
+      dates0=dates0[-1*plot_days:]
       dates2=dates2[-1*plot_days:]
       dates3=dates3[-1*plot_days:]  
       plot2(dates,hos_used,dates2,actives,label1='Hospital beds used',label2='Active cases',color2='orange',state='Delhi')
@@ -2031,6 +2108,8 @@ def update_data_files(extra=False):
     cmd='wget -q "'+i+'" -O "'+filename+'"';
     print(cmd)
     os.system(cmd);
+  if extra:
+    os.system('cd ..&&wget https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip && unzip -q Region_Mobility_Report_CSVs.zip&&mv -v 2021_IN_Region_Mobility_Report.csv covid19india_data_parser && rm *zip *csv&&cd -')
 
 class kerala_community_tr():
   date='';percent_unknown=''
@@ -5663,7 +5742,7 @@ def analysis_undercounting_karnataka(district='Bengaluru Urban',verbose=True,plo
 #  pylab.title(title);
   
   
-def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
+def analysis_undercounting(state='Haryana',atype='ventilator',plot_days='',do_show=False):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   if atype in ['v','ventilator','ventilators']:
     y=get_people_on_ventilators(state)
@@ -5674,7 +5753,8 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
   if atype in ['b','beds','hospital beds']:
     dates,x,b=zip(*y)
   else:
-    dates=pylab.date2num([datetime.datetime.strptime(i[0],'%d/%m/%Y') for i in y]);
+    dates0=[datetime.datetime.strptime(i[0],'%d/%m/%Y') for i in y]
+    dates=pylab.date2num(dates0);
   v=moving_average([i[2] for i in y])
 
 
@@ -5687,6 +5767,7 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
   a=moving_average([i[1] for i in actives])
   
   if plot_days:
+      dates0=dates0[-1*plot_days:]
       dates=dates[-1*plot_days:]
       dates2=dates2[-1*plot_days:]
       dates3=dates3[-1*plot_days:]
@@ -5760,8 +5841,12 @@ def analysis_undercounting(state='Haryana',atype='ventilator',plot_days=''):
   title=atype+' vs active cases in '+state
   pylab.title(title);  
   pylab.legend(fontsize=7)
-  pylab.savefig(TMPDIR+state+'_'+atype+' vs active cases.jpg',dpi=150)
+  if do_show:
+    pylab.show()
+  else:
+    pylab.savefig(TMPDIR+state+'_'+atype+' vs active cases.jpg',dpi=150)
   pylab.close()
+  return (dates0,v,a,d)
 
 def cdr_func(tpr,maxi=14,mini=10): 
   #linear function goes from mini to maxi as TPR goes from 1% to 35%
@@ -5876,31 +5961,34 @@ def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percen
  Rt=a.values*b.values*np.array(r0)
  return Rt,a,b,dates,prev,prev_daily,r0
 
-def rweekly(state='',district='',days=6,startdate='2021-01-01',use_tpr=False,plot=False,time_shift=True):
+def rweekly(dates='',cases='',state='',district='',days=6,startdate='2021-01-01',use_tpr=False,plot=False,time_shift=True):
  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
- if state in ['','India']:
-  x=pd.DataFrame(get_cases_national('confirmed'),columns=['dates','cases'])
-  # ~ x=x[x.dates>=startdate]
-  if use_tpr:
-    z=[i for i in get_positivity(state) if i[0]>=datetime.datetime.strptime(startdate,'%Y-%m-%d')]
-    d,c=zip(*z)
-    x=pd.DataFrame({'dates':d,"cases":c})
+ if dates and cases:
+   x=pd.DataFrame({'dates':dates,"cases":cases})
  else:
-   if district: 
-    d,c=zip(*get_cases_district(state,district,case_type='confirmed'))
-    x=pd.DataFrame({'dates':d,"cases":c})
+   if state in ['','India']:
+    x=pd.DataFrame(get_cases_national('confirmed'),columns=['dates','cases'])
     # ~ x=x[x.dates>=startdate]
-    # ~ return x
-   else:
     if use_tpr:
       z=[i for i in get_positivity(state) if i[0]>=datetime.datetime.strptime(startdate,'%Y-%m-%d')]
       d,c=zip(*z)
       x=pd.DataFrame({'dates':d,"cases":c})
-    else:
-      z=[i for i in get_cases(state,case_type='confirmed',return_full_series=True) if i[0]>=datetime.datetime.strptime(startdate,'%Y-%m-%d')]
-      d,c=zip(*z)
-      c=np.diff(c);d=d[1:];  x=pd.DataFrame({'dates':d,"cases":c})
+   else:
+     if district: 
+      d,c=zip(*get_cases_district(state,district,case_type='confirmed'))
+      x=pd.DataFrame({'dates':d,"cases":c})
+      # ~ x=x[x.dates>=startdate]
       # ~ return x
+     else:
+      if use_tpr:
+        z=[i for i in get_positivity(state) if i[0]>=datetime.datetime.strptime(startdate,'%Y-%m-%d')]
+        d,c=zip(*z)
+        x=pd.DataFrame({'dates':d,"cases":c})
+      else:
+        z=[i for i in get_cases(state,case_type='confirmed',return_full_series=True) if i[0]>=datetime.datetime.strptime(startdate,'%Y-%m-%d')]
+        d,c=zip(*z)
+        c=np.diff(c);d=d[1:];  x=pd.DataFrame({'dates':d,"cases":c})
+        # ~ return x
  c=moving_average(x.cases)
  rout=[]
  for idx in range(days,len(c)):
@@ -5920,7 +6008,7 @@ def rweekly(state='',district='',days=6,startdate='2021-01-01',use_tpr=False,plo
    if state: loc+=state
    pylab.plot(rout[rout.dates>'2021-02-01'].dates,rout[rout.dates>'2021-02-01'].r,'.',label=loc)
    pylab.plot(rout[rout.dates>'2021-02-01'].dates,np.ones(len(rout[rout.dates>'2021-02-01'].dates)),'-',label='R=1')
-   pylab.xlabel('Dates');pylab.ylabel('Percentage 6-day change in cases (R)');pylab.legend();pylab.title('Percentage 6-day change in cases (R) for '+loc);pylab.show()
+   pylab.xlabel('Dates');pylab.ylabel('Percentage '+str(days)+'-day change in cases (R)');pylab.legend();pylab.title('Percentage '+str(days)+'-day change in cases (R) for '+loc);pylab.show()
 
  return rout
 
@@ -5964,8 +6052,8 @@ def rmodel(model_city='dl',r0_time_shift=0,r0_time_shift2=0,r0_time_shift3=0,cdr
       mobility_dict.extend(list(zip(dt[-1*mobility_shift:],[avg[-1]]*mobility_shift)))
       mobility_dict=dict(mobility_dict)
   else:
-    mobility_dict=dict(zip(dt,recr))
-    # ~ mobility_dict=dict(zip(dt,avg))
+    # ~ mobility_dict=dict(zip(dt,recr))
+    mobility_dict=dict(zip(dt,avg))
   rt0=r0_func(startdate,time_shift=r0_time_shift,time_shift2=r0_time_shift2,time_shift3=r0_time_shift3)*(1-init_prev)*(1+(0.01*mobility_dict[startdate]))
   rt=[rt0];dates=[startdate];daily_infections=[I0]
   prev_pop_daily=[0]
@@ -5991,7 +6079,7 @@ def rmodel(model_city='dl',r0_time_shift=0,r0_time_shift2=0,r0_time_shift3=0,cdr
    rt[-1]=r0t*(1-prev)*(1+mobility)
    
   if plot:
-    if model_city in ['dl']:      rw=rweekly('dl',startdate=startdate.strftime('%Y-%m-%d'),days=GT,use_tpr=False,time_shift=False);
+    if model_city in ['dl']:      rw=rweekly('dl',startdate=startdate.strftime('%Y-%m-%d'),days=GT,use_tpr=True,time_shift=False);
     elif model_city in ['bg']:      rw=rweekly('ka','Bengaluru Urban',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
     elif model_city in ['ch']:      rw=rweekly('tn','Chennai',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
     elif model_city in ['ah']:      rw=rweekly('gj','Ahmedabad',startdate=startdate.strftime('%Y-%m-%d'),days=GT);
