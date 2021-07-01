@@ -5963,12 +5963,20 @@ def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percen
  Rt=a.values*b.values*np.array(r0)
  return Rt,a,b,dates,prev,prev_daily,r0
 
-def rweekly(dates='',cases='',state='',district='',days=6,startdate='2021-01-01',use_tpr=False,plot=False,time_shift=True):
+def rweekly(state='',district='',country='',days=5,startdate='2021-01-01',use_tpr=False,plot=False,time_shift=True):
  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
- if dates and cases:
+ # ~ if dates and cases:
+ if False:
    x=pd.DataFrame({'dates':dates,"cases":cases})
  else:
-   if state in ['','India']:
+   if country:
+     if use_tpr:
+       x=get_cases_global(country=country,case_type='tpr')     
+     else:
+       x=get_cases_global(country=country,case_type='confirmed')     
+     x=pd.DataFrame({'dates':x[0],'cases':x[1]})
+     # ~ x=x[x.dates>=startdate]
+   elif state in ['','India']:
     x=pd.DataFrame(get_cases_national('confirmed'),columns=['dates','cases'])
     # ~ x=x[x.dates>=startdate]
     if use_tpr:
@@ -6006,10 +6014,12 @@ def rweekly(dates='',cases='',state='',district='',days=6,startdate='2021-01-01'
    sp,ax=pylab.subplots()
    locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator);ax.xaxis.set_major_locator(locator);ax.xaxis.set_major_formatter(formatter)
    loc=''
-   if district: loc=district+', '
-   if state: loc+=state
-   pylab.plot(rout[rout.dates>'2021-02-01'].dates,rout[rout.dates>'2021-02-01'].r,'.',label=loc)
-   pylab.plot(rout[rout.dates>'2021-02-01'].dates,np.ones(len(rout[rout.dates>'2021-02-01'].dates)),'-',label='R=1')
+   if country: loc=country
+   else:
+     if district: loc=district+', '
+     if state: loc+=state
+   pylab.plot(rout[rout.dates>startdate].dates,rout[rout.dates>startdate].r,'.',label=loc)
+   pylab.plot(rout[rout.dates>startdate].dates,np.ones(len(rout[rout.dates>startdate].dates)),'-',label='R=1')
    pylab.xlabel('Dates');pylab.ylabel('Percentage '+str(days)+'-day change in cases (R)');pylab.legend();pylab.title('Percentage '+str(days)+'-day change in cases (R) for '+loc);pylab.show()
 
  return rout
