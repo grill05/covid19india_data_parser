@@ -1185,15 +1185,13 @@ def sir0(t=np.arange(1,100),R0=7,G=5,y0=(1,0.001,0),plot=False):
 def deriv(y,t,R0b=2.5,R0a=4,R0d=7,G=5,mobility_dict='',init_date=''):
   S,Ib,Ia,Id,R=y
   
-  # ~ cur_date=init_date+datetime.timedelta(days=int(time_delta))
   
   if mobility_dict: 
     current_date=(init_date+datetime.timedelta(days=int(t)))
     last_date=list(mobility_dict.keys());last_date.sort();last_date=last_date[-1]
-    # ~ mobility=mobility_dict.get(current_date,0)
+    # ~ mobility=mobility_dict.get(current_date,100)
     mobility=mobility_dict.get(current_date,mobility_dict[last_date])
   else: mobility=0
-  # ~ print(mobility,current_date,current_date in mobility_dict,mobility_dict[current_date])
   mobility_term=1+(0.01*mobility)
   
   dSdt=-1*(S/G)*((R0b*Ib)+(R0a*Ia)+(R0d*Id))*mobility_term
@@ -1203,6 +1201,31 @@ def deriv(y,t,R0b=2.5,R0a=4,R0d=7,G=5,mobility_dict='',init_date=''):
   dRdt=(Ib+Ia+Id)/G
   
   return dSdt,dIbdt,dIadt,dIddt,dRdt
+def deriv_reinfection(y,t,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,mobility_dict='',init_date=''):
+  S,Ib,Ia,Id,Rb,Ra,Rd=y
+  
+  
+  if mobility_dict: 
+    current_date=(init_date+datetime.timedelta(days=int(t)))
+    last_date=list(mobility_dict.keys());last_date.sort();last_date=last_date[-1]
+    # ~ mobility=mobility_dict.get(current_date,100)
+    mobility=mobility_dict.get(current_date,mobility_dict[last_date])
+  else: mobility=0
+  mobility_term=1+(0.01*mobility)
+  
+  R0b*=mobility_term
+  R0a*=mobility_term
+  R0d*=mobility_term
+  
+  dSdt=-1*(S/G)*( (R0b*Ib)+(R0a*Ia)+(R0d*Id) )
+  dIbdt=(Ib/G)*( (R0b*S) - 1 )
+  dIadt=(Ia/G)*( (R0a*S) - 1 )
+  dIddt=(Id/G)*( (R0d*S) - 1 + (sigma*R0d*(Ra+Rb)) )
+  dRbdt=(Ib/G)-((sigma*Rb*R0d*Id)/G)
+  dRadt=(Ia/G)-((sigma*Ra*R0d*Id)/G)
+  dRddt=(Id/G)
+  
+  return dSdt,dIbdt,dIadt,dIddt,dRbdt,dRadt,dRddt
     
 def sir(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,y0=(1,1e-4,1e-5,0,0),mobility_dict='',init_date='',plot=False):
   from scipy.integrate import odeint
@@ -1219,11 +1242,94 @@ def sir(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,y0=(1,1e-4,1e-5,0,0),mobility
     pylab.legend();pylab.show()
     
   return S,Ib,Ia,Id,R
+
+def sir_reinfection(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,y0=(1,1e-4,1e-5,0,0,0.55,0,0),mobility_dict='',init_date='',plot=False):
+  from scipy.integrate import odeint
+  ret=odeint(deriv_reinfection,y0,t,args=(R0b,R0a,R0d,G,sigma,mobility_dict,init_date))
+  S,Ib,Ia,Id,Rb,Ra,Rd=ret.T
   
-def delhi_sir(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,R0b=2.5,R0a=4,R0d=7,G=5,init_date=datetime.datetime(2021,1,1,0,0),plot=True):
+  if plot:
+    pylab.plot(t,S,label='susceptible')
+    pylab.plot(t,Ib,label='infected(B1)')
+    pylab.plot(t,Ia,label='infected(alpha)')
+    pylab.plot(t,Id,label='infected(delta)')
+    pylab.plot(t,np.array(Rb)+np.array(Ra)+np.array(Rd),label='recovered')
+    pylab.xlabel('Time(days)');pylab.ylabel('Fraction of population');pylab.title('SIR model;R0a='+str(R0a)+', R0d='+str(R0d)+', G='+str(G));
+    pylab.legend();pylab.show()
+    
+  return S,Ib,Ia,Id,Rb,Ra,Rd
+  
+def delhi_sir_reinfection(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,init_date=datetime.datetime(2021,1,1,0,0),init_prev=0.55,plot=True):
   t=np.arange(1,alpha_days,0.1)
   t2=np.arange(1,delta_days,0.1)  
-  y0=(0.45,intro_value_b1,intro_value_alpha,0,0.55)
+  y0=(1-init_prev,intro_value_b1,intro_value_alpha,0,init_prev,0,0)
+  
+  #get mobility
+  zzd,zz1,zz2,zz3,zz4,zz3,zz6,zz7=zip(*get_mobility('dl',do_moving_average=True)); #Can this be done better?
+  mobility_dict={}
+  for j in range(len(zzd)):
+    mobility_dict[zzd[j]]=zz7[j] #avg
+    # ~ mobility_dict[zzd[j]]=zz1[j] #recr
+    
+  
+  x=sir_reinfection(t=t,R0b=R0b,R0a=R0a,R0d=R0d,G=G,sigma=sigma,y0=y0,mobility_dict=mobility_dict,init_date=init_date)
+  
+  y1=(x[0][-1],x[1][-1],x[2][-1],intro_value_delta,x[4][-1],x[5][-1],x[6][-1]); #(s,ib,ia,id,r)
+  x2=sir_reinfection(t=t2,R0b=R0b,R0a=R0a,R0d=R0d,G=G,sigma=sigma,y0=y1,mobility_dict=mobility_dict,init_date=init_date+datetime.timedelta(days=int(alpha_days)))
+  
+  comb_t=list(t);  comb_t.extend(list(alpha_days+t2))
+  comb_s=list(x[0]);comb_s.extend(list(x2[0]))
+  comb_ib=list(x[1]);comb_ib.extend(list(x2[1]))
+  comb_ia=list(x[2]);comb_ia.extend(list(x2[2]))
+  comb_id=list([0]*(len(x[1])));comb_id.extend(list(x2[3]))
+  comb_rb=list(x[4]);comb_rb.extend(list(x2[4]))
+  comb_ra=list(x[4]);comb_ra.extend(list(x2[4]))
+  comb_rd=list(x[4]);comb_rd.extend(list(x2[4]))
+  
+  dates=[init_date+datetime.timedelta(days=i) for i in comb_t]
+  all_infections=np.array(comb_ib)+np.array(comb_ia)+np.array(comb_id)
+  
+  freq_b=[];freq_a=[];freq_d=[]
+  for j in range(len(comb_t)):
+    freq_b.append(comb_ib[j]/all_infections[j])
+    freq_a.append(comb_ia[j]/all_infections[j])
+    freq_d.append(comb_id[j]/all_infections[j])
+  
+  
+  if plot:
+    show_freq_plot=True
+    # ~ pylab.plot(comb_t,comb_ib,label='Ib');
+    # ~ pylab.plot(comb_t,comb_ia,label='Ia');
+    # ~ pylab.plot(comb_t,comb_id,label='Id');
+    # ~ pylab.plot(comb_t,np.array(comb_ib)+np.array(comb_ia)+np.array(comb_id),label='Total Infections'); 
+    sp,ax=pylab.subplots()
+    locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
+    pylab.plot_date(dates,comb_ib,'-',label='Ib (B.1)');
+    pylab.plot_date(dates,comb_ia,'-',label='Ia (Alpha)');
+    pylab.plot_date(dates,comb_id,'-',label='Id (Delta)');
+    pylab.plot_date(dates,all_infections,'-',label='Total Infections'); 
+    pylab.xlabel('Time(days)');pylab.ylabel('Fraction of population');pylab.title('Delhi SIR model\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', G='+str(G)+', sigma='+str(sigma));
+    pylab.legend();
+    
+    if show_freq_plot:
+      sp,ax=pylab.subplots()
+      locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
+      ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
+      ax.plot_date(dates,freq_b,'-',label='Frequency of B.1');
+      ax.plot_date(dates,freq_a,'-',label='Frequency of Alpha');
+      ax.plot_date(dates,freq_d,'-',label='Frequency of Delta');
+      pylab.xlabel('Time(days)');pylab.ylabel('Variant Frequencies');pylab.title('Delhi SIR model variant frequencies\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', G='+str(G)+' ,sigma='+str(sigma));
+      pylab.legend();
+    pylab.show()
+  
+  # ~ return (x,x2)
+  return np.array(comb_t),np.array(comb_s),np.array(comb_ib),np.array(comb_ia),np.array(comb_id),all_infections,np.array(comb_rb),np.array(comb_ra),np.array(comb_rd),freq_b,freq_a,freq_d,dates
+
+def delhi_sir(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,R0b=2.5,R0a=4,R0d=7,G=5,init_date=datetime.datetime(2021,1,1,0,0),init_prev=0.55,plot=True):
+  t=np.arange(1,alpha_days,0.1)
+  t2=np.arange(1,delta_days,0.1)  
+  y0=(1-init_prev,intro_value_b1,intro_value_alpha,0,init_prev)
   
   #get mobility
   zzd,zz1,zz2,zz3,zz4,zz3,zz6,zz7=zip(*get_mobility('dl',do_moving_average=True)); #Can this be done better?
@@ -1270,14 +1376,14 @@ def delhi_sir(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_value_alpha=
     pylab.xlabel('Time(days)');pylab.ylabel('Fraction of population');pylab.title('Delhi SIR model\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', G='+str(G));
     pylab.legend();
     
-    sp,ax=pylab.subplots()
-    locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
-    ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
-    ax.plot_date(dates,freq_b,'-',label='Frequency of B.1');
-    ax.plot_date(dates,freq_a,'-',label='Frequency of Alpha');
-    ax.plot_date(dates,freq_d,'-',label='Frequency of Delta');
-    pylab.xlabel('Time(days)');pylab.ylabel('Variant Frequencies');pylab.title('Delhi SIR model variant frequencies\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', G='+str(G));
-    pylab.legend();
+    # ~ sp,ax=pylab.subplots()
+    # ~ locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
+    # ~ ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
+    # ~ ax.plot_date(dates,freq_b,'-',label='Frequency of B.1');
+    # ~ ax.plot_date(dates,freq_a,'-',label='Frequency of Alpha');
+    # ~ ax.plot_date(dates,freq_d,'-',label='Frequency of Delta');
+    # ~ pylab.xlabel('Time(days)');pylab.ylabel('Variant Frequencies');pylab.title('Delhi SIR model variant frequencies\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', G='+str(G));
+    # ~ pylab.legend();
     pylab.show()
   
   # ~ return (x,x2)
@@ -5447,8 +5553,6 @@ def get_positivity_district(state='Karnataka',district='Bengaluru Urban',plot=Fa
     return dates,p,c,t
 
 
-def get_positivity_national(do_moving_average=True,plot=False,plot_days=''):
-  pass
   
 def get_positivity(state='Karnataka',do_moving_average=True,plot=False,plot_days=''):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
