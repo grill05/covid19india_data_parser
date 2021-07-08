@@ -2,15 +2,20 @@ This python file contains some python functions that run a bunch of different an
 
 To get started, you need to have the python language installed on your system
 
+------------
 Further, some additional python packages are necessary. They can be installed via
 
 pip3 install tqdm,lazy_import,pylab,requests,numpy,pandas,colorama
 
+------------
 Getting raw data files:
 
-run update_data_files(extra=True) downloads the necessary data from covid19india.org and google (mobility)
+the function update_data_files(extra=True) downloads the necessary data from covid19india.org and google (mobility)
+
+------------
 
 Useful functions:
+
 
 - analysis() produces cases vs tpr,cases vs deaths,tpr vs tests, and (where available) tpr vs fraction of rapid antigen tests
 
@@ -24,9 +29,9 @@ Useful functions:
 
 - get_cases() returns cases/deaths/tests for a particular state
 
-- get_cases_naitional() same at all-India level 
+- get_cases_national() same at all-India level 
 
-- get_cases_global() similarly returns cases/deaths/tests for a particular countty (using OurWorldinData csv file)
+- get_cases_global() similarly returns cases/deaths/tests for a particular country (using OurWorldinData raw csv file)
 
 - get_mobility() returns mobility change from baseline (per category, average) for district/state/all-India. Optionally, it can generate graphs of those series too
 
