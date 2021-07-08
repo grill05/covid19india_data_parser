@@ -1,0 +1,41 @@
+This python file contains some python functions that run a bunch of different analyses on Indian covid data
+
+To get started, you need to have the python language installed on your system
+
+Further, some additional python packages are necessary. They can be installed via
+
+pip3 install tqdm,lazy_import,pylab,requests,numpy,pandas,colorama
+
+Getting raw data files:
+
+run update_data_files(extra=True) downloads the necessary data from covid19india.org and google (mobility)
+
+Useful functions:
+
+- analysis() produces cases vs tpr,cases vs deaths,tpr vs tests, and (where available) tpr vs fraction of rapid antigen tests
+
+- plot2() produces a graph of two time series against on left/right axes. Its useful to see correlation (or lack of it) b/w time-series
+
+- analysis_undercounting() generates a plot of hospital/ICU/ventilator beds used vs deaths/tpr (for states where data is available)
+
+- delhi_analysis() is a similar function specifically for delhi (uses parsed data from csv_dumps)
+
+- delhi_sir_reinfection() runs a SIR model that uses mobility/vaccination/genomic data, and estimated reinfection rates to refine its output
+
+- get_cases() returns cases/deaths/tests for a particular state
+
+- get_cases_naitional() same at all-India level 
+
+- get_cases_global() similarly returns cases/deaths/tests for a particular countty (using OurWorldinData csv file)
+
+- get_mobility() returns mobility change from baseline (per category, average) for district/state/all-India. Optionally, it can generate graphs of those series too
+
+- get_positivity() returns TPR (raw value or 7-day MA) by state or nationally
+
+- parse_census() used stored 2011 census to return various metrics (mean age/gender ratio etc) for each state in 2011
+
+- rweekly() uses n-day ('n' can be specified) percent change in cases/TPR to roughly estimate the R value for a particular country/India/state/district. Optionally generates graphs of that too
+
+- vaccination_national_csv() returns time series of individuals/total doses/males/females/18-45/over 60/HCWs etc vaccinated nationally
+
+- vaccination_cowin_state() returns the same by state (however, recently covid19indiaorg raw state-wise data has had errors)

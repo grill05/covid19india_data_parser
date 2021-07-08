@@ -261,7 +261,7 @@ def vaccination_cowin_state(state='ka'):
   data=[];zd={'':0}
   for i in info[1:]:
     # ~ try:
-    date,sstate,tot_persons_vaccinated,tot_sessions,tot_sites,firstdoses,seconddoses,males,females,transgenders,covaxin,covishield,sputnik,sefi,from18to45,from45to60,over60,totdoses=i
+    date,sstate,totdoses,tot_sessions,tot_sites,firstdoses,seconddoses,males,females,transgenders,covaxin,covishield,sputnik,sefi,from18to45,from45to60,over60,from18to45_ind,from45to60_ind,over60_ind,males_ind,females_ind,transgenders_ind,tot_persons_vaccinated=i
     if sstate!=state: continue
     
     tot_persons_vaccinated=intz(tot_persons_vaccinated)
@@ -270,15 +270,21 @@ def vaccination_cowin_state(state='ka'):
     seconddoses=intz(seconddoses)
     females=intz(females)
     males=intz(males)
+    females_ind=intz(females)
+    males_ind=intz(males)
     covaxin=intz(covaxin)
     covishield=intz(covishield)
     sputnik=intz(sputnik)
     from18to45=intz(from18to45)
     from45to60=intz(from45to60)
     over60=intz(over60)
+    from18to45_ind=intz(from18to45)
+    from45to60_ind=intz(from45to60)
+    over60_ind=intz(over60)
     totdoses=intz(totdoses)
+    tot_persons_vaccinated=intz(tot_persons_vaccinated)
     date=datetime.datetime.strptime(date,'%d/%m/%Y')
-    data.append((date,tot_persons_vaccinated,tot_sessions,firstdoses,seconddoses,males,females,covaxin,covishield,sputnik,from18to45,from45to60,over60,totdoses))
+    data.append((date,tot_persons_vaccinated,tot_sessions,firstdoses,seconddoses,males,females,males_ind,females_ind,covaxin,covishield,sputnik,from18to45,from45to60,over60,from18to45_ind,from45to60_ind,over60_ind,totdoses,tot_persons_vaccinated))
     # ~ except:
       # ~ print('failed for '+str(i))
       # ~ return
@@ -1038,6 +1044,48 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label1='',label2=''
   else:  pylab.savefig(TMPDIR+title+'.jpg',dpi=100)
   pylab.close()
 
+def prevented_by_vacn(ptype='hosp',E=0.75,projection_days='',projection_doses=3e6):
+  r_h=[.1046,.72,1.98,3.21] # from ijmr paper
+  if ptype=='death':
+    r_h=[.00167,.0746,.4094,5.97] # from TN PFR
+    E=0.9
+  f_x=[0.3633,.45,.139,.1013]
+  
+  summ=0
+  for j in range(len(f_x)): summ+=r_h[j]*f_x[j]
+  
+  #get frac vacn by age-group
+  pop18_to_45=612.9e6;pop45_to_60=595e6;pop60plus=137.9e6
+  
+  dates,tot_persons_vaccinated,tot_sessions,firstdoses,seconddoses,males,females,covaxin,covishield,sputnik,from18to45,from45to60,over60,totdoses=zip(*vaccination_cowin_state('India'))
+  
+  dates=dates[:-12]; #last 12 days shows total doses, not individuals
+    
+  from18to45_frac=np.array(from18to45[:-12])/pop18_to_45
+  from45to60_frac=np.array(from45to60[:-12])/pop45_to_60
+  over60_frac=np.array(over60[:-12])/pop60plus
+  
+  if projection_days:
+    extra_dates=[dates[-1]+datetime.timedelta(days=i)for i in range(1,projection_days+1)]
+    dates=list(dates);    dates.extend(extra_dates)
+    frac_18_ext=[from18to45_frac[-1]+((.652*projection_doses*i)/pop18_to_45) for i in range(1,projection_days+1)]
+    frac_45_ext=[from45to60_frac[-1]+((.1956*projection_doses*i)/pop45_to_60) for i in range(1,projection_days+1)]
+    frac_60_ext=[over60_frac[-1]+((.1468*projection_doses*i)/pop60plus) for i in range(1,projection_days+1)]
+    from18to45_frac=list(from18to45_frac);from18to45_frac.extend(frac_18_ext)
+    from45to60_frac=list(from45to60_frac);from45to60_frac.extend(frac_45_ext)
+    over60_frac=list(over60_frac);over60_frac.extend(frac_60_ext)
+    from18to45_frac=np.array(from18to45_frac)
+    from45to60_frac=np.array(from45to60_frac)
+    over60_frac=np.array(over60_frac)
+    
+  
+  summ2=(f_x[1]*r_h[1]*from18to45_frac)+(f_x[2]*r_h[2]*from45to60_frac)+(f_x[3]*r_h[3]*over60_frac)
+  
+  res=E*(summ2/summ)
+  
+  return dates,res
+  
+
 
 def plot2(dates,data,dates2,data2,label1='',label2='',state='',color1='blue',color2='red',draw_vline=False,draw_hline=False,plot_days='',do_show=False):
     if len(state)==2 and state in state_code_to_name: state=state_code_to_name[state];
@@ -1201,31 +1249,6 @@ def deriv(y,t,R0b=2.5,R0a=4,R0d=7,G=5,mobility_dict='',init_date=''):
   dRdt=(Ib+Ia+Id)/G
   
   return dSdt,dIbdt,dIadt,dIddt,dRdt
-def deriv_reinfection(y,t,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,mobility_dict='',init_date=''):
-  S,Ib,Ia,Id,Rb,Ra,Rd=y
-  
-  
-  if mobility_dict: 
-    current_date=(init_date+datetime.timedelta(days=int(t)))
-    last_date=list(mobility_dict.keys());last_date.sort();last_date=last_date[-1]
-    # ~ mobility=mobility_dict.get(current_date,100)
-    mobility=mobility_dict.get(current_date,mobility_dict[last_date])
-  else: mobility=0
-  mobility_term=1+(0.01*mobility)
-  
-  R0b*=mobility_term
-  R0a*=mobility_term
-  R0d*=mobility_term
-  
-  dSdt=-1*(S/G)*( (R0b*Ib)+(R0a*Ia)+(R0d*Id) )
-  dIbdt=(Ib/G)*( (R0b*S) - 1 )
-  dIadt=(Ia/G)*( (R0a*S) - 1 )
-  dIddt=(Id/G)*( (R0d*S) - 1 + (sigma*R0d*(Ra+Rb)) )
-  dRbdt=(Ib/G)-((sigma*Rb*R0d*Id)/G)
-  dRadt=(Ia/G)-((sigma*Ra*R0d*Id)/G)
-  dRddt=(Id/G)
-  
-  return dSdt,dIbdt,dIadt,dIddt,dRbdt,dRadt,dRddt
     
 def sir(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,y0=(1,1e-4,1e-5,0,0),mobility_dict='',init_date='',plot=False):
   from scipy.integrate import odeint
@@ -1242,6 +1265,35 @@ def sir(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,y0=(1,1e-4,1e-5,0,0),mobility
     pylab.legend();pylab.show()
     
   return S,Ib,Ia,Id,R
+
+def deriv_reinfection(y,t,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,mobility_dict='',init_date=''):
+  S,Ib,Ia,Id,Rb,Ra,Rd=y
+  
+  
+  if mobility_dict: 
+    current_date=(init_date+datetime.timedelta(days=int(t)))
+    last_date=list(mobility_dict.keys());last_date.sort();last_date=last_date[-1]
+    mobility=mobility_dict.get(current_date,0)
+    if current_date>=datetime.datetime(2021,8,1,0,0): 
+      mobility=100
+      # ~ sigma=0.2
+    # ~ mobility=mobility_dict.get(current_date,mobility_dict[last_date])
+  else: mobility=0
+  mobility_term=1+(0.01*mobility)
+  
+  R0b*=mobility_term
+  R0a*=mobility_term
+  R0d*=mobility_term
+  
+  dSdt=-1*(S/G)*( (R0b*Ib)+(R0a*Ia)+(R0d*Id) )
+  dIbdt=(Ib/G)*( (R0b*S) - 1 )
+  dIadt=(Ia/G)*( (R0a*S) - 1 )
+  dIddt=(Id/G)*( (R0d*S) - 1 + (sigma*R0d*(Ra+Rb)) )
+  dRbdt=(Ib/G)-((sigma*Rb*R0d*Id)/G)
+  dRadt=(Ia/G)-((sigma*Ra*R0d*Id)/G)
+  dRddt=(Id/G)
+  
+  return dSdt,dIbdt,dIadt,dIddt,dRbdt,dRadt,dRddt
 
 def sir_reinfection(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,y0=(1,1e-4,1e-5,0,0,0.55,0,0),mobility_dict='',init_date='',plot=False):
   from scipy.integrate import odeint
@@ -1283,8 +1335,8 @@ def delhi_sir_reinfection(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_
   comb_ia=list(x[2]);comb_ia.extend(list(x2[2]))
   comb_id=list([0]*(len(x[1])));comb_id.extend(list(x2[3]))
   comb_rb=list(x[4]);comb_rb.extend(list(x2[4]))
-  comb_ra=list(x[4]);comb_ra.extend(list(x2[4]))
-  comb_rd=list(x[4]);comb_rd.extend(list(x2[4]))
+  comb_ra=list(x[5]);comb_ra.extend(list(x2[5]))
+  comb_rd=list(x[6]);comb_rd.extend(list(x2[6]))
   
   dates=[init_date+datetime.timedelta(days=i) for i in comb_t]
   all_infections=np.array(comb_ib)+np.array(comb_ia)+np.array(comb_id)
@@ -1297,7 +1349,7 @@ def delhi_sir_reinfection(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_
   
   
   if plot:
-    show_freq_plot=True
+    show_freq_plot=False
     # ~ pylab.plot(comb_t,comb_ib,label='Ib');
     # ~ pylab.plot(comb_t,comb_ia,label='Ia');
     # ~ pylab.plot(comb_t,comb_id,label='Id');
@@ -6253,9 +6305,11 @@ def rweekly(state='',district='',country='',days=5,startdate='2021-01-01',use_tp
    else:
      if district: loc=district+', '
      if state: loc+=state
+   atype='cases'
+   if use_tpr: atype='TPR'
    pylab.plot(rout[rout.dates>startdate].dates,rout[rout.dates>startdate].r,'.',label=loc)
    pylab.plot(rout[rout.dates>startdate].dates,np.ones(len(rout[rout.dates>startdate].dates)),'-',label='R=1')
-   pylab.xlabel('Dates');pylab.ylabel('Percentage '+str(days)+'-day change in cases (R)');pylab.legend();pylab.title('Percentage '+str(days)+'-day change in cases (R) for '+loc);pylab.show()
+   pylab.xlabel('Dates');pylab.ylabel('Percentage '+str(days)+'-day change in cases (R)');pylab.legend();pylab.title('Percentage '+str(days)+'-day change in '+atype+' (R) for '+loc);pylab.show()
 
  return rout
 
