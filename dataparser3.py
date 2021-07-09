@@ -1266,8 +1266,9 @@ def sir(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,y0=(1,1e-4,1e-5,0,0),mobility
     
   return S,Ib,Ia,Id,R
 
-def deriv_reinfection(y,t,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,mobility_dict='',init_date=''):
+def deriv_reinfection(y,t,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,mobility_dict='',vaccination_dict='',init_date='',population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1):
   S,Ib,Ia,Id,Rb,Ra,Rd=y
+  # ~ S,Ib,Ia,Id,Ix,Rb,Ra,Rd,Rx=y
   
   
   if mobility_dict: 
@@ -1275,29 +1276,56 @@ def deriv_reinfection(y,t,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,mobility_dict='',in
     last_date=list(mobility_dict.keys());last_date.sort();last_date=last_date[-1]
     mobility=mobility_dict.get(current_date,0)
     if current_date>=datetime.datetime(2021,8,1,0,0): 
-      mobility=100
+      # ~ mobility=100
       # ~ sigma=0.2
+      pass
     # ~ mobility=mobility_dict.get(current_date,mobility_dict[last_date])
   else: mobility=0
+  
   mobility_term=1+(0.01*mobility)
   
-  R0b*=mobility_term
-  R0a*=mobility_term
-  R0d*=mobility_term
+  vaccinated_fraction=0
+  if vaccination_dict:
+    current_date=(init_date+datetime.timedelta(days=int(t)))
+    last_date=list(vaccination_dict.keys());last_date.sort();last_date=last_date[-1]
+    if current_date<=last_date:
+      vaccinated_fraction=(vaccination_dict.get(current_date,0))/population
+    else:
+      delta_days=int((current_date-last_date).days)
+      vaccinated_fraction=(vaccination_dict[last_date]/population)+(0.01*vaccination_growth_rate*delta_days)
+      # ~ print('vf',vaccinated_fraction)
+    
+  vaccination_term=1-(vaccinated_fraction*vaccine_efficacy)
+  # ~ vaccination_term=1
   
-  dSdt=-1*(S/G)*( (R0b*Ib)+(R0a*Ia)+(R0d*Id) )
+  # ~ print(vaccination_term)
+  tau=0
+  
+  R0b=R0b*(mobility_term*vaccination_term)
+  R0a=R0a*(mobility_term*vaccination_term)
+  R0d=R0d*(mobility_term*vaccination_term)
+  # ~ R0x=R0x*(mobility_term*vaccination_term)
+  
+  # ~ dSdt=-1*(S/G)*( (R0b*Ib)+(R0a*Ia)+(R0d*Id)+(R0x*Ix) )
+  dSdt=-1*(S/G)*( (R0b*Ib)+(R0a*Ia)+(R0d*Id))
   dIbdt=(Ib/G)*( (R0b*S) - 1 )
   dIadt=(Ia/G)*( (R0a*S) - 1 )
   dIddt=(Id/G)*( (R0d*S) - 1 + (sigma*R0d*(Ra+Rb)) )
+  
+  # ~ dIxdt=(Ix/G)*( (R0x*S) - 1 + (tau*R0x*(Ra+Rb+Rd)) )
+  # ~ dRbdt=(Ib/G)-((sigma*Rb*R0d*Id)/G)-((tau*Rd*R0x*Ix)/G)
+  # ~ dRadt=(Ia/G)-((sigma*Ra*R0d*Id)/G)-((tau*Rd*R0x*Ix)/G)
+  # ~ dRddt=(Id/G)-((tau*Rd*R0x*Ix)/G)
   dRbdt=(Ib/G)-((sigma*Rb*R0d*Id)/G)
   dRadt=(Ia/G)-((sigma*Ra*R0d*Id)/G)
   dRddt=(Id/G)
+  # ~ dRxdt=(Ix/G)
   
   return dSdt,dIbdt,dIadt,dIddt,dRbdt,dRadt,dRddt
 
-def sir_reinfection(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,y0=(1,1e-4,1e-5,0,0,0.55,0,0),mobility_dict='',init_date='',plot=False):
+def sir_reinfection(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,y0=(1,1e-4,1e-5,0,0,0.55,0,0),mobility_dict='',vaccination_dict='',init_date='',population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1,plot=False):
   from scipy.integrate import odeint
-  ret=odeint(deriv_reinfection,y0,t,args=(R0b,R0a,R0d,G,sigma,mobility_dict,init_date))
+  ret=odeint(deriv_reinfection,y0,t,args=(R0b,R0a,R0d,G,sigma,mobility_dict,vaccination_dict,init_date,population,vaccine_efficacy,vaccination_growth_rate))
   S,Ib,Ia,Id,Rb,Ra,Rd=ret.T
   
   if plot:
@@ -1311,23 +1339,29 @@ def sir_reinfection(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,y0=(1,
     
   return S,Ib,Ia,Id,Rb,Ra,Rd
   
-def delhi_sir_reinfection(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,init_date=datetime.datetime(2021,1,1,0,0),init_prev=0.55,plot=True):
+def delhi_sir_reinfection(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,init_date=datetime.datetime(2021,1,1,0,0),init_prev=0.55,population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1,state='dl',plot=True):
   t=np.arange(1,alpha_days,0.1)
   t2=np.arange(1,delta_days,0.1)  
   y0=(1-init_prev,intro_value_b1,intro_value_alpha,0,init_prev,0,0)
   
+  
   #get mobility
-  zzd,zz1,zz2,zz3,zz4,zz3,zz6,zz7=zip(*get_mobility('dl',do_moving_average=True)); #Can this be done better?
+  zzd,zz1,zz2,zz3,zz4,zz3,zz6,zz7=zip(*get_mobility(state,do_moving_average=True)); #Can this be done better?
   mobility_dict={}
   for j in range(len(zzd)):
     mobility_dict[zzd[j]]=zz7[j] #avg
     # ~ mobility_dict[zzd[j]]=zz1[j] #recr
-    
   
-  x=sir_reinfection(t=t,R0b=R0b,R0a=R0a,R0d=R0d,G=G,sigma=sigma,y0=y0,mobility_dict=mobility_dict,init_date=init_date)
+  #get vaccination
+  vaccination_dict={}
+  yyd,yy1,yy2,yy3,yy4,yy5,yy6,yy7,yy8,yy9,yy10,yy11,yy12,yy13,yy14,yy15,yy16,yy17,yy18,yy19=zip(*vaccination_cowin_state('Delhi'))
+  for j in range(len(yyd)):
+    if yyd[j]<=datetime.datetime(2021, 6, 24, 0, 0): vaccination_dict[yyd[j]]=yy1[j] #cowin data missing after June 24
+  
+  x=sir_reinfection(t=t,R0b=R0b,R0a=R0a,R0d=R0d,G=G,sigma=sigma,y0=y0,mobility_dict=mobility_dict,vaccination_dict=vaccination_dict,init_date=init_date,population=population,vaccine_efficacy=vaccine_efficacy,vaccination_growth_rate=vaccination_growth_rate)
   
   y1=(x[0][-1],x[1][-1],x[2][-1],intro_value_delta,x[4][-1],x[5][-1],x[6][-1]); #(s,ib,ia,id,r)
-  x2=sir_reinfection(t=t2,R0b=R0b,R0a=R0a,R0d=R0d,G=G,sigma=sigma,y0=y1,mobility_dict=mobility_dict,init_date=init_date+datetime.timedelta(days=int(alpha_days)))
+  x2=sir_reinfection(t=t2,R0b=R0b,R0a=R0a,R0d=R0d,G=G,sigma=sigma,y0=y1,mobility_dict=mobility_dict,vaccination_dict=vaccination_dict,init_date=init_date+datetime.timedelta(days=int(alpha_days)),population=population,vaccine_efficacy=vaccine_efficacy,vaccination_growth_rate=vaccination_growth_rate)
   
   comb_t=list(t);  comb_t.extend(list(alpha_days+t2))
   comb_s=list(x[0]);comb_s.extend(list(x2[0]))
@@ -1349,7 +1383,8 @@ def delhi_sir_reinfection(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_
   
   
   if plot:
-    show_freq_plot=False
+    # ~ show_freq_plot=False
+    show_freq_plot=True
     # ~ pylab.plot(comb_t,comb_ib,label='Ib');
     # ~ pylab.plot(comb_t,comb_ia,label='Ia');
     # ~ pylab.plot(comb_t,comb_id,label='Id');
@@ -5776,7 +5811,7 @@ def get_people_on_ventilators(state='Telangana',verbose=False):
       print(('%s : %.3f (%d on ventilator)' %(i[0],i[1],i[2])))
   return all_percent_ventilator
 
-def analysis(state='Uttar Pradesh',extra=False,plot_days='',width_days='',doboth=True):
+def analysis(state='Uttar Pradesh',extra=False,plot_days='',width_days='',doboth=True,do_show=False):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];#print('expanded %s to %s' %(x,state))
   deaths=get_cases(state=state,case_type='deaths',return_full_series=True,verbose=False)
   deaths=[i for i in deaths if i[0]>=datetime.datetime(2020,6,1,0,0)]
@@ -5842,7 +5877,8 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',width_days='',doboth
   title=state+' daily cases vs daily deaths'
   pylab.title(title);
   #pylab.savefig(TMPDIR+state+' daily cases vs daily deaths.jpg',dpi=150)
-  pylab.savefig(TMPDIR+state+' daily cases vs daily deaths.jpg',bbox_inches='tight')
+  if do_show: pylab.show()
+  else: pylab.savefig(TMPDIR+state+' daily cases vs daily deaths.jpg',bbox_inches='tight')
   pylab.close()
   
   sp,ax=pylab.subplots()
@@ -5876,8 +5912,9 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',width_days='',doboth
   title=state+' daily cases vs TPR'
   pylab.title(title);  
   #pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',dpi=150)
-
-  pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',bbox_inches='tight')
+  
+  if do_show: pylab.show()
+  else:  pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',bbox_inches='tight')
   pylab.close()
 
   if doboth:
@@ -5915,8 +5952,8 @@ def analysis(state='Uttar Pradesh',extra=False,plot_days='',width_days='',doboth
     title=state+' daily tests vs TPR'
     pylab.title(title);  
     #pylab.savefig(TMPDIR+state+' daily cases vs TPR.jpg',dpi=150)
-
-    pylab.savefig(TMPDIR+state+' daily tests vs TPR.jpg',bbox_inches='tight')
+    if do_show: pylab.show()
+    else: pylab.savefig(TMPDIR+state+' daily tests vs TPR.jpg',bbox_inches='tight')
     pylab.close()
   if extra:
       yy=get_antigen_tests(state)
