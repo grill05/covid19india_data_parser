@@ -26,6 +26,24 @@ Useful functions:
 - delhi_analysis() is a similar function specifically for delhi (uses parsed data from csv_dumps)
 
 - delhi_sir_reinfection() runs a SIR model that uses mobility/vaccination/genomic data, and estimated reinfection rates to refine its output
+  parameters:
+    init_date=start date for simulation (when alpha is first introduced)
+    delta_intro_date=date when delta is first introduced 
+    x_intro_date=date when Variant X is first introduced    
+    sim_end_date=end of simulation    
+    intro_value_b1=Initial number of B.1 infections    
+    intro_value_alpha=Initial number of alpha infections    
+    intro_value_delta=Initial number of delta infections    
+    intro_value_x=Initial number of Variant X infections    
+    R0b/R0a/R0d/R0x: R0 for variants B.1/alpha/delta/X repspectively
+    sigma=fraction of those recovered with B.1/alpha who are susceptible to reinfection with delta
+    theta=fraction of those recovered with B.1/alpha/delta who are susceptible to reinfection with variant X
+    init_prev=Initial population immunity (at t=0)
+    population=population of sim region
+    vaccine_efficacy=Efficacy of vaccine against transmission
+    vaccination_growth_rate=percentage of population vaccinated each day (after last day when cowin data is available)
+    state=Delhi/UT etc
+    
 
 - get_cases() returns cases/deaths/tests for a particular state
 

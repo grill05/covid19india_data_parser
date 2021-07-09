@@ -1266,9 +1266,9 @@ def sir(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,y0=(1,1e-4,1e-5,0,0),mobility
     
   return S,Ib,Ia,Id,R
 
-def deriv_reinfection(y,t,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,mobility_dict='',vaccination_dict='',init_date='',population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1):
-  S,Ib,Ia,Id,Rb,Ra,Rd=y
-  # ~ S,Ib,Ia,Id,Ix,Rb,Ra,Rd,Rx=y
+def deriv_reinfection(y,t,R0b=2.5,R0a=4,R0d=7,R0x=8,G=5,sigma=0.09,theta=0.01,mobility_dict='',vaccination_dict='',init_date='',population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1):
+  # ~ S,Ib,Ia,Id,Rb,Ra,Rd=y
+  S,Ib,Ia,Id,Ix,Rb,Ra,Rd,Rx=y
   
   
   if mobility_dict: 
@@ -1299,34 +1299,36 @@ def deriv_reinfection(y,t,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,mobility_dict='',va
   # ~ vaccination_term=1
   
   # ~ print(vaccination_term)
-  tau=0
-  
+    
   R0b=R0b*(mobility_term*vaccination_term)
   R0a=R0a*(mobility_term*vaccination_term)
   R0d=R0d*(mobility_term*vaccination_term)
-  # ~ R0x=R0x*(mobility_term*vaccination_term)
+  R0x=R0x*(mobility_term*vaccination_term)
   
-  # ~ dSdt=-1*(S/G)*( (R0b*Ib)+(R0a*Ia)+(R0d*Id)+(R0x*Ix) )
-  dSdt=-1*(S/G)*( (R0b*Ib)+(R0a*Ia)+(R0d*Id))
+  # ~ dSdt=-1*(S/G)*( (R0b*Ib)+(R0a*Ia)+(R0d*Id))
+  dSdt=-1*(S/G)*( (R0b*Ib)+(R0a*Ia)+(R0d*Id)+(R0x*Ix) )
+  
   dIbdt=(Ib/G)*( (R0b*S) - 1 )
   dIadt=(Ia/G)*( (R0a*S) - 1 )
   dIddt=(Id/G)*( (R0d*S) - 1 + (sigma*R0d*(Ra+Rb)) )
+  dIxdt=(Ix/G)*( (R0x*S) - 1 + (theta*R0x*(Ra+Rb+Rd)) )
   
-  # ~ dIxdt=(Ix/G)*( (R0x*S) - 1 + (tau*R0x*(Ra+Rb+Rd)) )
-  # ~ dRbdt=(Ib/G)-((sigma*Rb*R0d*Id)/G)-((tau*Rd*R0x*Ix)/G)
-  # ~ dRadt=(Ia/G)-((sigma*Ra*R0d*Id)/G)-((tau*Rd*R0x*Ix)/G)
-  # ~ dRddt=(Id/G)-((tau*Rd*R0x*Ix)/G)
-  dRbdt=(Ib/G)-((sigma*Rb*R0d*Id)/G)
-  dRadt=(Ia/G)-((sigma*Ra*R0d*Id)/G)
-  dRddt=(Id/G)
-  # ~ dRxdt=(Ix/G)
+  dRbdt=(Ib/G)-((sigma*Rb*R0d*Id)/G)-((theta*Rb*R0x*Ix)/G)
+  dRadt=(Ia/G)-((sigma*Ra*R0d*Id)/G)-((theta*Ra*R0x*Ix)/G)
+  dRddt=(Id/G)-((theta*Rd*R0x*Ix)/G)
+  dRxdt=(Ix/G)
+  # ~ dRbdt=(Ib/G)-((sigma*Rb*R0d*Id)/G)
+  # ~ dRadt=(Ia/G)-((sigma*Ra*R0d*Id)/G)
+  # ~ dRddt=(Id/G)
   
-  return dSdt,dIbdt,dIadt,dIddt,dRbdt,dRadt,dRddt
+  
+  return dSdt,dIbdt,dIadt,dIddt,dIxdt,dRbdt,dRadt,dRddt,dRxdt
+  # ~ return dSdt,dIbdt,dIadt,dIddt,dRbdt,dRadt,dRddt
 
-def sir_reinfection(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,y0=(1,1e-4,1e-5,0,0,0.55,0,0),mobility_dict='',vaccination_dict='',init_date='',population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1,plot=False):
+def sir_reinfection(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,R0x=8,G=5,sigma=0.09,theta=0,y0=(1,1e-4,1e-5,0,0,0.55,0,0),mobility_dict='',vaccination_dict='',init_date='',population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1,plot=False):
   from scipy.integrate import odeint
-  ret=odeint(deriv_reinfection,y0,t,args=(R0b,R0a,R0d,G,sigma,mobility_dict,vaccination_dict,init_date,population,vaccine_efficacy,vaccination_growth_rate))
-  S,Ib,Ia,Id,Rb,Ra,Rd=ret.T
+  ret=odeint(deriv_reinfection,y0,t,args=(R0b,R0a,R0d,R0x,G,sigma,theta,mobility_dict,vaccination_dict,init_date,population,vaccine_efficacy,vaccination_growth_rate))
+  S,Ib,Ia,Id,Ix,Rb,Ra,Rd,Rx=ret.T
   
   if plot:
     pylab.plot(t,S,label='susceptible')
@@ -1337,14 +1339,20 @@ def sir_reinfection(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,y0=(1,
     pylab.xlabel('Time(days)');pylab.ylabel('Fraction of population');pylab.title('SIR model;R0a='+str(R0a)+', R0d='+str(R0d)+', G='+str(G));
     pylab.legend();pylab.show()
     
-  return S,Ib,Ia,Id,Rb,Ra,Rd
+  # ~ return S,Ib,Ia,Id,Rb,Ra,Rd
+  return S,Ib,Ia,Id,Ix,Rb,Ra,Rd,Rx
   
-def delhi_sir_reinfection(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,R0b=2.5,R0a=4,R0d=7,G=5,sigma=0.09,init_date=datetime.datetime(2021,1,1,0,0),init_prev=0.55,population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1,state='dl',plot=True):
+def delhi_sir_reinfection(init_date=datetime.datetime(2021,2,1,0,0),delta_intro_date=datetime.datetime(2021,3,12,0,0),x_intro_date=datetime.datetime(2021,8,10,0,0),sim_end_date=datetime.datetime(2021,8,11,0,0),intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,intro_value_x=5e-6,R0b=2.5,R0a=4,R0d=7,R0x=8,G=5,sigma=0.09,theta=0.01,init_prev=0.55,population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1,state='dl',plot=True,freq_plot=True):
+
+  
+  alpha_days=int((delta_intro_date-init_date).days)
+  delta_days=int((x_intro_date-delta_intro_date).days)
+  x_days=int((sim_end_date-x_intro_date).days)
   t=np.arange(1,alpha_days,0.1)
   t2=np.arange(1,delta_days,0.1)  
-  y0=(1-init_prev,intro_value_b1,intro_value_alpha,0,init_prev,0,0)
+  t3=np.arange(1,x_days,0.1)  
   
-  
+      
   #get mobility
   zzd,zz1,zz2,zz3,zz4,zz3,zz6,zz7=zip(*get_mobility(state,do_moving_average=True)); #Can this be done better?
   mobility_dict={}
@@ -1358,33 +1366,42 @@ def delhi_sir_reinfection(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_
   for j in range(len(yyd)):
     if yyd[j]<=datetime.datetime(2021, 6, 24, 0, 0): vaccination_dict[yyd[j]]=yy1[j] #cowin data missing after June 24
   
-  x=sir_reinfection(t=t,R0b=R0b,R0a=R0a,R0d=R0d,G=G,sigma=sigma,y0=y0,mobility_dict=mobility_dict,vaccination_dict=vaccination_dict,init_date=init_date,population=population,vaccine_efficacy=vaccine_efficacy,vaccination_growth_rate=vaccination_growth_rate)
+  #from alpha to start of delta
+  y0=(1-init_prev,intro_value_b1,intro_value_alpha,0,0,init_prev,0,0,0) #(s,ib,ia,id,ix,rb,ra,rd,rx)
+  x=sir_reinfection(t=t,R0b=R0b,R0a=R0a,R0d=R0d,R0x=R0x,G=G,sigma=sigma,theta=theta,y0=y0,mobility_dict=mobility_dict,vaccination_dict=vaccination_dict,init_date=init_date,population=population,vaccine_efficacy=vaccine_efficacy,vaccination_growth_rate=vaccination_growth_rate)
   
-  y1=(x[0][-1],x[1][-1],x[2][-1],intro_value_delta,x[4][-1],x[5][-1],x[6][-1]); #(s,ib,ia,id,r)
-  x2=sir_reinfection(t=t2,R0b=R0b,R0a=R0a,R0d=R0d,G=G,sigma=sigma,y0=y1,mobility_dict=mobility_dict,vaccination_dict=vaccination_dict,init_date=init_date+datetime.timedelta(days=int(alpha_days)),population=population,vaccine_efficacy=vaccine_efficacy,vaccination_growth_rate=vaccination_growth_rate)
+  #from delta to start of x
+  y1=(x[0][-1],x[1][-1],x[2][-1],intro_value_delta,0,x[5][-1],x[6][-1],x[7][-1],0); #(s,ib,ia,id,ix,rb,ra,rd,rx)
+  x2=sir_reinfection(t=t2,R0b=R0b,R0a=R0a,R0d=R0d,R0x=R0x,G=G,sigma=sigma,theta=theta,y0=y1,mobility_dict=mobility_dict,vaccination_dict=vaccination_dict,init_date=init_date+datetime.timedelta(days=int(alpha_days)),population=population,vaccine_efficacy=vaccine_efficacy,vaccination_growth_rate=vaccination_growth_rate)
   
-  comb_t=list(t);  comb_t.extend(list(alpha_days+t2))
-  comb_s=list(x[0]);comb_s.extend(list(x2[0]))
-  comb_ib=list(x[1]);comb_ib.extend(list(x2[1]))
-  comb_ia=list(x[2]);comb_ia.extend(list(x2[2]))
-  comb_id=list([0]*(len(x[1])));comb_id.extend(list(x2[3]))
-  comb_rb=list(x[4]);comb_rb.extend(list(x2[4]))
-  comb_ra=list(x[5]);comb_ra.extend(list(x2[5]))
-  comb_rd=list(x[6]);comb_rd.extend(list(x2[6]))
+  #from x to start of end of simulation
+  y2=(x2[0][-1],x2[1][-1],x2[2][-1],x2[3][-1],intro_value_x,x2[5][-1],x2[6][-1],x2[7][-1],0); #(s,ib,ia,id,ix,rb,ra,rd,rx)
+  x3=sir_reinfection(t=t3,R0b=R0b,R0a=R0a,R0d=R0d,R0x=R0x,G=G,sigma=sigma,theta=theta,y0=y2,mobility_dict=mobility_dict,vaccination_dict=vaccination_dict,init_date=init_date+datetime.timedelta(days=int(alpha_days+delta_days)),population=population,vaccine_efficacy=vaccine_efficacy,vaccination_growth_rate=vaccination_growth_rate)
+  
+  comb_t=list(t);  comb_t.extend(list(alpha_days+t2));comb_t.extend(list(alpha_days+delta_days+t3))
+  comb_s=list(x[0]);comb_s.extend(list(x2[0]));comb_s.extend(list(x3[0]))
+  comb_ib=list(x[1]);comb_ib.extend(list(x2[1]));comb_ib.extend(list(x3[1]))
+  comb_ia=list(x[2]);comb_ia.extend(list(x2[2]));comb_ia.extend(list(x3[2]))
+  comb_id=list([0]*(len(x[1])));comb_id.extend(list(x2[3]));comb_id.extend(list(x3[3]))
+  comb_ix=list([0]*(len(x[1])));comb_ix.extend(list(x2[4]));comb_ix.extend(list(x3[4]))
+  comb_rb=list(x[5]);comb_rb.extend(list(x2[5]));comb_rb.extend(list(x3[5]))
+  comb_ra=list(x[6]);comb_ra.extend(list(x2[6]));comb_ra.extend(list(x3[6]))
+  comb_rd=list(x[7]);comb_rd.extend(list(x2[7]));comb_rd.extend(list(x3[7]))
+  comb_rx=list(x[8]);comb_rx.extend(list(x2[8]));comb_rx.extend(list(x3[8]))
   
   dates=[init_date+datetime.timedelta(days=i) for i in comb_t]
-  all_infections=np.array(comb_ib)+np.array(comb_ia)+np.array(comb_id)
+  all_infections=np.array(comb_ib)+np.array(comb_ia)+np.array(comb_id)+np.array(comb_ix)
   
-  freq_b=[];freq_a=[];freq_d=[]
+  freq_b=[];freq_a=[];freq_d=[];freq_x=[]
   for j in range(len(comb_t)):
     freq_b.append(comb_ib[j]/all_infections[j])
     freq_a.append(comb_ia[j]/all_infections[j])
     freq_d.append(comb_id[j]/all_infections[j])
+    freq_x.append(comb_ix[j]/all_infections[j])
   
   
   if plot:
-    # ~ show_freq_plot=False
-    show_freq_plot=True
+        
     # ~ pylab.plot(comb_t,comb_ib,label='Ib');
     # ~ pylab.plot(comb_t,comb_ia,label='Ia');
     # ~ pylab.plot(comb_t,comb_id,label='Id');
@@ -1392,26 +1409,40 @@ def delhi_sir_reinfection(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_
     sp,ax=pylab.subplots()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
     ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
-    pylab.plot_date(dates,comb_ib,'-',label='Ib (B.1)');
+    # ~ pylab.plot_date(dates,comb_ib,'-',label='Ib (B.1)');
     pylab.plot_date(dates,comb_ia,'-',label='Ia (Alpha)');
     pylab.plot_date(dates,comb_id,'-',label='Id (Delta)');
+    pylab.plot_date(dates,comb_ix,'-',label='Ix (Variant X)');
     pylab.plot_date(dates,all_infections,'-',label='Total Infections'); 
-    pylab.xlabel('Time(days)');pylab.ylabel('Fraction of population');pylab.title('Delhi SIR model\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', G='+str(G)+', sigma='+str(sigma));
+    pylab.xlabel('Time(days)');pylab.ylabel('Fraction of population');pylab.title('Delhi SIR model\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', R0x='+str(R0x)+', G='+str(G)+', sigma='+str(sigma)+', theta='+str(theta));
     pylab.legend();
     
-    if show_freq_plot:
+    if freq_plot:
       sp,ax=pylab.subplots()
       locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
       ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
       ax.plot_date(dates,freq_b,'-',label='Frequency of B.1');
       ax.plot_date(dates,freq_a,'-',label='Frequency of Alpha');
       ax.plot_date(dates,freq_d,'-',label='Frequency of Delta');
-      pylab.xlabel('Time(days)');pylab.ylabel('Variant Frequencies');pylab.title('Delhi SIR model variant frequencies\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', G='+str(G)+' ,sigma='+str(sigma));
+      ax.plot_date(dates,freq_x,'-',label='Frequency of X');
+      pylab.xlabel('Time(days)');pylab.ylabel('Variant Frequencies');pylab.title('Delhi SIR model variant frequencies\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', R0x='+str(R0x)+', G='+str(G)+', sigma='+str(sigma)+', theta='+str(theta));
+      pylab.legend();
+      
+      #S,R
+      sp,ax=pylab.subplots()
+      locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
+      ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
+      ax.plot_date(dates,comb_s,'-',label='Susceptibles');
+      ax.plot_date(dates,comb_rb,'-',label='Recovered(B.1)');
+      ax.plot_date(dates,comb_ra,'-',label='Recovered(Alpha)');
+      ax.plot_date(dates,comb_rd,'-',label='Recovered(Delta)');
+      ax.plot_date(dates,comb_rx,'-',label='Recovered(Variant X)');
+      pylab.xlabel('Time(days)');pylab.ylabel('Fraction of population');pylab.title('Delhi SIR model Susceptible and Recovered (per variant) \nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', R0x='+str(R0x)+', G='+str(G)+', sigma='+str(sigma)+', theta='+str(theta));
       pylab.legend();
     pylab.show()
   
   # ~ return (x,x2)
-  return np.array(comb_t),np.array(comb_s),np.array(comb_ib),np.array(comb_ia),np.array(comb_id),all_infections,np.array(comb_rb),np.array(comb_ra),np.array(comb_rd),freq_b,freq_a,freq_d,dates
+  return np.array(comb_t),np.array(comb_s),np.array(comb_ib),np.array(comb_ia),np.array(comb_id),np.array(comb_ix),all_infections,np.array(comb_rb),np.array(comb_ra),np.array(comb_rd),np.array(comb_rx),freq_b,freq_a,freq_d,freq_x,dates
 
 def delhi_sir(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,R0b=2.5,R0a=4,R0d=7,G=5,init_date=datetime.datetime(2021,1,1,0,0),init_prev=0.55,plot=True):
   t=np.arange(1,alpha_days,0.1)
