@@ -1003,10 +1003,12 @@ def plotex(dates,data,dates2=np.array([]),data2=np.array([]),label1='',label2=''
   label=label1
   
   if type(dates[0])==datetime.datetime: dates=pylab.date2num(dates)
-  if type(dates) in [tuple,list]: dates=np.array(dates)
-  if type(dates2) in [tuple,list]: dates2=np.array(dates2)
-  if dates2.any(): dates2=np.array(dates2);data2=np.array(data2)
-  if dates2.any() and type(dates2[0])==datetime.datetime: 
+  if type(dates) in [tuple,list,pd.core.series.Series]: dates=np.array(dates)
+  if type(dates2) in [tuple,list,pd.core.series.Series]: dates2=np.array(dates2)
+  # ~ if dates2.any() : dates2=np.array(dates2);data2=np.array(data2)
+  dates2=np.array(dates2);data2=np.array(data2)
+  # ~ if dates2.any() and type(dates2[0])==datetime.datetime: 
+  if True: 
     dates2=pylab.date2num(dates2)
     if plot_days: 
       dates2=dates2[-1*plot_days:]
@@ -1342,7 +1344,7 @@ def sir_reinfection(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,R0x=8,G=5,sigma=0.09,
   # ~ return S,Ib,Ia,Id,Rb,Ra,Rd
   return S,Ib,Ia,Id,Ix,Rb,Ra,Rd,Rx
   
-def delhi_sir_reinfection(init_date=datetime.datetime(2021,2,1,0,0),delta_intro_date=datetime.datetime(2021,3,12,0,0),x_intro_date=datetime.datetime(2021,8,10,0,0),sim_end_date=datetime.datetime(2021,8,11,0,0),intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,intro_value_x=5e-6,R0b=2.5,R0a=4,R0d=7,R0x=8,G=5,sigma=0.09,theta=0.01,init_prev=0.55,population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1,state='dl',plot=True,freq_plot=True):
+def delhi_sir_reinfection(init_date=datetime.datetime(2021,2,1,0,0),delta_intro_date=datetime.datetime(2021,3,12,0,0),x_intro_date=datetime.datetime(2021,8,1,0,0),sim_end_date=datetime.datetime(2021,8,2,0,0),intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,intro_value_x=1e-6,R0b=2.5,R0a=4,R0d=7,R0x=8,G=5,sigma=0.09,theta=0.01,init_prev=0.55,population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1,state='dl',plot=True,freq_plot=False,s_plot=False):
 
   
   alpha_days=int((delta_intro_date-init_date).days)
@@ -1427,7 +1429,7 @@ def delhi_sir_reinfection(init_date=datetime.datetime(2021,2,1,0,0),delta_intro_
       ax.plot_date(dates,freq_x,'-',label='Frequency of X');
       pylab.xlabel('Time(days)');pylab.ylabel('Variant Frequencies');pylab.title('Delhi SIR model variant frequencies\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', R0x='+str(R0x)+', G='+str(G)+', sigma='+str(sigma)+', theta='+str(theta));
       pylab.legend();
-      
+    if s_plot:
       #S,R
       sp,ax=pylab.subplots()
       locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
@@ -1508,7 +1510,7 @@ def delhi_sir(alpha_days=30,delta_days=90,intro_value_b1=1e-4,intro_value_alpha=
   return np.array(comb_t),np.array(comb_s),np.array(comb_ib),np.array(comb_ia),np.array(comb_id),all_infections,np.array(comb_r),freq_b,freq_a,freq_d,dates
 
 
-def get_cases(state='Telangana',date='14/10/2020',case_type='active',return_full_series=False,verbose=False):
+def get_cases(state='Telangana',date='14/10/2020',case_type='confirmed',return_full_series=True,verbose=False):
   if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
   x=json.load(open(BASEDIR+'states_daily.json'))['states_daily']
 
@@ -6316,11 +6318,12 @@ def rest(R0=7.5,startdate='2021-04-20',enddate='2021-06-04',orig_infected_percen
  Rt=a.values*b.values*np.array(r0)
  return Rt,a,b,dates,prev,prev_daily,r0
 
-def rweekly(state='',district='',country='',days=5,startdate='2021-01-01',use_tpr=False,plot=False,time_shift=True):
+def rweekly(state='',district='',country='',dates=[],cases=[],days=5,startdate='2021-01-01',use_tpr=False,plot=False,time_shift=True):
  if len(state)==2 and state in state_code_to_name: x=state;state=state_code_to_name[state];
- # ~ if dates and cases:
- if False:
+ if np.array(dates).any() and np.array(cases).any():
+ # ~ if False:
    x=pd.DataFrame({'dates':dates,"cases":cases})
+   c=x.cases
  else:
    if country:
      if use_tpr:
@@ -6354,7 +6357,7 @@ def rweekly(state='',district='',country='',days=5,startdate='2021-01-01',use_tp
         d,c=zip(*z)
         c=np.diff(c);d=d[1:];  x=pd.DataFrame({'dates':d,"cases":c})
         # ~ return x
- c=moving_average(x.cases)
+   c=moving_average(x.cases)
  rout=[]
  for idx in range(days,len(c)):
   if c[idx-days]>0:
