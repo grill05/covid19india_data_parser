@@ -1277,11 +1277,7 @@ def deriv_reinfection(y,t,R0b=2.5,R0a=4,R0d=7,R0x=8,G=5,sigma=0.09,theta=0.01,mo
     current_date=(init_date+datetime.timedelta(days=int(t)))
     last_date=list(mobility_dict.keys());last_date.sort();last_date=last_date[-1]
     mobility=mobility_dict.get(current_date,0)
-    if current_date>=datetime.datetime(2021,8,1,0,0): 
-      # ~ mobility=100
-      # ~ sigma=0.2
-      pass
-    # ~ mobility=mobility_dict.get(current_date,mobility_dict[last_date])
+    # ~ mobility=mobility_dict.get(current_date,mobility_dict[last_date])    
   else: mobility=0
   
   mobility_term=1+(0.01*mobility)
@@ -1344,8 +1340,15 @@ def sir_reinfection(t=np.arange(1,100),R0b=2.5,R0a=4,R0d=7,R0x=8,G=5,sigma=0.09,
   # ~ return S,Ib,Ia,Id,Rb,Ra,Rd
   return S,Ib,Ia,Id,Ix,Rb,Ra,Rd,Rx
   
-def delhi_sir_reinfection(init_date=datetime.datetime(2021,2,1,0,0),delta_intro_date=datetime.datetime(2021,3,12,0,0),x_intro_date=datetime.datetime(2021,8,1,0,0),sim_end_date=datetime.datetime(2021,8,2,0,0),intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,intro_value_x=1e-6,R0b=2.5,R0a=4,R0d=7,R0x=8,G=5,sigma=0.09,theta=0.01,init_prev=0.55,population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1,state='dl',plot=True,freq_plot=False,s_plot=False):
-
+def delhi_sir_reinfection(init_date=datetime.datetime(2021,2,1,0,0),delta_intro_date=datetime.datetime(2021,3,12,0,0),x_intro_date=datetime.datetime(2021,8,1,0,0),sim_end_date=datetime.datetime(2021,8,2,0,0),intro_value_b1=1e-4,intro_value_alpha=1e-5,intro_value_delta=1e-5,intro_value_x=1e-6,R0b=2.5,R0a='',R0d='',R0x=8,G=5,sigma=0.09,theta=0.01,init_prev=0.55,population=20.57e6,vaccine_efficacy=0.3,vaccination_growth_rate=0.1,state='dl',plot=True,freq_plot=False,s_plot=False):
+  #easy use strings
+  if type(x_intro_date)==str: x_intro_date=datetime.datetime.strptime(x_intro_date,'%Y-%m-%d')
+  if type(init_date)==str: init_date=datetime.datetime.strptime(init_date,'%Y-%m-%d')
+  if type(delta_intro_date)==str: delta_intro_date=datetime.datetime.strptime(delta_intro_date,'%Y-%m-%d')
+  if type(sim_end_date)==str: sim_end_date=datetime.datetime.strptime(sim_end_date,'%Y-%m-%d')
+  #get r0 for alpha/delta from R0 for B1
+  if R0b and not R0a: R0a=1.6*R0b
+  if R0b and not R0d: R0d=1.6*1.5*R0b
   
   alpha_days=int((delta_intro_date-init_date).days)
   delta_days=int((x_intro_date-delta_intro_date).days)
@@ -1364,7 +1367,7 @@ def delhi_sir_reinfection(init_date=datetime.datetime(2021,2,1,0,0),delta_intro_
   
   #get vaccination
   vaccination_dict={}
-  yyd,yy1,yy2,yy3,yy4,yy5,yy6,yy7,yy8,yy9,yy10,yy11,yy12,yy13,yy14,yy15,yy16,yy17,yy18,yy19=zip(*vaccination_cowin_state('Delhi'))
+  yyd,yy1,yy2,yy3,yy4,yy5,yy6,yy7,yy8,yy9,yy10,yy11,yy12,yy13,yy14,yy15,yy16,yy17,yy18,yy19=zip(*vaccination_cowin_state(state))
   for j in range(len(yyd)):
     if yyd[j]<=datetime.datetime(2021, 6, 24, 0, 0): vaccination_dict[yyd[j]]=yy1[j] #cowin data missing after June 24
   
@@ -1408,6 +1411,7 @@ def delhi_sir_reinfection(init_date=datetime.datetime(2021,2,1,0,0),delta_intro_
     # ~ pylab.plot(comb_t,comb_ia,label='Ia');
     # ~ pylab.plot(comb_t,comb_id,label='Id');
     # ~ pylab.plot(comb_t,np.array(comb_ib)+np.array(comb_ia)+np.array(comb_id),label='Total Infections'); 
+
     sp,ax=pylab.subplots()
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7);formatter = mdates.ConciseDateFormatter(locator)
     ax.xaxis.set_major_locator(locator);    ax.xaxis.set_major_formatter(formatter) 
@@ -1416,7 +1420,13 @@ def delhi_sir_reinfection(init_date=datetime.datetime(2021,2,1,0,0),delta_intro_
     pylab.plot_date(dates,comb_id,'-',label='Id (Delta)');
     pylab.plot_date(dates,comb_ix,'-',label='Ix (Variant X)');
     pylab.plot_date(dates,all_infections,'-',label='Total Infections'); 
-    pylab.xlabel('Time(days)');pylab.ylabel('Fraction of population');pylab.title('Delhi SIR model\nR0b='+str(R0b)+', R0a='+str(R0a)+', R0d='+str(R0d)+', R0x='+str(R0x)+', G='+str(G)+', sigma='+str(sigma)+', theta='+str(theta));
+    
+    title='Delhi SIR model\nR0b='+str(R0b)+', R0a='+'%.2f' %(R0a)+', R0d='+'%.2f' %(R0d)
+    if intro_value_x: title+=', R0x='+str(R0x)
+    title+=', G='+str(G)+', sigma='+str(sigma)
+    if intro_value_x: title+=', theta='+str(theta)
+    
+    pylab.xlabel('Time(days)');pylab.ylabel('Fraction of population');pylab.title(title);
     pylab.legend();
     
     if freq_plot:
@@ -2455,7 +2465,7 @@ def update_data_files(extra=False):
   urls=['https://api.covid19india.org/states_daily.json','https://api.covid19india.org/state_test_data.json','https://api.covid19india.org/csv/latest/tested_numbers_icmr_data.csv','https://api.covid19india.org/csv/latest/vaccine_doses_statewise.csv','https://api.covid19india.org/data.json']
   
   # ~ if extra: urls.extend(['https://api.covid19india.org/v4/data-all.json'])
-  if extra: urls.extend(['https://api.covid19india.org/csv/latest/districts.csv','http://api.covid19india.org/csv/latest/cowin_vaccine_data_statewise.csv'])
+  if extra: urls.extend(['https://api.covid19india.org/csv/latest/districts.csv','http://api.covid19india.org/csv/latest/cowin_vaccine_data_statewise.csv','https://covid.ourworldindata.org/data/owid-covid-data.csv'])
   for i in urls:
     filename=os.path.split(i)[1]
     if os.path.exists(filename):
@@ -3709,7 +3719,9 @@ def get_mobility(state='Uttar Pradesh',district='',do_moving_average=True,plot=F
     
     r=csv.reader(open('2021_IN_Region_Mobility_Report.csv'));info=[]
     for i in r: info.append(i);
-    x=[i for i in info if i[2]==state and i[3]==district]
+    if state=='India':sstate=''
+    else: sstate=state
+    x=[i for i in info if i[2]==sstate and i[3]==district]
     for i in x:
       dt=datetime.datetime.strptime(i[8],'%Y-%m-%d')
       recr=int(i[9])
